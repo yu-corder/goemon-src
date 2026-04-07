@@ -1,0 +1,5 @@
+*.o
+*.kama
+*.gb
+.DS_Store
+EOF
