@@ -6,6 +6,8 @@ typedef enum {
     OP_PUSH,
     OP_ADD,
     OP_SUB,
+    OP_MUL,
+    OP_DUP,
     OP_PRINT,
     OP_HALT 
 } OpCode;
@@ -27,6 +29,10 @@ int main() {
             bytecode[count++] = OP_ADD;
         } else if (strstr(line, "sub")) {
             bytecode[count++] = OP_SUB;
+        } else if (strstr(line, "mul")) {
+            bytecode[count++] = OP_MUL;
+        } else if (strstr(line, "dup")) {
+            bytecode[count++] = OP_DUP;
         } else if (strstr(line, "print")) {
             bytecode[count++] = OP_PRINT;
         }

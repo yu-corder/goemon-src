@@ -6,6 +6,8 @@ typedef enum {
     OP_PUSH,
     OP_ADD,
     OP_SUB,
+    OP_MUL,
+    OP_DUP,
     OP_PRINT,
     OP_HALT
 } OpCode;
@@ -32,6 +34,17 @@ void run(int* program) {
                 int b = stack[sp--];
                 int a = stack[sp--];
                 stack[++sp] = a - b;
+                break;
+            }
+            case OP_MUL: {
+                int b = stack[sp--];
+                int a = stack[sp--];
+                stack[++sp] = a * b;
+                break;
+            }
+            case OP_DUP: {
+                int top = stack[sp];
+                stack[++sp] = top;
                 break;
             }
             case OP_PRINT:

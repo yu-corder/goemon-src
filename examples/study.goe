@@ -1,4 +1,4 @@
-push 150
-push 80
-sub
+push 12
+dup
+mul
 print
