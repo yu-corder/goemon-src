@@ -5,7 +5,7 @@
 typedef enum { OP_PUSH, OP_ADD, OP_PRINT, OP_HALT } OpCode;
 
 int main() {
-    FILE *src = fopen("study.goe", "r");
+    FILE *src = fopen("examples/study.goe", "r");
     if (!src) { perror("Goemon's scroll (study.goe) not found"); return 1; }
 
     int bytecode[1024];
@@ -26,7 +26,7 @@ int main() {
     bytecode[count++] = OP_HALT;
     fclose(src);
 
-    FILE *dest = fopen("study.gb", "wb");
+    FILE *dest = fopen("examples/study.gb", "wb");
     fwrite(bytecode, sizeof(int), count, dest);
     fclose(dest);
 
