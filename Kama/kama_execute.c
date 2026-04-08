@@ -48,7 +48,11 @@ void run(int* program) {
                 break;
             }
             case OP_PRINT:
-                printf("VM Output: %d\n", stack[sp]);
+                if (sp < 0) {
+                    printf("エラー：スタックが空なのに print しようとしましたぞ！\n");
+                } else {
+                    printf("VM Output: %d\n", stack[sp]);
+                }
                 break;
             case OP_HALT:
                 return;

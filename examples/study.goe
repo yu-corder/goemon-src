@@ -1,4 +1,4 @@
 push 12
-dup
-mul
+push 38
+add
 print
