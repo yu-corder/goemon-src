@@ -28,6 +28,12 @@ void run(int* program) {
                 stack[++sp] = a + b;
                 break;
             }
+            case OP_SUB: {
+                int b = stack[sp--];
+                int a = stack[sp--];
+                stack[++sp] = a - b;
+                break;
+            }
             case OP_PRINT:
                 printf("VM Output: %d\n", stack[sp]);
                 break;

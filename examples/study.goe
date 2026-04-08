@@ -1,4 +1,4 @@
-push 50
-push 70
-add
+push 150
+push 80
+sub
 print

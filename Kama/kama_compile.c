@@ -25,6 +25,8 @@ int main() {
             bytecode[count++] = val;
         } else if (strstr(line, "add")) {
             bytecode[count++] = OP_ADD;
+        } else if (strstr(line, "sub")) {
+            bytecode[count++] = OP_SUB;
         } else if (strstr(line, "print")) {
             bytecode[count++] = OP_PRINT;
         }
