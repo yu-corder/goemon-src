@@ -2,7 +2,13 @@
 #include <stdlib.h>
 #include <string.h>
 
-typedef enum { OP_PUSH, OP_ADD, OP_PRINT, OP_HALT } OpCode;
+typedef enum { 
+    OP_PUSH,
+    OP_ADD,
+    OP_SUB,
+    OP_PRINT,
+    OP_HALT 
+} OpCode;
 
 int main() {
     FILE *src = fopen("examples/study.goe", "r");
