@@ -2,30 +2,30 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-//1.Opcodeの定義
 typedef enum {
-    OP_PUSH, //スタックに値を積む
-    OP_ADD, //スタックの上の2つを足す
-    OP_PRINT, //スタックのトップを表示
-    OP_HALT //終了
+    OP_PUSH,
+    OP_ADD,
+    OP_SUB,
+    OP_PRINT,
+    OP_HALT
 } OpCode;
 
 void run(int* program) {
-    int stack[256]; //データの置き場
-    int sp = -1; //スタックポインタ
-    int pc = 0; //プログラムカウンタ (今何行目か)
+    int stack[256];
+    int sp = -1;
+    int pc = 0;
 
     while (true) {
-        int instruction = program[pc++]; //命令を取り出す
+        int instruction = program[pc++];
 
         switch (instruction) {
             case OP_PUSH:
-                stack[++sp] = program[pc++]; //次の値をスタックへ
+                stack[++sp] = program[pc++];
                 break;
             case OP_ADD: {
-                int b = stack[sp--]; //2つ取り出して
+                int b = stack[sp--];
                 int a = stack[sp--];
-                stack[++sp] = a + b; //足して戻す
+                stack[++sp] = a + b;
                 break;
             }
             case OP_PRINT:
