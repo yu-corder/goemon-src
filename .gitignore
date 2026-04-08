@@ -1,7 +1,7 @@
 cat <<EOF > .gitignore
 *.o
 *.gb
-kama
 kama-c
+kama-e
 .DS_Store
 EOF

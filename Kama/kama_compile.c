@@ -1,4 +1,6 @@
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 typedef enum { OP_PUSH, OP_ADD, OP_PRINT, OP_HALT } OpCode;
 
@@ -10,7 +12,7 @@ int main() {
     int count = 0;
     char line[256];
 
-    while (fgets(line, sizof(line), src)) {
+    while (fgets(line, sizeof(line), src)) {
         if (strncmp(line, "push", 4) == 0) {
             int val = atoi(line + 5);
             bytecode[count++] = OP_PUSH;
