@@ -1,4 +1,8 @@
-push 12
-push 38
+push 1
+push 1
 add
+dup
 print
+push 1
+jz 4
+jmp 4

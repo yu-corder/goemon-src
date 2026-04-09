@@ -8,6 +8,12 @@ typedef enum {
     OP_SUB,
     OP_MUL,
     OP_DUP,
+    OP_SWAP,
+    OP_POP,
+    OP_MOD,
+    OP_EQ,
+    OP_JMP,
+    OP_JZ,
     OP_PRINT,
     OP_HALT
 } OpCode;
@@ -23,6 +29,10 @@ void run(int* program) {
         switch (instruction) {
             case OP_PUSH:
                 stack[++sp] = program[pc++];
+                if (sp >= 255) {
+                    printf("限界突破！スタックが溢れましたぞ！ (pc=%d)\n", pc);
+                    return;
+                }
                 break;
             case OP_ADD: {
                 int b = stack[sp--];
@@ -45,6 +55,44 @@ void run(int* program) {
             case OP_DUP: {
                 int top = stack[sp];
                 stack[++sp] = top;
+                break;
+            }
+            case OP_SWAP: {
+                int temp = stack[sp];
+                stack[sp] = stack[sp - 1];
+                stack[sp - 1] = temp;
+                break;
+            }
+            case OP_MOD: {
+                int b = stack[sp--];
+                int a = stack[sp--];
+                stack[++sp] = a % b;
+                break;
+            }
+            case OP_POP: {
+                if (sp >= 0) {
+                    sp--;
+                }
+                break;
+            }
+            case OP_EQ: {
+                int b = stack[sp--];
+                int a = stack[sp--];
+                stack[++sp] = (a == b) ? 1 : 0;
+                break;
+            }
+            case OP_JMP: {
+                int target_pc = program[pc++];
+                pc = target_pc;
+                break;
+            }
+            case OP_JZ: {
+                int target_pc = program[pc++];
+                int condtion = stack[sp--];
+
+                if (condtion == 0) {
+                    pc = target_pc;
+                }
                 break;
             }
             case OP_PRINT:
