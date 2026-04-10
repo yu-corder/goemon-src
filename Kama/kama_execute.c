@@ -15,11 +15,14 @@ typedef enum {
     OP_JMP,
     OP_JZ,
     OP_PRINT,
+    OP_STORE,
+    OP_LOAD,
     OP_HALT
 } OpCode;
 
 void run(int* program) {
     int stack[256];
+    int memory[256];
     int sp = -1;
     int pc = 0;
 
@@ -93,6 +96,17 @@ void run(int* program) {
                 if (condtion == 0) {
                     pc = target_pc;
                 }
+                break;
+            }
+            case OP_STORE: {
+                int address = program[pc++];
+                int value = stack[sp];
+                memory[address] = value;
+                break;
+            }
+            case OP_LOAD: {
+                int address = program[pc++];
+                stack[++sp] = memory[address];
                 break;
             }
             case OP_PRINT:

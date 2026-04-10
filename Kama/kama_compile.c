@@ -15,6 +15,8 @@ typedef enum {
     OP_JMP,
     OP_JZ,
     OP_PRINT,
+    OP_STORE,
+    OP_LOAD,
     OP_HALT 
 } OpCode;
 
@@ -22,6 +24,14 @@ typedef struct {
     char name[32];
     int address;
 } Label;
+
+typedef struct {
+    char name[32];
+    int memory_index;
+} Variable;
+
+Variable variable_table[128];
+int variable_count = 0;
 
 Label symbol_table[128];
 int label_count_internal = 0;
@@ -33,6 +43,16 @@ int find_label(char *name) {
         }
     }
     return -1;
+}
+
+int find_variable(char *name) {
+    for (int i = 0; i < variable_count; i++) {
+        if (strcmp(variable_table[i].name, name) == 0) {
+            return variable_table[i].memory_index;
+        }
+    }
+    return -1;
+
 }
 
 
@@ -57,6 +77,18 @@ int main() {
         } else {
             if (strncmp(line, "push", 4) == 0) current_pc += 2;
             else if (strstr(line, "jmp") || strstr(line, "jz")) current_pc += 2;
+            else if (strstr(line, "store") || strstr(line, "load")) {
+                char var_name[32];
+                int offset = (strncmp(line, "store", 5) == 0) ? 6 : 5;
+                sscanf(line + offset, "%s", var_name);
+
+                if (find_variable(var_name) == -1 ) {
+                    strcpy(variable_table[variable_count].name, var_name);
+                    variable_table[variable_count].memory_index = variable_count;
+                    variable_count++;
+                }
+                current_pc += 2;
+            } 
             else if (strlen(line) > 1) current_pc += 1;
         }
     }
@@ -92,6 +124,16 @@ int main() {
         } else if (strstr(line, "jz")) {
             bytecode[count++] = OP_JZ;
             bytecode[count++] = find_label(line + 3);
+        } else if (strncmp(line, "store", 5) == 0) {
+            char var_name[32];
+            sscanf(line + 6, "%s", var_name);
+            bytecode[count++] = OP_STORE;
+            bytecode[count++] = find_variable(var_name);
+        } else if (strncmp(line, "load", 4) == 0) {
+            char var_name[32];
+            sscanf(line + 5, "%s", var_name);
+            bytecode[count++] = OP_LOAD;
+            bytecode[count++] = find_variable(var_name);
         }
         else if (strstr(line, "print")) {
             bytecode[count++] = OP_PRINT;
