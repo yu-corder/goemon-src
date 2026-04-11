@@ -17,6 +17,8 @@ typedef enum {
     OP_PRINT,
     OP_STORE,
     OP_LOAD,
+    OP_LT,
+    OP_GT,
     OP_HALT
 } OpCode;
 
@@ -107,6 +109,18 @@ void run(int* program) {
             case OP_LOAD: {
                 int address = program[pc++];
                 stack[++sp] = memory[address];
+                break;
+            }
+            case OP_LT: {
+                int b = stack[sp--];
+                int a = stack[sp--];
+                stack[++sp] = (a < b) ? 1 : 0;
+                break;
+            }
+            case OP_GT: {
+                int b = stack[sp--];
+                int a = stack[sp--];
+                stack[++sp] = (a > b) ? 1 : 0;
                 break;
             }
             case OP_PRINT:

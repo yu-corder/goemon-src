@@ -17,6 +17,8 @@ typedef enum {
     OP_PRINT,
     OP_STORE,
     OP_LOAD,
+    OP_LT,
+    OP_GT,
     OP_HALT 
 } OpCode;
 
@@ -134,8 +136,11 @@ int main() {
             sscanf(line + 5, "%s", var_name);
             bytecode[count++] = OP_LOAD;
             bytecode[count++] = find_variable(var_name);
-        }
-        else if (strstr(line, "print")) {
+        } else if (strncmp(line, "lt", 2) == 0) {
+            bytecode[count++] = OP_LT;
+        } else if (strncmp(line, "gt", 2) == 0) {
+            bytecode[count++] = OP_GT;
+        } else if (strstr(line, "print")) {
             bytecode[count++] = OP_PRINT;
         }
     }
