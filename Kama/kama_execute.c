@@ -19,6 +19,7 @@ typedef enum {
     OP_LOAD,
     OP_LT,
     OP_GT,
+    OP_PRINTS,
     OP_HALT
 } OpCode;
 
@@ -121,6 +122,15 @@ void run(int* program) {
                 int b = stack[sp--];
                 int a = stack[sp--];
                 stack[++sp] = (a > b) ? 1 : 0;
+                break;
+            }
+            case OP_PRINTS: {
+                int address = stack[sp--];
+
+                while (memory[address] != 0) {
+                    printf("%c", (char)memory[address]);
+                    address++;
+                }
                 break;
             }
             case OP_PRINT:

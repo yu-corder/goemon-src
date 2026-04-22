@@ -19,6 +19,7 @@ typedef enum {
     OP_LOAD,
     OP_LT,
     OP_GT,
+    OP_PRINTS,
     OP_HALT 
 } OpCode;
 
@@ -140,6 +141,8 @@ int main() {
             bytecode[count++] = OP_LT;
         } else if (strncmp(line, "gt", 2) == 0) {
             bytecode[count++] = OP_GT;
+        } else if (strncmp(line, "prints", 6) == 0) {
+            bytecode[count++] = OP_PRINTS;
         } else if (strstr(line, "print")) {
             bytecode[count++] = OP_PRINT;
         }
