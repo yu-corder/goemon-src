@@ -41,6 +41,10 @@ void run(int* program) {
                 }
                 break;
             case OP_ADD: {
+                if (sp < 1) {
+                    printf("エラー: スタックが足りませぬ！ (pc=%d)\n", pc);
+                    return;
+                }
                 int b = stack[sp--];
                 int a = stack[sp--];
                 stack[++sp] = a + b;

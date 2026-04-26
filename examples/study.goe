@@ -1,8 +1,9 @@
 push 1
-push 1
+push 2
 add
-dup
 print
-push 1
-jz 4
-jmp 4
+print
+push 3
+push 5
+add
+print
