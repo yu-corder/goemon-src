@@ -22,6 +22,7 @@ typedef enum {
     OP_LOAD,
     OP_LT,
     OP_GT,
+    OP_INPUT,
     OP_PRINTS,
     OP_HALT
 } OpCode;
@@ -147,6 +148,17 @@ void run(int* program) {
                 int b = stack[sp--];
                 int a = stack[sp--];
                 stack[++sp] = (a > b) ? 1 : 0;
+                break;
+            }
+            case OP_INPUT: {
+                char input_buf[100];
+                printf("Input >>> ");
+                if (fgets(input_buf, sizeof(input_buf), stdin)) {
+                    int val;
+                    if (sscanf(input_buf, "%d", &val) == 1) {
+                        stack[++sp] = val;
+                    }
+                }
                 break;
             }
             case OP_PRINTS: {

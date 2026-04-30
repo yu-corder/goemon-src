@@ -1,4 +1,2 @@
-push 5
-push 5
-le
+input
 print
