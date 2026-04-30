@@ -109,6 +109,10 @@ int main() {
             char character = line[6];
             bytecode[count++] = OP_PUSH;
             bytecode[count++] = (int)character;
+        } else if (strncmp(line, "push ", 5) == 0) {
+            int val = atoi(line + 5);
+            bytecode[count++] = OP_PUSH;
+            bytecode[count++] = val;
         } else if (strstr(line, "add")) {
             bytecode[count++] = OP_ADD;
         } else if (strstr(line, "sub")) {

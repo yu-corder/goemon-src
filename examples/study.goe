@@ -1,2 +1,8 @@
 push 'A'
-print
+store 0
+push 'B'
+store 1
+push 0
+store 2
+push 0
+prints

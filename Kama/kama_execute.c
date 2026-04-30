@@ -163,7 +163,7 @@ void run(int* program) {
             }
             case OP_PRINTS: {
                 int address = stack[sp--];
-
+                printf("[Debug] Printing from address: %d\n", address);
                 while (memory[address] != 0) {
                     printf("%c", (char)memory[address]);
                     address++;
