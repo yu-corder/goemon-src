@@ -12,6 +12,9 @@ typedef enum {
     OP_POP,
     OP_MOD,
     OP_EQ,
+    OP_GE,
+    OP_LE,
+    OP_NE,
     OP_JMP,
     OP_JZ,
     OP_PRINT,
@@ -89,6 +92,24 @@ void run(int* program) {
                 int b = stack[sp--];
                 int a = stack[sp--];
                 stack[++sp] = (a == b) ? 1 : 0;
+                break;
+            }
+            case OP_GE: {
+                int b = stack[sp--];
+                int a = stack[sp--];
+                stack[++sp] = (a >= b) ? 1 : 0;
+                break;
+            }
+            case OP_LE: {
+                int b = stack[sp--];
+                int a = stack[sp--];
+                stack[++sp] = (a <= b) ? 1 : 0;
+                break;
+            }
+            case OP_NE: {
+                int b = stack[sp--];
+                int a = stack[sp--];
+                stack[++sp] = (a != b) ? 1 : 0;
                 break;
             }
             case OP_JMP: {

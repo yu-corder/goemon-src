@@ -1,9 +1,4 @@
-push 1
-push 2
-add
-print
-print
-push 3
 push 5
-add
+push 5
+le
 print

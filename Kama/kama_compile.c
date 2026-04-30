@@ -12,6 +12,9 @@ typedef enum {
     OP_POP,
     OP_MOD,
     OP_EQ,
+    OP_GE,
+    OP_LE,
+    OP_NE,
     OP_JMP,
     OP_JZ,
     OP_PRINT,
@@ -121,6 +124,12 @@ int main() {
             bytecode[count++] = OP_MOD;
         } else if (strstr(line, "eq"))  {
             bytecode[count++] = OP_EQ;
+        } else if (strstr(line, "ge"))  {
+            bytecode[count++] = OP_GE;
+        } else if (strstr(line, "le"))  {
+            bytecode[count++] = OP_LE;
+        } else if (strstr(line, "ne"))  {
+            bytecode[count++] = OP_NE;
         } else if (strstr(line, "jmp")) {
             bytecode[count++] = OP_JMP;
             bytecode[count++] = find_label(line + 4);
