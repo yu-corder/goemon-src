@@ -151,7 +151,7 @@ int main() {
             bytecode[count++] = OP_LT;
         } else if (strncmp(line, "gt", 2) == 0) {
             bytecode[count++] = OP_GT;
-        } else if (strncmp(line, "input", 2) == 0) {
+        } else if (strncmp(line, "input", 5) == 0) {
             bytecode[count++] = OP_INPUT;
         } else if (strncmp(line, "prints", 6) == 0) {
             bytecode[count++] = OP_PRINTS;
