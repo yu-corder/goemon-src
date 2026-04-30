@@ -105,10 +105,10 @@ int main() {
     while (fgets(line, sizeof(line), src)) {
         if (strchr(line, ':')) continue;
 
-        if (strncmp(line, "push", 4) == 0) {
-            int val = atoi(line + 5);
+        if (strncmp(line, "push '", 6) == 0) {
+            char character = line[6];
             bytecode[count++] = OP_PUSH;
-            bytecode[count++] = val;
+            bytecode[count++] = (int)character;
         } else if (strstr(line, "add")) {
             bytecode[count++] = OP_ADD;
         } else if (strstr(line, "sub")) {
