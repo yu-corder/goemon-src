@@ -58,7 +58,16 @@ int find_variable(char *name) {
             return variable_table[i].memory_index;
         }
     }
-    return -1;
+
+    strcpy(variable_table[variable_count].name, name);
+    
+    if (strncmp(name, "__s", 3) == 0) {
+        variable_table[variable_count].memory_index = 1000 + (variable_count * 100);
+    } else {
+        variable_table[variable_count].memory_index = variable_count;
+    }
+
+    return variable_table[variable_count++].memory_index;
 
 }
 
@@ -89,19 +98,25 @@ int main() {
                 int offset = (strncmp(line, "store", 5) == 0) ? 6 : 5;
                 sscanf(line + offset, "%s", var_name);
 
-                if (find_variable(var_name) == -1 ) {
-                    strcpy(variable_table[variable_count].name, var_name);
-                    variable_table[variable_count].memory_index = variable_count;
-                    variable_count++;
-                }
+                find_variable(var_name);
                 current_pc += 2;
             } 
+            else if (strncmp(line, "prints \"", 8) == 0) {
+                char *str_start = line +8;
+                int len = 0;
+                while (*str_start != '"' && *str_start != '\0') {
+                    len++;
+                    str_start++;
+                }
+                current_pc += (len * 4) + 4 + 3;
+            }
             else if (strlen(line) > 1) current_pc += 1;
         }
     }
 
     rewind(src);
 
+    static int internal_str_id = 0;
     while (fgets(line, sizeof(line), src)) {
         if (strchr(line, ':')) continue;
 
@@ -157,6 +172,30 @@ int main() {
             bytecode[count++] = OP_GT;
         } else if (strncmp(line, "input", 5) == 0) {
             bytecode[count++] = OP_INPUT;
+        } else if (strncmp(line, "prints \"", 8) == 0) {
+            char *str_start = line + 8;
+
+            char unique_name[16];
+            sprintf(unique_name, "__s%d", internal_str_id++);
+
+            int start_addr = find_variable(unique_name);
+            int addr = start_addr;
+            while(*str_start != '"' && *str_start != '\0') {
+                bytecode[count++] = OP_PUSH;
+                bytecode[count++] = (int)*str_start;
+                bytecode[count++] = OP_STORE;
+                bytecode[count++] = addr;
+                str_start++;
+                addr++;
+            }
+            bytecode[count++] = OP_PUSH;
+            bytecode[count++] = '\0';
+            bytecode[count++] = OP_STORE;
+            bytecode[count++] = addr;
+            bytecode[count++] = OP_PUSH;
+            bytecode[count++] = start_addr;
+            bytecode[count++] = OP_PRINTS;
+            printf("%s\n", "Debug: けんち");
         } else if (strncmp(line, "prints", 6) == 0) {
             bytecode[count++] = OP_PRINTS;
         } else if (strstr(line, "print")) {

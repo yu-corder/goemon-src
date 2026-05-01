@@ -28,11 +28,12 @@ typedef enum {
 } OpCode;
 
 void run(int* program) {
-    int stack[256];
-    int memory[256];
+    int stack[1024];
+    int memory[2048];
     int sp = -1;
     int pc = 0;
 
+    for(int i = 0; i < 2048; i++) memory[i] = 0;
     while (true) {
         int instruction = program[pc++];
 
@@ -129,7 +130,7 @@ void run(int* program) {
             }
             case OP_STORE: {
                 int address = program[pc++];
-                int value = stack[sp];
+                int value = stack[sp--];
                 memory[address] = value;
                 break;
             }
@@ -163,7 +164,6 @@ void run(int* program) {
             }
             case OP_PRINTS: {
                 int address = stack[sp--];
-                printf("[Debug] Printing from address: %d\n", address);
                 while (memory[address] != 0) {
                     printf("%c", (char)memory[address]);
                     address++;
