@@ -104,7 +104,7 @@ int main() {
             else if (strncmp(line, "prints \"", 8) == 0) {
                 char *str_start = line +8;
                 int len = 0;
-                while (*str_start != '"' && *str_start != '\0') {
+                while (*str_start != '"' && *str_start != '\n' && *str_start != '\r' && *str_start != '\0') {
                     len++;
                     str_start++;
                 }
@@ -144,7 +144,7 @@ int main() {
             bytecode[count++] = OP_MOD;
         } else if (strstr(line, "eq"))  {
             bytecode[count++] = OP_EQ;
-        } else if (strstr(line, "ge"))  {
+        } else if (strncmp(line, "ge", 2) == 0)  {
             bytecode[count++] = OP_GE;
         } else if (strstr(line, "le"))  {
             bytecode[count++] = OP_LE;
@@ -153,9 +153,11 @@ int main() {
         } else if (strstr(line, "jmp")) {
             bytecode[count++] = OP_JMP;
             bytecode[count++] = find_label(line + 4);
-        } else if (strstr(line, "jz")) {
+        } else if (strncmp(line, "jz", 2) == 0) {
+            char label_name[32];
+            sscanf(line + 3, "%s", label_name);
             bytecode[count++] = OP_JZ;
-            bytecode[count++] = find_label(line + 3);
+            bytecode[count++] = find_label(label_name);
         } else if (strncmp(line, "store", 5) == 0) {
             char var_name[32];
             sscanf(line + 6, "%s", var_name);
@@ -172,6 +174,8 @@ int main() {
             bytecode[count++] = OP_GT;
         } else if (strncmp(line, "input", 5) == 0) {
             bytecode[count++] = OP_INPUT;
+        } else if (strncmp(line, "halt", 4) == 0) {
+            bytecode[count++] = OP_HALT;
         } else if (strncmp(line, "prints \"", 8) == 0) {
             char *str_start = line + 8;
 
@@ -180,7 +184,7 @@ int main() {
 
             int start_addr = find_variable(unique_name);
             int addr = start_addr;
-            while(*str_start != '"' && *str_start != '\0') {
+            while(*str_start != '"' && *str_start != '\n' && *str_start != '\r' && *str_start != '\0') {
                 bytecode[count++] = OP_PUSH;
                 bytecode[count++] = (int)*str_start;
                 bytecode[count++] = OP_STORE;
@@ -195,11 +199,12 @@ int main() {
             bytecode[count++] = OP_PUSH;
             bytecode[count++] = start_addr;
             bytecode[count++] = OP_PRINTS;
-            printf("%s\n", "Debug: けんち");
         } else if (strncmp(line, "prints", 6) == 0) {
             bytecode[count++] = OP_PRINTS;
         } else if (strstr(line, "print")) {
             bytecode[count++] = OP_PRINT;
+        } else {
+            printf("Skipped line: %s", line);
         }
     }
     bytecode[count++] = OP_HALT;

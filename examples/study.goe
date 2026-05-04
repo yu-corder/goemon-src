@@ -1,2 +1,12 @@
-prints "Hello Goemon"
-prints "aiueo"
+prints "Hello"
+input
+store age
+push 18
+load age
+le
+jz minor
+prints "Welcome to the bar."
+halt
+minor:
+prints "Go home, kid."
+halt

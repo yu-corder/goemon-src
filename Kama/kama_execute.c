@@ -168,6 +168,7 @@ void run(int* program) {
                     printf("%c", (char)memory[address]);
                     address++;
                 }
+                printf("\n");
                 break;
             }
             case OP_PRINT:
