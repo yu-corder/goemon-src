@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 
 typedef enum { 
     OP_PUSH,
@@ -26,6 +27,29 @@ typedef enum {
     OP_PRINTS,
     OP_HALT 
 } OpCode;
+
+typedef enum {
+    TK_PUSH,
+    TK_INPUT,
+    TK_STORE,
+    TK_LOAD,
+    TK_GE,
+    TK_JZ,
+    TK_HALT,
+    TK_PRINTS,
+    TK_NUMBER,
+    TK_STRING,
+    TK_IDENT,
+    TK_COLON,
+    TK_EOF,
+} TokenKind;
+
+typedef struct {
+    TokenKind kind;
+    int val;
+    char str[256];
+} Token;
+
 
 typedef struct {
     char name[32];
@@ -71,149 +95,106 @@ int find_variable(char *name) {
 
 }
 
+Token tokens[256];
+int tokenize (char *p) {
+    int i = 0;
+    while(*p) {
+        if (isspace(*p)) { p++; continue;}
+
+        if (isdigit(*p)) {
+            tokens[i].kind = TK_NUMBER;
+            tokens[i].val = strtol(p, &p, 10);
+            i++;
+            continue;
+        }
+
+        if (strncmp(p, "push", 4) == 0 && isspace(p[4])) {
+            printf("in if push\n");
+            tokens[i++].kind = TK_PUSH;
+            p += 4;
+            continue;
+        } 
+
+        if (*p == '"') {
+            printf("in if dubule\n");
+            p++;
+            int len = 0;
+            while (*p != '"' && *p != '\0') {
+                printf("in while\n");
+                tokens[i].str[len++] = *p++;
+            }
+            tokens[i].str[len] = '\0';
+            tokens[i].kind = TK_STRING;
+            p++;
+            i++;
+            continue;
+        }
+
+        if (isalpha(*p) || *p == '_') {
+            int len = 0;
+            while (isalnum(*p) || *p == '_') {
+                tokens[i].str[len++] = *p++;
+            }
+            tokens[i].str[len] = '\0';
+
+            if (*p == ':') {
+                tokens[i].kind = TK_IDENT;
+                i++;
+                tokens[i++].kind = TK_COLON;
+                p++;
+            } else {
+                tokens[i++].kind = TK_IDENT;
+            }
+            continue;
+        }
+
+        printf("不明な文字ですぞ: %c\n", *p);
+    }
+    tokens[i].kind = TK_EOF;
+    return i;
+}
+
+char *read_file(const char *path) {
+    FILE *fp = fopen(path, "r");
+    if (!fp) { perror(path); exit(1); }
+
+    fseek(fp, 0, SEEK_END);
+    long size = ftell(fp);
+    fseek(fp, 0, SEEK_SET);
+
+    char *buf = malloc(size + 1);
+    fread(buf, 1, size, fp);
+    buf[size] = '\0';
+
+    fclose(fp);
+    return buf;
+}
+
+void debug_token(int count) {
+    for (int i = 0; i <= count; i++) {
+        printf("----debug-----\n");
+
+        if (tokens[i].kind == TK_PUSH) {printf("TK_PUSH\n"); continue;}
+
+        if (tokens[i].kind == TK_STRING) {
+            printf("TK_STRING\n");
+            printf("%s\n", tokens[i].str);
+        }
+
+        if (tokens[i].kind == TK_EOF) {
+            printf("TK_EOF\n");
+        }
+
+        printf("----debug------\n");
+    }
+}
+
 
 int main() {
-    FILE *src = fopen("examples/study.goe", "r");
-    if (!src) { perror("Goemon's scroll (study.goe) not found"); return 1; }
-
-    int bytecode[1024];
-    int current_pc = 0;
-    int count = 0;
-    char line[256];
-
-    while (fgets(line, sizeof(line), src)) {
-        char *colon = strchr(line, ':');
-        if (colon) {
-            *colon = '\0';
-            char *newline = strpbrk(line, "\r\n");
-            if (newline) * newline = '\0';
-            strcpy(symbol_table[label_count_internal].name, line);
-            symbol_table[label_count_internal].address = current_pc;
-            label_count_internal++;
-        } else {
-            if (strncmp(line, "push", 4) == 0) current_pc += 2;
-            else if (strstr(line, "jmp") || strstr(line, "jz")) current_pc += 2;
-            else if (strstr(line, "store") || strstr(line, "load")) {
-                char var_name[32];
-                int offset = (strncmp(line, "store", 5) == 0) ? 6 : 5;
-                sscanf(line + offset, "%s", var_name);
-
-                find_variable(var_name);
-                current_pc += 2;
-            } 
-            else if (strncmp(line, "prints \"", 8) == 0) {
-                char *str_start = line +8;
-                int len = 0;
-                while (*str_start != '"' && *str_start != '\n' && *str_start != '\r' && *str_start != '\0') {
-                    len++;
-                    str_start++;
-                }
-                current_pc += (len * 4) + 4 + 3;
-            }
-            else if (strlen(line) > 1) current_pc += 1;
-        }
-    }
-
-    rewind(src);
-
-    static int internal_str_id = 0;
-    while (fgets(line, sizeof(line), src)) {
-        if (strchr(line, ':')) continue;
-
-        if (strncmp(line, "push '", 6) == 0) {
-            char character = line[6];
-            bytecode[count++] = OP_PUSH;
-            bytecode[count++] = (int)character;
-        } else if (strncmp(line, "push ", 5) == 0) {
-            int val = atoi(line + 5);
-            bytecode[count++] = OP_PUSH;
-            bytecode[count++] = val;
-        } else if (strstr(line, "add")) {
-            bytecode[count++] = OP_ADD;
-        } else if (strstr(line, "sub")) {
-            bytecode[count++] = OP_SUB;
-        } else if (strstr(line, "mul")) {
-            bytecode[count++] = OP_MUL;
-        } else if (strstr(line, "dup")) {
-            bytecode[count++] = OP_DUP;
-        } else if (strstr(line, "swap")) {
-            bytecode[count++] = OP_SWAP;
-        } else if (strstr(line, "pop")) {
-            bytecode[count++] = OP_POP;
-        } else if (strstr(line, "mod")) {
-            bytecode[count++] = OP_MOD;
-        } else if (strstr(line, "eq"))  {
-            bytecode[count++] = OP_EQ;
-        } else if (strncmp(line, "ge", 2) == 0)  {
-            bytecode[count++] = OP_GE;
-        } else if (strstr(line, "le"))  {
-            bytecode[count++] = OP_LE;
-        } else if (strstr(line, "ne"))  {
-            bytecode[count++] = OP_NE;
-        } else if (strstr(line, "jmp")) {
-            bytecode[count++] = OP_JMP;
-            bytecode[count++] = find_label(line + 4);
-        } else if (strncmp(line, "jz", 2) == 0) {
-            char label_name[32];
-            sscanf(line + 3, "%s", label_name);
-            bytecode[count++] = OP_JZ;
-            bytecode[count++] = find_label(label_name);
-        } else if (strncmp(line, "store", 5) == 0) {
-            char var_name[32];
-            sscanf(line + 6, "%s", var_name);
-            bytecode[count++] = OP_STORE;
-            bytecode[count++] = find_variable(var_name);
-        } else if (strncmp(line, "load", 4) == 0) {
-            char var_name[32];
-            sscanf(line + 5, "%s", var_name);
-            bytecode[count++] = OP_LOAD;
-            bytecode[count++] = find_variable(var_name);
-        } else if (strncmp(line, "lt", 2) == 0) {
-            bytecode[count++] = OP_LT;
-        } else if (strncmp(line, "gt", 2) == 0) {
-            bytecode[count++] = OP_GT;
-        } else if (strncmp(line, "input", 5) == 0) {
-            bytecode[count++] = OP_INPUT;
-        } else if (strncmp(line, "halt", 4) == 0) {
-            bytecode[count++] = OP_HALT;
-        } else if (strncmp(line, "prints \"", 8) == 0) {
-            char *str_start = line + 8;
-
-            char unique_name[16];
-            sprintf(unique_name, "__s%d", internal_str_id++);
-
-            int start_addr = find_variable(unique_name);
-            int addr = start_addr;
-            while(*str_start != '"' && *str_start != '\n' && *str_start != '\r' && *str_start != '\0') {
-                bytecode[count++] = OP_PUSH;
-                bytecode[count++] = (int)*str_start;
-                bytecode[count++] = OP_STORE;
-                bytecode[count++] = addr;
-                str_start++;
-                addr++;
-            }
-            bytecode[count++] = OP_PUSH;
-            bytecode[count++] = '\0';
-            bytecode[count++] = OP_STORE;
-            bytecode[count++] = addr;
-            bytecode[count++] = OP_PUSH;
-            bytecode[count++] = start_addr;
-            bytecode[count++] = OP_PRINTS;
-        } else if (strncmp(line, "prints", 6) == 0) {
-            bytecode[count++] = OP_PRINTS;
-        } else if (strstr(line, "print")) {
-            bytecode[count++] = OP_PRINT;
-        } else {
-            printf("Skipped line: %s", line);
-        }
-    }
-    bytecode[count++] = OP_HALT;
-    fclose(src);
-
-    FILE *dest = fopen("examples/study.gb", "wb");
-    fwrite(bytecode, sizeof(int), count, dest);
-    fclose(dest);
-
+    char *src = read_file("examples/study.goe");
+    int count = tokenize(src);
+    printf("解析完了\n");
+    debug_token(count);
     printf("絶景かな！ Compiled study.goe to study.gb\n");
     return 0;
 }
