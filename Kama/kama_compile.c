@@ -102,6 +102,7 @@ int tokenize (char *p) {
         if (isspace(*p)) { p++; continue;}
 
         if (isdigit(*p)) {
+            printf("in if number\n");
             tokens[i].kind = TK_NUMBER;
             tokens[i].val = strtol(p, &p, 10);
             i++;
@@ -153,6 +154,32 @@ int tokenize (char *p) {
     tokens[i].kind = TK_EOF;
     return i;
 }
+void collect_labels () {
+    int count = 0;
+    pos = 0;
+    while (tokens[pos].kind != TK_EOF) {
+        // int current_pos = pos;
+        Token *t = next_token();
+
+        if (t->kind == TK_PUSH) {
+            count += 2;
+            next_token();
+        } else if (t->kind == TK_IDENT) {
+            if (tokens[pos].kind == TK_COLON) {
+                strcpy(symbol_table[label_count_internal].name, t->str);
+                symbol_table[label_count_internal].address = count;
+                label_count_internal++;
+                next_token();
+            } else {
+                count += 2;
+            }
+        } else if (t->kind == TK_JZ) {
+            count += 2;
+            next_token();
+        }
+    }
+}
+
 
 char *read_file(const char *path) {
     FILE *fp = fopen(path, "r");
