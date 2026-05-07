@@ -113,7 +113,14 @@ int tokenize (char *p) {
             tokens[i++].kind = TK_PUSH;
             p += 4;
             continue;
-        } 
+        }
+
+        if (strncmp(p, "halt", 4) == 0) {
+            printf("in if halt\n");
+            tokens[i++].kind = TK_HALT;
+            p += 4;
+            continue;
+        }
 
         if (*p == '"') {
             printf("in if dubule\n");
@@ -182,8 +189,12 @@ void collect_labels () {
         } else if (t->kind == TK_JZ) {
             count += 2;
             next_token();
+        } else {
+            count++;
         }
     }
+
+    printf("%d\n", count);
 }
 
 void parse_generate () {
@@ -233,7 +244,7 @@ void parse_generate () {
                 break;
             }
             case TK_HALT: {
-                printf("TK_HALT");
+                bytecode[count++] = OP_HALT;
                 break;
             }
             case TK_NUMBER: {
@@ -256,9 +267,9 @@ void parse_generate () {
             }
         }
     }
-
-    // printf("%d", bytecode);
-
+    FILE *dest = fopen("examples/study.gb", "wb");
+    fwrite(bytecode, sizeof(int), count, dest);
+    fclose(dest);
 }
 
 char *read_file(const char *path) {
@@ -279,9 +290,9 @@ char *read_file(const char *path) {
 
 void debug_token(int count) {
     for (int i = 0; i <= count; i++) {
-        printf("----debug-----\n");
+        printf("----debug start-----\n");
 
-        if (tokens[i].kind == TK_PUSH) {printf("TK_PUSH\n"); continue;}
+        if (tokens[i].kind == TK_PUSH) {printf("TK_PUSH\n");}
 
         if (tokens[i].kind == TK_STRING) {
             printf("TK_STRING\n");
@@ -297,14 +308,21 @@ void debug_token(int count) {
             printf("TK_EOF\n");
         }
 
-        printf("----debug------\n");
+        if (tokens[i].kind == TK_HALT) {
+            printf("TK_HALT\n");
+        }
+
+        printf("----debug end------\n");
     }
 }
 
 
 int main() {
     char *src = read_file("examples/study.goe");
-    tokenize(src);
+    int cn = tokenize(src);
+
+
+    debug_token(cn);
     collect_labels();
     parse_generate();
     printf("絶景かな！ Compiled study.goe to study.gb\n");
