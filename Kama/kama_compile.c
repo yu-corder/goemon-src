@@ -102,7 +102,6 @@ int tokenize (char *p) {
         if (isspace(*p)) { p++; continue;}
 
         if (isdigit(*p)) {
-            printf("in if number\n");
             tokens[i].kind = TK_NUMBER;
             tokens[i].val = strtol(p, &p, 10);
             i++;
@@ -287,6 +286,11 @@ void debug_token(int count) {
         if (tokens[i].kind == TK_STRING) {
             printf("TK_STRING\n");
             printf("%s\n", tokens[i].str);
+        }
+
+        if (tokens[i].kind == TK_NUMBER) {
+            printf("TK_NUMBER\n");
+            printf("%d\n", tokens[i].val);
         }
 
         if (tokens[i].kind == TK_EOF) {
