@@ -154,6 +154,13 @@ int tokenize (char *p) {
     tokens[i].kind = TK_EOF;
     return i;
 }
+
+
+int pos = 0;
+Token* next_token() {
+    return &tokens[pos++];
+}
+
 void collect_labels () {
     int count = 0;
     pos = 0;
@@ -180,6 +187,80 @@ void collect_labels () {
     }
 }
 
+void parse_generate () {
+    int bytecode[1024];
+    int count = 0;
+    pos = 0;
+    while (tokens[pos].kind != TK_EOF) {
+        Token *t = next_token();
+
+        switch(t->kind) {
+            case TK_PUSH: {
+                Token *num = next_token();
+                if (num->kind != TK_NUMBER) {
+                    printf("エラー: pushの次は数値を置いてくだされ");
+                    exit(1);
+                }
+                bytecode[count++] = OP_PUSH;
+                bytecode[count++] = num->val;
+                break;
+            }
+            case TK_PRINTS: {
+                printf("TK_PRINTS");
+                break;
+            }
+            case TK_INPUT: {
+                printf("TK_INPUT");
+                break;
+            }
+            case TK_LOAD: {
+                printf("TK_LOAD");
+                break;
+            }
+            case TK_JZ: {
+                printf("TK_JZ");
+                break;
+            }
+            case TK_COLON: {
+                printf("TK_COLON");
+                break;
+            }
+            case TK_GE: {
+                printf("TK_GE");
+                break;
+            }
+            case TK_STORE: {
+                printf("TK_STORE");
+                break;
+            }
+            case TK_HALT: {
+                printf("TK_HALT");
+                break;
+            }
+            case TK_NUMBER: {
+                printf("TK_NUMBER");
+                break;
+            }
+            case TK_STRING: {
+                printf("TK_STRING");
+                break;
+            }
+            case TK_EOF: {
+                printf("TK_EOF");
+                break;
+            }
+            case TK_IDENT: {
+                if (tokens[pos].kind == TK_COLON) {
+                    next_token();
+                }
+                break;
+            }
+        }
+    }
+
+    // printf("%d", bytecode);
+
+}
 
 char *read_file(const char *path) {
     FILE *fp = fopen(path, "r");
@@ -219,9 +300,9 @@ void debug_token(int count) {
 
 int main() {
     char *src = read_file("examples/study.goe");
-    int count = tokenize(src);
-    printf("解析完了\n");
-    debug_token(count);
+    tokenize(src);
+    collect_labels();
+    parse_generate();
     printf("絶景かな！ Compiled study.goe to study.gb\n");
     return 0;
 }
