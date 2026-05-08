@@ -115,7 +115,7 @@ int tokenize (char *p) {
             continue;
         }
 
-        if (strncmp(p, "halt", 4) == 0) {
+        if (strncmp(p, "halt", 4) == 0 && (isspace(p[4]) || p[4] == '\0')) {
             printf("in if halt\n");
             tokens[i++].kind = TK_HALT;
             p += 4;
