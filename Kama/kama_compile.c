@@ -41,6 +41,7 @@ typedef enum {
     TK_STRING,
     TK_IDENT,
     TK_COLON,
+    TK_ASSIGN,
     TK_EOF,
 } TokenKind;
 
@@ -155,6 +156,12 @@ int tokenize (char *p) {
             continue;
         }
 
+        if (*p == '=') {
+            tokens[i++].kind = TK_ASSIGN;
+            p++;
+            continue;
+        }
+        p++;
         printf("不明な文字ですぞ: %c\n", *p);
     }
     tokens[i].kind = TK_EOF;
@@ -183,6 +190,8 @@ void collect_labels () {
                 symbol_table[label_count_internal].address = count;
                 label_count_internal++;
                 next_token();
+            } else if (tokens[pos].kind == TK_ASSIGN) {
+                count += 4;
             } else {
                 count += 2;
             }
@@ -214,6 +223,9 @@ void parse_generate () {
                 bytecode[count++] = OP_PUSH;
                 bytecode[count++] = num->val;
                 break;
+            }
+            case TK_ASSIGN: {
+                printf("TK_ASSIGN in case\n");
             }
             case TK_PRINTS: {
                 printf("TK_PRINTS");
@@ -263,6 +275,19 @@ void parse_generate () {
                 if (tokens[pos].kind == TK_COLON) {
                     next_token();
                 }
+
+
+
+                if (tokens[pos].kind == TK_ASSIGN) {
+                    next_token();
+                    Token *num = next_token(); 
+                    //a = 1
+                    bytecode[count++] = OP_PUSH;
+                    bytecode[count++] = num->val;
+
+                    bytecode[count++] = OP_STORE;
+                    bytecode[count++] = find_variable(t->str);
+                }
                 break;
             }
         }
@@ -296,6 +321,15 @@ void debug_token(int count) {
 
         if (tokens[i].kind == TK_STRING) {
             printf("TK_STRING\n");
+            printf("%s\n", tokens[i].str);
+        }
+
+        if (tokens[i].kind == TK_ASSIGN) {
+            printf("TK_ASSIGN\n");
+        }
+
+        if (tokens[i].kind == TK_IDENT) {
+            printf("TK_IDENT\n");
             printf("%s\n", tokens[i].str);
         }
 
