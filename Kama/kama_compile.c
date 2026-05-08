@@ -37,6 +37,7 @@ typedef enum {
     TK_JZ,
     TK_HALT,
     TK_PRINTS,
+    TK_PRINT,
     TK_NUMBER,
     TK_STRING,
     TK_IDENT,
@@ -123,6 +124,13 @@ int tokenize (char *p) {
             continue;
         }
 
+        if (strncmp(p, "print", 5) == 0 && (isspace(p[5]) || p[5] == '\0')) {
+            printf("print\n");
+            tokens[i++].kind = TK_PRINT;
+            p += 5;
+            continue;
+        }
+
         if (*p == '"') {
             printf("in if dubule\n");
             p++;
@@ -192,6 +200,8 @@ void collect_labels () {
                 next_token();
             } else if (tokens[pos].kind == TK_ASSIGN) {
                 count += 4;
+                next_token();
+                next_token();
             } else {
                 count += 2;
             }
@@ -271,6 +281,10 @@ void parse_generate () {
                 printf("TK_EOF");
                 break;
             }
+            case TK_PRINT: {
+                bytecode[count++] = OP_PRINT;
+                break;
+            }
             case TK_IDENT: {
                 if (tokens[pos].kind == TK_COLON) {
                     next_token();
@@ -332,6 +346,8 @@ void debug_token(int count) {
             printf("TK_IDENT\n");
             printf("%s\n", tokens[i].str);
         }
+
+        if (tokens[i].kind == TK_PRINT) printf("TK_PRINT\n");
 
         if (tokens[i].kind == TK_NUMBER) {
             printf("TK_NUMBER\n");
