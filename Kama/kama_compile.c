@@ -306,6 +306,7 @@ void parse_generate () {
             }
         }
     }
+    bytecode[count++] = OP_HALT;
     FILE *dest = fopen("examples/study.gb", "wb");
     fwrite(bytecode, sizeof(int), count, dest);
     fclose(dest);
