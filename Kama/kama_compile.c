@@ -205,6 +205,11 @@ void collect_labels () {
             } else {
                 count += 2;
             }
+        } else if (t->kind == TK_PRINT) {
+            if (tokens[pos].kind == TK_IDENT) {
+                count += 3;
+                next_token();
+            }
         } else if (t->kind == TK_JZ) {
             count += 2;
             next_token();
@@ -282,6 +287,11 @@ void parse_generate () {
                 break;
             }
             case TK_PRINT: {
+                Token *value = next_token();
+                if (value->kind == TK_IDENT) {
+                    bytecode[count++] = OP_LOAD;
+                    bytecode[count++] = find_variable(value->str);
+                }
                 bytecode[count++] = OP_PRINT;
                 break;
             }
@@ -348,7 +358,9 @@ void debug_token(int count) {
             printf("%s\n", tokens[i].str);
         }
 
-        if (tokens[i].kind == TK_PRINT) printf("TK_PRINT\n");
+        if (tokens[i].kind == TK_PRINT) {
+            printf("TK_PRINT\n");
+        }
 
         if (tokens[i].kind == TK_NUMBER) {
             printf("TK_NUMBER\n");
