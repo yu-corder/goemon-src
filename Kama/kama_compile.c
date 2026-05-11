@@ -217,7 +217,7 @@ void collect_labels () {
             count++;
         }
     }
-
+    count++;
     printf("%d\n", count);
 }
 
