@@ -43,6 +43,8 @@ typedef enum {
     TK_IDENT,
     TK_COLON,
     TK_ASSIGN,
+    TK_PLUS,
+    TK_SEMI,
     TK_EOF,
 } TokenKind;
 
@@ -131,6 +133,18 @@ int tokenize (char *p) {
             continue;
         }
 
+        if (*p == '+') {
+            tokens[i++].kind = TK_PLUS;
+            p++;
+            continue;
+        }
+
+        if (*p == ';') {
+            tokens[i++].kind = TK_SEMI;
+            p++;
+            continue;
+        }
+
         if (*p == '"') {
             printf("in if dubule\n");
             p++;
@@ -199,7 +213,13 @@ void collect_labels () {
                 label_count_internal++;
                 next_token();
             } else if (tokens[pos].kind == TK_ASSIGN) {
-                count += 4;
+                //ここに入った時点でOP_STORE(変数宣言は確定);
+                count += 2;
+                for (int i = 1; tokens[pos + i].kind != TK_SEMI; i++) {
+                    if (tokens[pos + i].kind == TK_PLUS) next_token(); count++;
+                    if (tokens[pos + i].kind == TK_NUMBER) next_token(); count++;
+
+                }
                 next_token();
                 next_token();
             } else {
@@ -237,6 +257,14 @@ void parse_generate () {
                 }
                 bytecode[count++] = OP_PUSH;
                 bytecode[count++] = num->val;
+                break;
+            }
+            case TK_SEMI: {
+                printf("TK_SEMI\n");
+                break;
+            }
+            case TK_PLUS: {
+                printf("TK_PLUS\n");
                 break;
             }
             case TK_ASSIGN: {
@@ -309,6 +337,26 @@ void parse_generate () {
                     bytecode[count++] = OP_PUSH;
                     bytecode[count++] = num->val;
 
+                    if (tokens[pos].kind != TK_SEMI) {
+                        
+                        //式判定用フラグ;
+                        int add = 0;
+                        //next_tokenを呼ぶ回数
+                        int call_count = 0;
+                        for (int i = 0; tokens[pos + i].kind != TK_SEMI; i++) {
+                            if (tokens[pos + i].kind == TK_PLUS) add = 1; call_count++;
+                            if (tokens[pos + i].kind == TK_NUMBER) {
+                                bytecode[count++] = OP_PUSH;
+                                bytecode[count++] = tokens[pos + i].val;
+                                call_count++;
+                            }
+                        }
+                        //a = int + int;
+                        if (add) bytecode[count++] = OP_ADD;
+                        for (int i = 0; i < call_count; i++) next_token();
+                    }
+
+                    //ここに入った時点でOP_STOREは確定
                     bytecode[count++] = OP_STORE;
                     bytecode[count++] = find_variable(t->str);
                 }
@@ -343,6 +391,14 @@ void debug_token(int count) {
         printf("----debug start-----\n");
 
         if (tokens[i].kind == TK_PUSH) {printf("TK_PUSH\n");}
+
+        if (tokens[i].kind == TK_PLUS) {
+            printf("TK_PLUS\n");
+        }
+
+        if (tokens[i].kind == TK_SEMI) {
+            printf("TK_SEMI\n");
+        }
 
         if (tokens[i].kind == TK_STRING) {
             printf("TK_STRING\n");
