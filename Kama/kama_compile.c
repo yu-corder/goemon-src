@@ -241,6 +241,17 @@ void collect_labels () {
     printf("%d\n", count);
 }
 
+int bytecode[1024];
+int count = 0;
+void emit_op (OpCode op_code, int *val) {
+    bytecode[count++] = op_code;
+
+    if (val != NULL) {
+        bytecode[count++] = *val;
+    }
+}
+
+
 void parse_generate () {
     int bytecode[1024];
     int count = 0;
@@ -255,8 +266,7 @@ void parse_generate () {
                     printf("エラー: pushの次は数値を置いてくだされ");
                     exit(1);
                 }
-                bytecode[count++] = OP_PUSH;
-                bytecode[count++] = num->val;
+                emit_op(OP_PUSH, &num->val);
                 break;
             }
             case TK_SEMI: {
@@ -299,7 +309,7 @@ void parse_generate () {
                 break;
             }
             case TK_HALT: {
-                bytecode[count++] = OP_HALT;
+                emit_op(OP_HALT, NULL);
                 break;
             }
             case TK_NUMBER: {
@@ -317,10 +327,10 @@ void parse_generate () {
             case TK_PRINT: {
                 Token *value = next_token();
                 if (value->kind == TK_IDENT) {
-                    bytecode[count++] = OP_LOAD;
-                    bytecode[count++] = find_variable(value->str);
+                    int addr = find_variable(value->str);
+                    emit_op(OP_LOAD, &addr);
                 }
-                bytecode[count++] = OP_PRINT;
+                emit_op(OP_PRINT, NULL);
                 break;
             }
             case TK_IDENT: {
@@ -364,7 +374,7 @@ void parse_generate () {
             }
         }
     }
-    bytecode[count++] = OP_HALT;
+    emit_op(OP_HALT, NULL);
     FILE *dest = fopen("examples/study.gb", "wb");
     fwrite(bytecode, sizeof(int), count, dest);
     fclose(dest);
