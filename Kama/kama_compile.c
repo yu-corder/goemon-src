@@ -251,10 +251,28 @@ void emit_op (OpCode op_code, int *val) {
     }
 }
 
+void parse_primary() {
+    Token *t = next_token();
+    if (t->kind == TK_NUMBER) {
+        emit_op(OP_PUSH, &t->val);
+    } else if (t->kind == TK_IDENT) {
+        int addr = find_variable(t->str);
+        emit_op(OP_LOAD, &addr);
+    }
+}
+
+void parse_expression() {
+    parse_primary();
+
+    while (tokens[pos].kind == TK_PLUS) {
+        next_token();
+        parse_primary();
+        emit_op(OP_ADD, NULL);
+    }
+}
+
 
 void parse_generate () {
-    int bytecode[1024];
-    int count = 0;
     pos = 0;
     while (tokens[pos].kind != TK_EOF) {
         Token *t = next_token();
@@ -338,37 +356,15 @@ void parse_generate () {
                     next_token();
                 }
 
-
-
                 if (tokens[pos].kind == TK_ASSIGN) {
                     next_token();
-                    Token *num = next_token(); 
-                    //a = 1
-                    bytecode[count++] = OP_PUSH;
-                    bytecode[count++] = num->val;
+                    parse_expression();
+                    if (tokens[pos].kind == TK_SEMI) {
+                        //ここに入った時点でOP_STOREは確定
 
-                    if (tokens[pos].kind != TK_SEMI) {
-                        
-                        //式判定用フラグ;
-                        int add = 0;
-                        //next_tokenを呼ぶ回数
-                        int call_count = 0;
-                        for (int i = 0; tokens[pos + i].kind != TK_SEMI; i++) {
-                            if (tokens[pos + i].kind == TK_PLUS) add = 1; call_count++;
-                            if (tokens[pos + i].kind == TK_NUMBER) {
-                                bytecode[count++] = OP_PUSH;
-                                bytecode[count++] = tokens[pos + i].val;
-                                call_count++;
-                            }
-                        }
-                        //a = int + int;
-                        if (add) bytecode[count++] = OP_ADD;
-                        for (int i = 0; i < call_count; i++) next_token();
+                        int addr = find_variable(t->str);
+                        emit_op(OP_STORE, &addr);
                     }
-
-                    //ここに入った時点でOP_STOREは確定
-                    bytecode[count++] = OP_STORE;
-                    bytecode[count++] = find_variable(t->str);
                 }
                 break;
             }
