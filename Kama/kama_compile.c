@@ -44,6 +44,7 @@ typedef enum {
     TK_COLON,
     TK_ASSIGN,
     TK_PLUS,
+    TK_MINUS,
     TK_SEMI,
     TK_EOF,
 } TokenKind;
@@ -139,6 +140,12 @@ int tokenize (char *p) {
             continue;
         }
 
+        if (*p == '-') {
+            tokens[i++].kind = TK_MINUS;
+            p++;
+            continue;
+        }
+
         if (*p == ';') {
             tokens[i++].kind = TK_SEMI;
             p++;
@@ -217,6 +224,7 @@ void collect_labels () {
                 count += 2;
                 for (int i = 1; tokens[pos + i].kind != TK_SEMI; i++) {
                     if (tokens[pos + i].kind == TK_PLUS) next_token(); count++;
+                    if (tokens[pos + i].kind == TK_MINUS) next_token(); count++;
                     if (tokens[pos + i].kind == TK_NUMBER) next_token(); count++;
 
                 }
@@ -264,10 +272,16 @@ void parse_primary() {
 void parse_expression() {
     parse_primary();
 
-    while (tokens[pos].kind == TK_PLUS) {
+    while (tokens[pos].kind == TK_PLUS || tokens[pos].kind == TK_MINUS) {
+        TokenKind kind_type = tokens[pos].kind;
         next_token();
         parse_primary();
-        emit_op(OP_ADD, NULL);
+
+        if (kind_type == TK_PLUS) {
+            emit_op(OP_ADD, NULL);
+        } else {
+            emit_op(OP_SUB, NULL);
+        }
     }
 }
 
@@ -293,6 +307,10 @@ void parse_generate () {
             }
             case TK_PLUS: {
                 printf("TK_PLUS\n");
+                break;
+            }
+            case TK_MINUS: {
+                printf("TK_MINUS\n");
                 break;
             }
             case TK_ASSIGN: {
@@ -400,6 +418,10 @@ void debug_token(int count) {
 
         if (tokens[i].kind == TK_PLUS) {
             printf("TK_PLUS\n");
+        }
+
+        if (tokens[i].kind == TK_MINUS) {
+            printf("TK_MINUS\n");
         }
 
         if (tokens[i].kind == TK_SEMI) {
