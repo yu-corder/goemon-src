@@ -20,7 +20,7 @@ It is designed to explore low-level system architecture and compiler theory thro
 
 ### ✨ Example
 
-```goemon
+```text
 b = 105 + 1051 + 1051;
 print b;
 ```
