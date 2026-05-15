@@ -7,6 +7,7 @@ typedef enum {
     OP_ADD,
     OP_SUB,
     OP_MUL,
+    OP_DIV,
     OP_DUP,
     OP_SWAP,
     OP_POP,
@@ -65,6 +66,12 @@ void run(int* program) {
                 int b = stack[sp--];
                 int a = stack[sp--];
                 stack[++sp] = a * b;
+                break;
+            }
+            case OP_DIV: {
+                int b = stack[sp--];
+                int a = stack[sp--];
+                stack[++sp] = a / b;
                 break;
             }
             case OP_DUP: {

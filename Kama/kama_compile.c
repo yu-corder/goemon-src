@@ -8,6 +8,7 @@ typedef enum {
     OP_ADD,
     OP_SUB,
     OP_MUL,
+    OP_DIV,
     OP_DUP,
     OP_SWAP,
     OP_POP,
@@ -46,6 +47,7 @@ typedef enum {
     TK_PLUS,
     TK_MINUS,
     TK_MUL,
+    TK_DIV,
     TK_SEMI,
     TK_EOF,
 } TokenKind;
@@ -149,6 +151,12 @@ int tokenize (char *p) {
 
         if (*p == '*') {
             tokens[i++].kind = TK_MUL;
+            p++;
+            continue;
+        }
+
+        if (*p == '/') {
+            tokens[i++].kind = TK_DIV;
             p++;
             continue;
         }
@@ -279,13 +287,15 @@ void parse_primary() {
 void parse_term() {
     parse_primary();
 
-    while(tokens[pos].kind == TK_MUL) {
+    while(tokens[pos].kind == TK_MUL || tokens[pos].kind == TK_DIV) {
         TokenKind kind_type = tokens[pos].kind;
         next_token();
         parse_primary();
 
         if (kind_type == TK_MUL) {
             emit_op(OP_MUL, NULL);
+        } else {
+            emit_op(OP_DIV, NULL);
         }
     }
 }
@@ -336,6 +346,10 @@ void parse_generate () {
             }
             case TK_MUL: {
                 printf("TK_MUL\n");
+            }
+            case TK_DIV: {
+                printf("TK_DIV\n");
+                break;
             }
             case TK_ASSIGN: {
                 printf("TK_ASSIGN in case\n");
@@ -452,6 +466,9 @@ void debug_token(int count) {
             printf("TK_MUL\n");
         }
 
+        if (tokens[i].kind == TK_DIV) {
+            printf("TK_DIV\n");
+        }
 
         if (tokens[i].kind == TK_SEMI) {
             printf("TK_SEMI\n");
