@@ -6,8 +6,9 @@ It is designed to explore low-level system architecture and compiler theory thro
 ## 🌟 Key Features
 
 - **Stack-Machine Architecture**: A custom VM that executes instructions based on stack operations.
-- **Recursive Descent Parsing**: A robust parsing engine where the grammar rules are directly mapped to C functions, enabling clean and extensible syntax analysis.
-- **Variable & Arithmetic Support**: Supports variable memory allocation and infinite arithmetic expressions (e.g., `a = 1 + 2 + 3;`).
+- **Recursive Descent Parsing**: A robust parsing engine where grammar rules are mapped to C functions, enabling advanced expression handling with operator precedence.
+- **Full Arithmetic Support**: Supports complex expressions including addition, subtraction, multiplication, and division (e.g., `a = 1 + 3 * 8 / 2;`).
+- **Variable Support**: Direct memory allocation and management for variables.
 - **Centralized Bytecode Generation**: Uses an `emit_op` abstraction to ensure consistent and reliable bytecode output.
 
 ## 🛠️ Technical Stack
@@ -21,7 +22,7 @@ It is designed to explore low-level system architecture and compiler theory thro
 ### ✨ Example
 
 ```text
-b = 105 + 1051 + 1051;
+b = 105 + 2 * 3;
 print b;
 ```
 
