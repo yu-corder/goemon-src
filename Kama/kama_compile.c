@@ -448,6 +448,11 @@ void debug_token(int count) {
             printf("TK_MINUS\n");
         }
 
+        if (tokens[i].kind == TK_MUL) {
+            printf("TK_MUL\n");
+        }
+
+
         if (tokens[i].kind == TK_SEMI) {
             printf("TK_SEMI\n");
         }
