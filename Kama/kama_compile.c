@@ -49,6 +49,7 @@ typedef enum {
     TK_MUL,
     TK_DIV,
     TK_SEMI,
+    TK_LT,
     TK_EOF,
 } TokenKind;
 
@@ -163,6 +164,12 @@ int tokenize (char *p) {
 
         if (*p == ';') {
             tokens[i++].kind = TK_SEMI;
+            p++;
+            continue;
+        }
+
+        if (*p == '<') {
+            tokens[i++].kind = TK_LT;
             p++;
             continue;
         }
@@ -317,6 +324,16 @@ void parse_expression() {
     }
 }
 
+void parse_evaluation() {
+    parse_expression();
+
+    if (tokens[pos].kind == TK_LT) {
+        next_token();
+        parse_expression();
+        emit_op(OP_LT, NULL);
+    }
+}
+
 void parse_generate () {
     pos = 0;
     while (tokens[pos].kind != TK_EOF) {
@@ -349,6 +366,10 @@ void parse_generate () {
             }
             case TK_DIV: {
                 printf("TK_DIV\n");
+                break;
+            }
+            case TK_LT: {
+                printf("TK_LT\n");
                 break;
             }
             case TK_ASSIGN: {
@@ -414,7 +435,7 @@ void parse_generate () {
 
                 if (tokens[pos].kind == TK_ASSIGN) {
                     next_token();
-                    parse_expression();
+                    parse_evaluation();
                     if (tokens[pos].kind == TK_SEMI) {
                         //ここに入った時点でOP_STOREは確定
 
