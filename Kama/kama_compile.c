@@ -491,6 +491,10 @@ void debug_token(int count) {
             printf("TK_DIV\n");
         }
 
+        if (tokens[i].kind == TK_LT) {
+            printf("TK_LT\n");
+        }
+
         if (tokens[i].kind == TK_SEMI) {
             printf("TK_SEMI\n");
         }
