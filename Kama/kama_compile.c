@@ -311,7 +311,7 @@ void parse_expression() {
 
         if (kind_type == TK_PLUS) {
             emit_op(OP_ADD, NULL);
-        } else {
+        } else if (kind_type == TK_MINUS) {
             emit_op(OP_SUB, NULL);
         }
     }
