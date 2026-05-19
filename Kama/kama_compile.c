@@ -34,7 +34,6 @@ typedef enum {
     TK_INPUT,
     TK_STORE,
     TK_LOAD,
-    TK_GE,
     TK_JZ,
     TK_HALT,
     TK_PRINTS,
@@ -52,6 +51,7 @@ typedef enum {
     TK_LT,
     TK_LE,
     TK_GT,
+    TK_GE,
     TK_EOF,
 } TokenKind;
 
@@ -182,8 +182,13 @@ int tokenize (char *p) {
         }
 
         if (*p == '>') {
-            tokens[i++].kind = TK_GT;
             p++;
+            if (*p == '=') {
+                tokens[i++].kind = TK_GE;
+                p++;
+            } else {
+                tokens[i++].kind = TK_GT;
+            }
             continue;
         }
 
@@ -352,6 +357,10 @@ void parse_evaluation() {
         next_token();
         parse_expression();
         emit_op(OP_LE, NULL);
+    } else if (tokens[pos].kind == TK_GE) {
+        next_token();
+        parse_expression();
+        emit_op(OP_GE, NULL);
     }
 }
 
@@ -401,6 +410,10 @@ void parse_generate () {
                 printf("TK_GT\n");
                 break;
             }
+            case TK_GE: {
+                printf("TK_GE\n");
+                break;
+            }
             case TK_ASSIGN: {
                 printf("TK_ASSIGN in case\n");
             }
@@ -422,10 +435,6 @@ void parse_generate () {
             }
             case TK_COLON: {
                 printf("TK_COLON");
-                break;
-            }
-            case TK_GE: {
-                printf("TK_GE");
                 break;
             }
             case TK_STORE: {
