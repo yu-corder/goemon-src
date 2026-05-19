@@ -50,6 +50,7 @@ typedef enum {
     TK_DIV,
     TK_SEMI,
     TK_LT,
+    TK_LE,
     TK_GT,
     TK_EOF,
 } TokenKind;
@@ -170,8 +171,13 @@ int tokenize (char *p) {
         }
 
         if (*p == '<') {
-            tokens[i++].kind = TK_LT;
             p++;
+            if (*p == '=') {
+                tokens[i++].kind = TK_LE;
+                p++;
+            } else {
+                tokens[i++].kind = TK_LT;
+            }
             continue;
         }
 
@@ -342,6 +348,10 @@ void parse_evaluation() {
         next_token();
         parse_expression();
         emit_op(OP_GT, NULL);
+    } else if (tokens[pos].kind == TK_LE) {
+        next_token();
+        parse_expression();
+        emit_op(OP_LE, NULL);
     }
 }
 
@@ -381,6 +391,10 @@ void parse_generate () {
             }
             case TK_LT: {
                 printf("TK_LT\n");
+                break;
+            }
+            case TK_LE: {
+                printf("TK_LE\n");
                 break;
             }
             case TK_GT: {
@@ -508,6 +522,10 @@ void debug_token(int count) {
 
         if (tokens[i].kind == TK_LT) {
             printf("TK_LT\n");
+        }
+
+        if (tokens[i].kind == TK_LE) {
+            printf("TK_LE\n");
         }
 
         if (tokens[i].kind == TK_GT) {
