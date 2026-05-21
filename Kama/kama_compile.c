@@ -122,21 +122,18 @@ int tokenize (char *p) {
         }
 
         if (strncmp(p, "push", 4) == 0 && isspace(p[4])) {
-            printf("in if push\n");
             tokens[i++].kind = TK_PUSH;
             p += 4;
             continue;
         }
 
         if (strncmp(p, "halt", 4) == 0 && (isspace(p[4]) || p[4] == '\0')) {
-            printf("in if halt\n");
             tokens[i++].kind = TK_HALT;
             p += 4;
             continue;
         }
 
         if (strncmp(p, "print", 5) == 0 && (isspace(p[5]) || p[5] == '\0')) {
-            printf("print\n");
             tokens[i++].kind = TK_PRINT;
             p += 5;
             continue;
@@ -195,11 +192,9 @@ int tokenize (char *p) {
         }
 
         if (*p == '"') {
-            printf("in if dubule\n");
             p++;
             int len = 0;
             while (*p != '"' && *p != '\0') {
-                printf("in while\n");
                 tokens[i].str[len++] = *p++;
             }
             tokens[i].str[len] = '\0';
@@ -403,92 +398,6 @@ void parse_generate () {
                 emit_op(OP_PUSH, &num->val);
                 break;
             }
-            case TK_SEMI: {
-                printf("TK_SEMI\n");
-                break;
-            }
-            case TK_PLUS: {
-                printf("TK_PLUS\n");
-                break;
-            }
-            case TK_MINUS: {
-                printf("TK_MINUS\n");
-                break;
-            }
-            case TK_MUL: {
-                printf("TK_MUL\n");
-            }
-            case TK_DIV: {
-                printf("TK_DIV\n");
-                break;
-            }
-            case TK_LT: {
-                printf("TK_LT\n");
-                break;
-            }
-            case TK_LE: {
-                printf("TK_LE\n");
-                break;
-            }
-            case TK_GT: {
-                printf("TK_GT\n");
-                break;
-            }
-            case TK_GE: {
-                printf("TK_GE\n");
-                break;
-            }
-            case TK_EQ: {
-                printf("TK_EQ\n");
-                break;
-            }
-            case TK_NE: {
-                printf("TK_NE\n");
-                break;
-            }
-            case TK_ASSIGN: {
-                printf("TK_ASSIGN in case\n");
-            }
-            case TK_PRINTS: {
-                printf("TK_PRINTS");
-                break;
-            }
-            case TK_INPUT: {
-                printf("TK_INPUT");
-                break;
-            }
-            case TK_LOAD: {
-                printf("TK_LOAD");
-                break;
-            }
-            case TK_JZ: {
-                printf("TK_JZ");
-                break;
-            }
-            case TK_COLON: {
-                printf("TK_COLON");
-                break;
-            }
-            case TK_STORE: {
-                printf("TK_STORE");
-                break;
-            }
-            case TK_HALT: {
-                emit_op(OP_HALT, NULL);
-                break;
-            }
-            case TK_NUMBER: {
-                printf("TK_NUMBER");
-                break;
-            }
-            case TK_STRING: {
-                printf("TK_STRING");
-                break;
-            }
-            case TK_EOF: {
-                printf("TK_EOF");
-                break;
-            }
             case TK_PRINT: {
                 Token *value = next_token();
                 if (value->kind == TK_IDENT) {
@@ -515,6 +424,8 @@ void parse_generate () {
                 }
                 break;
             }
+            default:
+                break;
         }
     }
     emit_op(OP_HALT, NULL);
