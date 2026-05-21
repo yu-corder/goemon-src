@@ -403,6 +403,8 @@ void parse_generate () {
                 if (value->kind == TK_IDENT) {
                     int addr = find_variable(value->str);
                     emit_op(OP_LOAD, &addr);
+                } else if (value->kind == TK_NUMBER) {
+                    emit_op(OP_PUSH, &value->val);
                 }
                 emit_op(OP_PRINT, NULL);
                 break;
