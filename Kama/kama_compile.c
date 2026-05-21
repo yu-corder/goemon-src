@@ -52,6 +52,8 @@ typedef enum {
     TK_LE,
     TK_GT,
     TK_GE,
+    TK_EQ,
+    TK_NE,
     TK_EOF,
 } TokenKind;
 
@@ -225,9 +227,23 @@ int tokenize (char *p) {
             continue;
         }
 
-        if (*p == '=') {
-            tokens[i++].kind = TK_ASSIGN;
+        if (*p == '!') {
             p++;
+            if (*p == '=') {
+                tokens[i++].kind = TK_NE;
+                p++;
+            }
+            continue;
+        }
+
+        if (*p == '=') {
+            p++;
+            if (*p == '=') {
+                tokens[i++].kind = TK_EQ;
+                p++;
+            } else {
+                tokens[i++].kind = TK_ASSIGN;
+            }
             continue;
         }
         p++;
@@ -361,6 +377,14 @@ void parse_evaluation() {
         next_token();
         parse_expression();
         emit_op(OP_GE, NULL);
+    } else if (tokens[pos].kind == TK_EQ) {
+        next_token();
+        parse_expression();
+        emit_op(OP_EQ, NULL);
+    } else if (tokens[pos].kind == TK_NE) {
+        next_token();
+        parse_expression();
+        emit_op(OP_NE, NULL);
     }
 }
 
@@ -412,6 +436,14 @@ void parse_generate () {
             }
             case TK_GE: {
                 printf("TK_GE\n");
+                break;
+            }
+            case TK_EQ: {
+                printf("TK_EQ\n");
+                break;
+            }
+            case TK_NE: {
+                printf("TK_NE\n");
                 break;
             }
             case TK_ASSIGN: {
@@ -539,6 +571,14 @@ void debug_token(int count) {
 
         if (tokens[i].kind == TK_GT) {
             printf("TK_GT\n");
+        }
+
+        if (tokens[i].kind == TK_EQ) {
+            printf("TK_EQ\n");
+        }
+
+        if (tokens[i].kind == TK_NE) {
+            printf("TK_NE\n");
         }
 
         if (tokens[i].kind == TK_SEMI) {
