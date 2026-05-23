@@ -47,6 +47,7 @@ typedef enum {
     TK_MINUS,
     TK_MUL,
     TK_DIV,
+    TK_MOD,
     TK_SEMI,
     TK_LT,
     TK_LE,
@@ -159,6 +160,12 @@ int tokenize (char *p) {
 
         if (*p == '/') {
             tokens[i++].kind = TK_DIV;
+            p++;
+            continue;
+        }
+
+        if (*p == '%') {
+            tokens[i++].kind = TK_MOD;
             p++;
             continue;
         }
@@ -323,15 +330,17 @@ void parse_primary() {
 void parse_term() {
     parse_primary();
 
-    while(tokens[pos].kind == TK_MUL || tokens[pos].kind == TK_DIV) {
+    while(tokens[pos].kind == TK_MUL || tokens[pos].kind == TK_DIV || tokens[pos].kind == TK_MOD) {
         TokenKind kind_type = tokens[pos].kind;
         next_token();
         parse_primary();
 
         if (kind_type == TK_MUL) {
             emit_op(OP_MUL, NULL);
-        } else {
+        } else if (kind_type == TK_DIV) {
             emit_op(OP_DIV, NULL);
+        } else if (kind_type == TK_MOD) {
+            emit_op(OP_MOD, NULL);
         }
     }
 }
@@ -472,6 +481,10 @@ void debug_token(int count) {
 
         if (tokens[i].kind == TK_DIV) {
             printf("TK_DIV\n");
+        }
+
+        if (tokens[i].kind == TK_MOD) {
+            printf("TK_MOD\n");
         }
 
         if (tokens[i].kind == TK_LT) {
