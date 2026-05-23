@@ -318,6 +318,10 @@ void emit_op (OpCode op_code, int *val) {
 }
 
 void parse_primary() {
+    if (tokens[pos].kind == TK_PLUS) {
+        next_token();
+    }
+
     Token *t = next_token();
     if (t->kind == TK_NUMBER) {
         emit_op(OP_PUSH, &t->val);
