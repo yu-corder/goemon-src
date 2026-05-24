@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
+#include <stdbool.h>
 
 typedef enum { 
     OP_PUSH,
@@ -261,59 +262,22 @@ Token* next_token() {
     return &tokens[pos++];
 }
 
-void collect_labels () {
-    int count = 0;
-    pos = 0;
-    while (tokens[pos].kind != TK_EOF) {
-        // int current_pos = pos;
-        Token *t = next_token();
-
-        if (t->kind == TK_PUSH) {
-            count += 2;
-            next_token();
-        } else if (t->kind == TK_IDENT) {
-            if (tokens[pos].kind == TK_COLON) {
-                strcpy(symbol_table[label_count_internal].name, t->str);
-                symbol_table[label_count_internal].address = count;
-                label_count_internal++;
-                next_token();
-            } else if (tokens[pos].kind == TK_ASSIGN) {
-                //ここに入った時点でOP_STORE(変数宣言は確定);
-                count += 2;
-                for (int i = 1; tokens[pos + i].kind != TK_SEMI; i++) {
-                    if (tokens[pos + i].kind == TK_PLUS) next_token(); count++;
-                    if (tokens[pos + i].kind == TK_MINUS) next_token(); count++;
-                    if (tokens[pos + i].kind == TK_NUMBER) next_token(); count++;
-
-                }
-                next_token();
-                next_token();
-            } else {
-                count += 2;
-            }
-        } else if (t->kind == TK_PRINT) {
-            if (tokens[pos].kind == TK_IDENT) {
-                count += 3;
-                next_token();
-            }
-        } else if (t->kind == TK_JZ) {
-            count += 2;
-            next_token();
-        } else {
-            count++;
-        }
-    }
-    count++;
-    printf("%d\n", count);
-}
+bool is_first_pass = true;
 
 int bytecode[1024];
 int count = 0;
 void emit_op (OpCode op_code, int *val) {
-    bytecode[count++] = op_code;
 
-    if (val != NULL) {
-        bytecode[count++] = *val;
+    if (is_first_pass) {
+        count++;
+        if (val != NULL) {
+            count++;
+        }
+    } else {
+        bytecode[count++] = op_code;
+        if (val != NULL) {
+            bytecode[count++] = *val;
+        }
     }
 }
 
@@ -396,7 +360,7 @@ void parse_evaluation() {
     }
 }
 
-void parse_generate () {
+void parse_program () {
     pos = 0;
     while (tokens[pos].kind != TK_EOF) {
         Token *t = next_token();
@@ -554,11 +518,18 @@ void debug_token(int count) {
 int main() {
     char *src = read_file("examples/study.goe");
     int cn = tokenize(src);
-
-
     debug_token(cn);
-    collect_labels();
-    parse_generate();
+
+    is_first_pass = true;
+    count = 0;
+    pos = 0;
+    parse_program();
+
+    is_first_pass = false;
+    count = 0;
+    pos = 0;
+    parse_program();
+
     printf("絶景かな！ Compiled study.goe to study.gb\n");
     return 0;
 }
