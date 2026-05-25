@@ -56,6 +56,11 @@ typedef enum {
     TK_GE,
     TK_EQ,
     TK_NE,
+    TK_IF,
+    TK_LPAREN,
+    TK_RPAREN,
+    TK_LBRACE,
+    TK_RBRACE,
     TK_EOF,
 } TokenKind;
 
@@ -138,6 +143,36 @@ int tokenize (char *p) {
         if (strncmp(p, "print", 5) == 0 && (isspace(p[5]) || p[5] == '\0')) {
             tokens[i++].kind = TK_PRINT;
             p += 5;
+            continue;
+        }
+
+        if (strncmp(p, "if", 2) == 0 && (isspace(p[2]) || p[2] == '\0')) {
+            tokens[i++].kind = TK_IF;
+            p += 2;
+            continue;
+        }
+
+        if (*p == '(') {
+            tokens[i++].kind = TK_LPAREN;
+            p++;
+            continue;
+        }
+
+        if (*p == ')') {
+            tokens[i++].kind = TK_RPAREN;
+            p++;
+            continue;
+        }
+
+        if (*p == '{') {
+            tokens[i++].kind = TK_LBRACE;
+            p++;
+            continue;
+        }
+
+        if (*p == '}') {
+            tokens[i++].kind = TK_RBRACE;
+            p++;
             continue;
         }
 
@@ -262,6 +297,7 @@ Token* next_token() {
     return &tokens[pos++];
 }
 
+bool is_if_pass = false;
 bool is_first_pass = true;
 
 int bytecode[1024];
@@ -270,11 +306,19 @@ void emit_op (OpCode op_code, int *val) {
 
     if (is_first_pass) {
         count++;
+        // if (is_if_pass) {
+        //     strcpy(symbol_table[label_count_internal].name, "if");
+        //     symbol_table[label_count_internal].address = count;
+        //     label_count_internal++;
+        // }
+
         if (val != NULL) {
             count++;
         }
     } else {
         bytecode[count++] = op_code;
+        //仮埋めしたJZの後の0にを}の後のプログラムの位置を入れてあげる。
+        // bytecode[JZの位置 + 1] = find_label("if");
         if (val != NULL) {
             bytecode[count++] = *val;
         }
@@ -403,11 +447,29 @@ void parse_program () {
                 }
                 break;
             }
+            case TK_IF: {
+                Token *value = next_token();
+                if (value->kind == TK_LPAREN) {
+                    parse_evaluation();
+                } else {
+                    printf("構文エラー: (をつけてください。\n");
+                }
+                break;
+            }
+            case TK_LBRACE: {
+                emit_op(OP_JZ, 0);
+                is_if_pass = true;
+                break;
+            }
+            //TK_RBRACEでOP_JZのbytecodeの位置に+1した位置に入れる
+            //現時点では0で仮埋めしている状態
+
             default:
                 break;
         }
     }
     emit_op(OP_HALT, NULL);
+    is_if_pass = false;
     FILE *dest = fopen("examples/study.gb", "wb");
     fwrite(bytecode, sizeof(int), count, dest);
     fclose(dest);
@@ -504,6 +566,26 @@ void debug_token(int count) {
 
         if (tokens[i].kind == TK_EOF) {
             printf("TK_EOF\n");
+        }
+
+        if (tokens[i].kind == TK_IF) {
+            printf("TK_IF\n");
+        }
+
+        if (tokens[i].kind == TK_LPAREN) {
+            printf("TK_LPAREN\n");
+        }
+
+        if (tokens[i].kind == TK_RPAREN) {
+            printf("TK_RPAREN\n");
+        }
+
+        if (tokens[i].kind == TK_LBRACE) {
+            printf("TK_LBRACE\n");
+        }
+
+        if (tokens[i].kind == TK_RBRACE) {
+            printf("TK_RPAREN\n");
         }
 
         if (tokens[i].kind == TK_HALT) {
