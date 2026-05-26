@@ -25,6 +25,7 @@ typedef enum {
     OP_GT,
     OP_INPUT,
     OP_PRINTS,
+    OP_RBRACE,
     OP_HALT
 } OpCode;
 

@@ -27,6 +27,7 @@ typedef enum {
     OP_GT,
     OP_INPUT,
     OP_PRINTS,
+    OP_RBRACE,
     OP_HALT 
 } OpCode;
 
@@ -305,20 +306,18 @@ int count = 0;
 void emit_op (OpCode op_code, int *val) {
 
     if (is_first_pass) {
-        count++;
-        // if (is_if_pass) {
-        //     strcpy(symbol_table[label_count_internal].name, "if");
-        //     symbol_table[label_count_internal].address = count;
-        //     label_count_internal++;
-        // }
-
-        if (val != NULL) {
+        if (op_code == OP_RBRACE) {
+            strcpy(symbol_table[label_count_internal].name, "if");
+            symbol_table[label_count_internal].address = count;
+            label_count_internal++;
+        } else {
             count++;
+            if (val != NULL) {
+                count++;
+            }
         }
     } else {
         bytecode[count++] = op_code;
-        //仮埋めしたJZの後の0にを}の後のプログラムの位置を入れてあげる。
-        // bytecode[JZの位置 + 1] = find_label("if");
         if (val != NULL) {
             bytecode[count++] = *val;
         }
@@ -457,12 +456,18 @@ void parse_program () {
                 break;
             }
             case TK_LBRACE: {
-                emit_op(OP_JZ, 0);
+                int point = is_first_pass ? 0 : find_label("if");
+                emit_op(OP_JZ, &point);
                 is_if_pass = true;
                 break;
             }
-            //TK_RBRACEでOP_JZのbytecodeの位置に+1した位置に入れる
-            //現時点では0で仮埋めしている状態
+            case TK_RBRACE: {
+                if (is_if_pass && is_first_pass){
+                    emit_op(OP_RBRACE, NULL);
+                    is_if_pass = false;
+                }
+                break;
+            }
 
             default:
                 break;
