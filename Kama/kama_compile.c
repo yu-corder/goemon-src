@@ -27,7 +27,6 @@ typedef enum {
     OP_GT,
     OP_INPUT,
     OP_PRINTS,
-    OP_RBRACE,
     OP_HALT 
 } OpCode;
 
@@ -298,23 +297,21 @@ Token* next_token() {
     return &tokens[pos++];
 }
 
-bool is_if_pass = false;
 bool is_first_pass = true;
 
 int bytecode[1024];
 int count = 0;
+int if_stack[128];
+int if_count = 0;
 void emit_op (OpCode op_code, int *val) {
 
     if (is_first_pass) {
-        if (op_code == OP_RBRACE) {
-            strcpy(symbol_table[label_count_internal].name, "if");
-            symbol_table[label_count_internal].address = count;
-            label_count_internal++;
-        } else {
+        count++;
+        if (op_code == OP_JZ) {
+            if_stack[if_count++] = count;
+        }
+        if (val != NULL) {
             count++;
-            if (val != NULL) {
-                count++;
-            }
         }
     } else {
         bytecode[count++] = op_code;
@@ -456,15 +453,14 @@ void parse_program () {
                 break;
             }
             case TK_LBRACE: {
-                int point = is_first_pass ? 0 : find_label("if");
-                emit_op(OP_JZ, &point);
-                is_if_pass = true;
+                int other = 0;
+                emit_op(OP_JZ, &other);
                 break;
             }
             case TK_RBRACE: {
-                if (is_if_pass && is_first_pass){
-                    emit_op(OP_RBRACE, NULL);
-                    is_if_pass = false;
+                if (!is_first_pass){
+                    int point = if_stack[--if_count];
+                    bytecode[point] = count;
                 }
                 break;
             }
@@ -474,7 +470,7 @@ void parse_program () {
         }
     }
     emit_op(OP_HALT, NULL);
-    is_if_pass = false;
+
     FILE *dest = fopen("examples/study.gb", "wb");
     fwrite(bytecode, sizeof(int), count, dest);
     fclose(dest);
