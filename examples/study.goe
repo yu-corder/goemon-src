@@ -1,4 +1,7 @@
-if (18 < 18) {
-    print 10;
+if (18 <= 18) {
+    if (18 < 18) {
+        print 10;
+    }
+    print 100;
 }
-print 100;
+print 1000;
