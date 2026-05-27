@@ -57,6 +57,7 @@ typedef enum {
     TK_EQ,
     TK_NE,
     TK_IF,
+    TK_ELSE,
     TK_LPAREN,
     TK_RPAREN,
     TK_LBRACE,
@@ -149,6 +150,12 @@ int tokenize (char *p) {
         if (strncmp(p, "if", 2) == 0 && (isspace(p[2]) || p[2] == '\0')) {
             tokens[i++].kind = TK_IF;
             p += 2;
+            continue;
+        }
+
+        if (strncmp(p, "else", 4) == 0 && (isspace(p[4]) || p[4] == '\0')) {
+            tokens[i++].kind = TK_ELSE;
+            p += 4;
             continue;
         }
 
@@ -301,14 +308,21 @@ bool is_first_pass = true;
 
 int bytecode[1024];
 int count = 0;
-int if_stack[128];
 int if_count = 0;
+typedef struct {
+    int jz_point;
+    int jmp_point;
+    bool haselse;
+} IfStack;
+IfStack if_stack[128];
+//イメージとしてはifがきたときに if_stack[if_count++].jz_point = 0で仮うめ、jmp_poinも仮うめ？
+//}がきたときにif_count下げつつ、elseがきたときにjz_poinを入れ、elseの終わりに jmp_pointを入れる？
 void emit_op (OpCode op_code, int *val) {
 
     if (is_first_pass) {
         count++;
         if (op_code == OP_JZ) {
-            if_stack[if_count++] = count;
+            if_stack[if_count++].jz_point = count;
         }
         if (val != NULL) {
             count++;
@@ -452,6 +466,9 @@ void parse_program () {
                 }
                 break;
             }
+            case TK_ELSE: {
+                break;
+            }
             case TK_LBRACE: {
                 int other = 0;
                 emit_op(OP_JZ, &other);
@@ -459,7 +476,7 @@ void parse_program () {
             }
             case TK_RBRACE: {
                 if (!is_first_pass){
-                    int point = if_stack[--if_count];
+                    int point = if_stack[--if_count].jz_point;
                     bytecode[point] = count;
                 }
                 break;
@@ -571,6 +588,10 @@ void debug_token(int count) {
 
         if (tokens[i].kind == TK_IF) {
             printf("TK_IF\n");
+        }
+
+        if (tokens[i].kind == TK_ELSE) {
+            printf("TK_ELSE\n");
         }
 
         if (tokens[i].kind == TK_LPAREN) {
