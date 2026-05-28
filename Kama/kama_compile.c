@@ -308,22 +308,10 @@ bool is_first_pass = true;
 
 int bytecode[1024];
 int count = 0;
-int if_count = 0;
-typedef struct {
-    int jz_point;
-    int jmp_point;
-    bool haselse;
-} IfStack;
-IfStack if_stack[128];
-//イメージとしてはifがきたときに if_stack[if_count++].jz_point = 0で仮うめ、jmp_poinも仮うめ？
-//}がきたときにif_count下げつつ、elseがきたときにjz_poinを入れ、elseの終わりに jmp_pointを入れる？
 void emit_op (OpCode op_code, int *val) {
 
     if (is_first_pass) {
         count++;
-        if (op_code == OP_JZ) {
-            if_stack[if_count++].jz_point = count;
-        }
         if (val != NULL) {
             count++;
         }
@@ -414,79 +402,110 @@ void parse_evaluation() {
     }
 }
 
+void parse_if();
+
+void parse_statement() {
+    Token *t = next_token();
+    switch(t->kind) {
+        case TK_PUSH: {
+            Token *num = next_token();
+            if (num->kind != TK_NUMBER) {
+                printf("エラー: pushの次は数値を置いてくだされ");
+                exit(1);
+            }
+            emit_op(OP_PUSH, &num->val);
+            break;
+        }
+        case TK_PRINT: {
+            Token *value = next_token();
+            if (value->kind == TK_IDENT) {
+                int addr = find_variable(value->str);
+                emit_op(OP_LOAD, &addr);
+            } else if (value->kind == TK_NUMBER) {
+                emit_op(OP_PUSH, &value->val);
+            }
+            emit_op(OP_PRINT, NULL);
+            break;
+        }
+        case TK_IDENT: {
+            if (tokens[pos].kind == TK_COLON) {
+                next_token();
+            }
+
+            if (tokens[pos].kind == TK_ASSIGN) {
+                next_token();
+                parse_evaluation();
+                if (tokens[pos].kind == TK_SEMI) {
+                    //ここに入った時点でOP_STOREは確定
+
+                    int addr = find_variable(t->str);
+                    emit_op(OP_STORE, &addr);
+                }
+            }
+            break;
+        }
+        case TK_IF: {
+            parse_if();
+            break;
+        }
+        default:
+            break;
+    }
+}
+
+void parse_if () {
+    if (tokens[pos].kind == TK_LPAREN) next_token();
+    parse_evaluation();
+    if (tokens[pos].kind == TK_RPAREN) next_token();
+
+    int my_jz_idx = count;
+    int zero = 0;
+    emit_op(OP_JZ, &zero);
+
+    if (tokens[pos].kind == TK_LBRACE) next_token();
+    while (tokens[pos].kind != TK_RBRACE && tokens[pos].kind != TK_EOF) {
+        parse_statement();
+    }
+    if (tokens[pos].kind == TK_RBRACE) next_token();
+
+    if (tokens[pos].kind == TK_ELSE) {
+        next_token();
+
+        int my_jmp_idx = count;
+        emit_op(OP_JMP, &zero);
+
+        if (!is_first_pass) {
+            bytecode[my_jz_idx + 1] = count; 
+        }
+
+        if (tokens[pos].kind == TK_LBRACE) next_token();
+        while (tokens[pos].kind != TK_RBRACE && tokens[pos].kind != TK_EOF) {
+            parse_statement();
+        }
+        if (tokens[pos].kind == TK_RBRACE) next_token();
+
+        if (!is_first_pass) {
+            bytecode[my_jmp_idx + 1] = count;
+        }
+    } else {
+        if (!is_first_pass) {
+            bytecode[my_jz_idx + 1] = count;
+        }
+    }
+}
+
 void parse_program () {
     pos = 0;
     while (tokens[pos].kind != TK_EOF) {
-        Token *t = next_token();
-
-        switch(t->kind) {
-            case TK_PUSH: {
-                Token *num = next_token();
-                if (num->kind != TK_NUMBER) {
-                    printf("エラー: pushの次は数値を置いてくだされ");
-                    exit(1);
-                }
-                emit_op(OP_PUSH, &num->val);
-                break;
-            }
-            case TK_PRINT: {
-                Token *value = next_token();
-                if (value->kind == TK_IDENT) {
-                    int addr = find_variable(value->str);
-                    emit_op(OP_LOAD, &addr);
-                } else if (value->kind == TK_NUMBER) {
-                    emit_op(OP_PUSH, &value->val);
-                }
-                emit_op(OP_PRINT, NULL);
-                break;
-            }
-            case TK_IDENT: {
-                if (tokens[pos].kind == TK_COLON) {
-                    next_token();
-                }
-
-                if (tokens[pos].kind == TK_ASSIGN) {
-                    next_token();
-                    parse_evaluation();
-                    if (tokens[pos].kind == TK_SEMI) {
-                        //ここに入った時点でOP_STOREは確定
-
-                        int addr = find_variable(t->str);
-                        emit_op(OP_STORE, &addr);
-                    }
-                }
-                break;
-            }
-            case TK_IF: {
-                Token *value = next_token();
-                if (value->kind == TK_LPAREN) {
-                    parse_evaluation();
-                } else {
-                    printf("構文エラー: (をつけてください。\n");
-                }
-                break;
-            }
-            case TK_ELSE: {
-                break;
-            }
-            case TK_LBRACE: {
-                int other = 0;
-                emit_op(OP_JZ, &other);
-                break;
-            }
-            case TK_RBRACE: {
-                if (!is_first_pass){
-                    int point = if_stack[--if_count].jz_point;
-                    bytecode[point] = count;
-                }
-                break;
-            }
-
-            default:
-                break;
-        }
+        parse_statement();
     }
     emit_op(OP_HALT, NULL);
+
+    if (!is_first_pass) {
+        for (int i = 0; i < count; i++) {
+            printf("%d\n", bytecode[i]);
+        }
+    }
 
     FILE *dest = fopen("examples/study.gb", "wb");
     fwrite(bytecode, sizeof(int), count, dest);

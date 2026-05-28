@@ -1,7 +1,11 @@
 if (18 <= 18) {
-    if (18 < 18) {
-        print 10;
+    if (1 < 8) {
+        print 150;
+    } else {
+        print 120;
     }
     print 100;
+} else {
+    print 1500;
 }
 print 1000;
