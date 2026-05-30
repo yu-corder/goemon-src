@@ -471,25 +471,19 @@ void parse_if () {
     if (tokens[pos].kind == TK_ELSE) {
         next_token();
 
+        int my_jmp_idx = count;
+        emit_op(OP_JMP, &zero);
+        if (!is_first_pass) {
+            bytecode[my_jz_idx + 1] = count; 
+        }
+
         if (tokens[pos].kind == TK_IF) {
             next_token();
-            int my_jmp_idx = count;
-            emit_op(OP_JMP, &zero);
-            if (!is_first_pass) {
-                bytecode[my_jz_idx + 1] = count; 
-            }
             parse_if();
             if (!is_first_pass) {
                 bytecode[my_jmp_idx + 1] = count;
             }
         } else {
-            int my_jmp_idx = count;
-            emit_op(OP_JMP, &zero);
-
-            if (!is_first_pass) {
-                bytecode[my_jz_idx + 1] = count; 
-            }
-
             if (tokens[pos].kind == TK_LBRACE) next_token();
             while (tokens[pos].kind != TK_RBRACE && tokens[pos].kind != TK_EOF) {
                 parse_statement();
