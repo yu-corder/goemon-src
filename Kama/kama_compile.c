@@ -3,6 +3,7 @@
 #include <string.h>
 #include <ctype.h>
 #include <stdbool.h>
+#define MAX_TOKENS 4096
 
 typedef enum { 
     OP_PUSH,
@@ -116,7 +117,7 @@ int find_variable(char *name) {
 
 }
 
-Token tokens[256];
+Token tokens[MAX_TOKENS];
 int tokenize (char *p) {
     int i = 0;
     while(*p) {

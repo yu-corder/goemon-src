@@ -1,13 +1,106 @@
-if (0) {
-    print 1;
+print 100;
+a = 10 + 20;
+print a;
+b = 20 - 5;
+print b;
+c = 5 * 6;
+print c;
+d = 30 / 5;
+print d;
+e = 17 % 5;
+print e;
+f = 2 + 3 * 4;
+print f;
+g = 10 + 2 * 5;
+print g;
+x = 123;
+y = x + 7;
+print y;
+if (1 < 2) {
+    print 201;
 }
-else if (0) {
-    print 2;
+
+if (2 < 1) {
+    print 202;
+}
+if (2 > 1) {
+    print 203;
+}
+if (1 > 2) {
+    print 204;
+}
+if (2 <= 2) {
+    print 205;
+}
+if (3 <= 2) {
+    print 206;
+}
+if (2 >= 2) {
+    print 207;
+}
+if (1 >= 2) {
+    print 208;
+}
+if (5 == 5) {
+    print 209;
+}
+if (5 == 6) {
+    print 210;
+}
+if (5 != 6) {
+    print 211;
+}
+if (5 != 5) {
+    print 212;
+}
+if (0) {
+    print 301;
+} else {
+    print 302;
+}
+if (0) {
+    print 401;
 }
 else if (1) {
-    print 3;
+    print 402;
 }
 else {
-    print 4;
+    print 403;
 }
-print 5;
+if (0) {
+    print 501;
+}
+else if (0) {
+    print 502;
+}
+else if (1) {
+    print 503;
+}
+else {
+    print 504;
+}
+if (1) {
+    if (1) {
+        print 601;
+    }
+}
+if (1) {
+    if (0) {
+        print 602;
+    } else {
+        print 603;
+    }
+}
+if (0) {
+    print 701;
+}
+else if (1) {
+    if (0) {
+        print 702;
+    }
+    else {
+        print 703;
+    }
+}
+
+print 999;
