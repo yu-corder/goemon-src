@@ -26,6 +26,7 @@ typedef enum {
     OP_LOAD,
     OP_LT,
     OP_GT,
+    OP_INC,
     OP_INPUT,
     OP_PRINTS,
     OP_HALT 
@@ -63,6 +64,7 @@ typedef enum {
     TK_RPAREN,
     TK_LBRACE,
     TK_RBRACE,
+    TK_INC,
     TK_EOF,
 } TokenKind;
 
@@ -185,8 +187,13 @@ int tokenize (char *p) {
         }
 
         if (*p == '+') {
-            tokens[i++].kind = TK_PLUS;
             p++;
+            if (*p == '+') {
+                tokens[i++].kind = TK_INC;
+                p++;
+            } else {
+                tokens[i++].kind = TK_PLUS;
+            }
             continue;
         }
 
@@ -443,6 +450,12 @@ void parse_statement() {
                     emit_op(OP_STORE, &addr);
                 }
             }
+
+            if (tokens[pos].kind == TK_INC) {
+                next_token();
+                int addr = find_variable(t->str);
+                emit_op(OP_INC, &addr);
+            }
             break;
         }
         case TK_IF: {
@@ -616,6 +629,10 @@ void debug_token(int count) {
 
         if (tokens[i].kind == TK_IF) {
             printf("TK_IF\n");
+        }
+
+        if (tokens[i].kind == TK_INC) {
+            printf("TK_INC\n");
         }
 
         if (tokens[i].kind == TK_ELSE) {
