@@ -65,6 +65,7 @@ typedef enum {
     TK_LBRACE,
     TK_RBRACE,
     TK_INC,
+    TK_WHILE,
     TK_EOF,
 } TokenKind;
 
@@ -159,6 +160,12 @@ int tokenize (char *p) {
         if (strncmp(p, "else", 4) == 0 && (isspace(p[4]) || p[4] == '\0')) {
             tokens[i++].kind = TK_ELSE;
             p += 4;
+            continue;
+        }
+
+        if (strncmp(p, "while", 5) == 0 && (isspace(p[5]) || p[5] == '\0')) {
+            tokens[i++].kind = TK_WHILE;
+            p += 5;
             continue;
         }
 
@@ -411,6 +418,7 @@ void parse_evaluation() {
 }
 
 void parse_if();
+void parse_while();
 
 void parse_statement() {
     Token *t = next_token();
@@ -460,6 +468,10 @@ void parse_statement() {
         }
         case TK_IF: {
             parse_if();
+            break;
+        }
+        case TK_WHILE: {
+            parse_while();
             break;
         }
         default:
@@ -513,6 +525,27 @@ void parse_if () {
         if (!is_first_pass) {
             bytecode[my_jz_idx + 1] = count;
         }
+    }
+}
+
+void parse_while() {
+    if (tokens[pos].kind == TK_LPAREN) next_token();
+    int my_jmp_idx = count;
+    parse_evaluation();
+    if (tokens[pos].kind == TK_RPAREN) next_token();
+    int my_jz_idx = count;
+    int zero = 0;
+    emit_op(OP_JZ, &zero);
+
+    if (tokens[pos].kind == TK_LBRACE) next_token();
+    while (tokens[pos].kind != TK_RBRACE && tokens[pos].kind != TK_EOF) {
+        parse_statement();
+    }
+    if (tokens[pos].kind == TK_RBRACE) next_token();
+
+    emit_op(OP_JMP, &my_jmp_idx);
+    if (!is_first_pass) {
+        bytecode[my_jz_idx + 1] = count;
     }
 }
 
@@ -633,6 +666,10 @@ void debug_token(int count) {
 
         if (tokens[i].kind == TK_INC) {
             printf("TK_INC\n");
+        }
+
+        if (tokens[i].kind == TK_WHILE) {
+            printf("TK_WHILE\n");
         }
 
         if (tokens[i].kind == TK_ELSE) {
