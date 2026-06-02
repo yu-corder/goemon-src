@@ -578,6 +578,7 @@ char *read_file(const char *path) {
 }
 
 void debug_token(int count);
+void debug_op_code();
 
 int main() {
     char *src = read_file("examples/study.goe");
@@ -593,6 +594,7 @@ int main() {
     count = 0;
     pos = 0;
     parse_program();
+    debug_op_code();
 
     printf("絶景かな！ Compiled study.goe to study.gb\n");
     return 0;
@@ -637,6 +639,13 @@ const char *token_kind_name[] = {
     "TK_WHILE",
     "TK_EOF"
 };
+void debug_op_code() {
+    printf("\n===== OP_CODE DUMP =====\n");
+    for (int i = 0; i < count; i++) {
+        printf("%d\n", bytecode[i]);
+    }
+    printf("==========================\n");
+}
 
 void debug_token(int count) {
     printf("\n===== TOKEN DUMP =====\n");
