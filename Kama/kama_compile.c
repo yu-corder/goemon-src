@@ -556,12 +556,6 @@ void parse_program () {
     }
     emit_op(OP_HALT, NULL);
 
-    if (!is_first_pass) {
-        for (int i = 0; i < count; i++) {
-            printf("%d\n", bytecode[i]);
-        }
-    }
-
     FILE *dest = fopen("examples/study.gb", "wb");
     fwrite(bytecode, sizeof(int), count, dest);
     fclose(dest);
@@ -583,123 +577,7 @@ char *read_file(const char *path) {
     return buf;
 }
 
-void debug_token(int count) {
-    for (int i = 0; i <= count; i++) {
-        printf("----debug start-----\n");
-
-        if (tokens[i].kind == TK_PUSH) {printf("TK_PUSH\n");}
-
-        if (tokens[i].kind == TK_PLUS) {
-            printf("TK_PLUS\n");
-        }
-
-        if (tokens[i].kind == TK_MINUS) {
-            printf("TK_MINUS\n");
-        }
-
-        if (tokens[i].kind == TK_MUL) {
-            printf("TK_MUL\n");
-        }
-
-        if (tokens[i].kind == TK_DIV) {
-            printf("TK_DIV\n");
-        }
-
-        if (tokens[i].kind == TK_MOD) {
-            printf("TK_MOD\n");
-        }
-
-        if (tokens[i].kind == TK_LT) {
-            printf("TK_LT\n");
-        }
-
-        if (tokens[i].kind == TK_LE) {
-            printf("TK_LE\n");
-        }
-
-        if (tokens[i].kind == TK_GT) {
-            printf("TK_GT\n");
-        }
-
-        if (tokens[i].kind == TK_EQ) {
-            printf("TK_EQ\n");
-        }
-
-        if (tokens[i].kind == TK_NE) {
-            printf("TK_NE\n");
-        }
-
-        if (tokens[i].kind == TK_SEMI) {
-            printf("TK_SEMI\n");
-        }
-
-        if (tokens[i].kind == TK_STRING) {
-            printf("TK_STRING\n");
-            printf("%s\n", tokens[i].str);
-        }
-
-        if (tokens[i].kind == TK_ASSIGN) {
-            printf("TK_ASSIGN\n");
-        }
-
-        if (tokens[i].kind == TK_IDENT) {
-            printf("TK_IDENT\n");
-            printf("%s\n", tokens[i].str);
-        }
-
-        if (tokens[i].kind == TK_PRINT) {
-            printf("TK_PRINT\n");
-        }
-
-        if (tokens[i].kind == TK_NUMBER) {
-            printf("TK_NUMBER\n");
-            printf("%d\n", tokens[i].val);
-        }
-
-        if (tokens[i].kind == TK_EOF) {
-            printf("TK_EOF\n");
-        }
-
-        if (tokens[i].kind == TK_IF) {
-            printf("TK_IF\n");
-        }
-
-        if (tokens[i].kind == TK_INC) {
-            printf("TK_INC\n");
-        }
-
-        if (tokens[i].kind == TK_WHILE) {
-            printf("TK_WHILE\n");
-        }
-
-        if (tokens[i].kind == TK_ELSE) {
-            printf("TK_ELSE\n");
-        }
-
-        if (tokens[i].kind == TK_LPAREN) {
-            printf("TK_LPAREN\n");
-        }
-
-        if (tokens[i].kind == TK_RPAREN) {
-            printf("TK_RPAREN\n");
-        }
-
-        if (tokens[i].kind == TK_LBRACE) {
-            printf("TK_LBRACE\n");
-        }
-
-        if (tokens[i].kind == TK_RBRACE) {
-            printf("TK_RPAREN\n");
-        }
-
-        if (tokens[i].kind == TK_HALT) {
-            printf("TK_HALT\n");
-        }
-
-        printf("----debug end------\n");
-    }
-}
-
+void debug_token(int count);
 
 int main() {
     char *src = read_file("examples/study.goe");
@@ -718,4 +596,69 @@ int main() {
 
     printf("絶景かな！ Compiled study.goe to study.gb\n");
     return 0;
+}
+
+// =========================
+// Debug Utilities
+// =========================
+const char *token_kind_name[] = {
+    "TK_PUSH",
+    "TK_INPUT",
+    "TK_STORE",
+    "TK_LOAD",
+    "TK_JZ",
+    "TK_HALT",
+    "TK_PRINTS",
+    "TK_PRINT",
+    "TK_NUMBER",
+    "TK_STRING",
+    "TK_IDENT",
+    "TK_COLON",
+    "TK_ASSIGN",
+    "TK_PLUS",
+    "TK_MINUS",
+    "TK_MUL",
+    "TK_DIV",
+    "TK_MOD",
+    "TK_SEMI",
+    "TK_LT",
+    "TK_LE",
+    "TK_GT",
+    "TK_GE",
+    "TK_EQ",
+    "TK_NE",
+    "TK_IF",
+    "TK_ELSE",
+    "TK_LPAREN",
+    "TK_RPAREN",
+    "TK_LBRACE",
+    "TK_RBRACE",
+    "TK_INC",
+    "TK_WHILE",
+    "TK_EOF"
+};
+
+void debug_token(int count) {
+    printf("\n===== TOKEN DUMP =====\n");
+    for (int i = 0; i <= count; i++) {
+
+        printf("[%03d] %-12s",
+            i,
+            token_kind_name[tokens[i].kind]
+        );
+
+        if (tokens[i].kind == TK_NUMBER) {
+            printf(" value=%d", tokens[i].val);
+        }
+
+        if (
+            tokens[i].kind == TK_IDENT ||
+            tokens[i].kind == TK_STRING
+        ) {
+            printf(" text=\"%s\"", tokens[i].str);
+        }
+
+        printf("\n");
+    }
+    printf("======================\n");
 }
