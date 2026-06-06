@@ -66,6 +66,7 @@ typedef enum {
     TK_RBRACE,
     TK_INC,
     TK_WHILE,
+    TK_BREAK,
     TK_EOF,
 } TokenKind;
 
@@ -165,6 +166,12 @@ int tokenize (char *p) {
 
         if (strncmp(p, "while", 5) == 0 && (isspace(p[5]) || p[5] == '\0')) {
             tokens[i++].kind = TK_WHILE;
+            p += 5;
+            continue;
+        }
+
+        if (strncmp(p, "break", 5) == 0 && (isspace(p[5]) || p[5] == '\0' || p[5] == ';')) {
+            tokens[i++].kind = TK_BREAK;
             p += 5;
             continue;
         }
@@ -322,6 +329,8 @@ Token* next_token() {
 bool is_first_pass = true;
 
 int bytecode[1024];
+int break_stack[128];
+int break_count = 0;
 int count = 0;
 void emit_op (OpCode op_code, int *val) {
 
@@ -474,6 +483,12 @@ void parse_statement() {
             parse_while();
             break;
         }
+        case TK_BREAK: {
+            if (!is_first_pass) break_stack[break_count++] = count;
+            int zero = 0;
+            emit_op(OP_JMP, &zero);
+            break;
+        }
         default:
             break;
     }
@@ -546,6 +561,11 @@ void parse_while() {
     emit_op(OP_JMP, &my_jmp_idx);
     if (!is_first_pass) {
         bytecode[my_jz_idx + 1] = count;
+    }
+
+    for (int i = 0; i < break_count; i++) {
+        int break_jz_idx = break_stack[i] + 1;
+        bytecode[break_jz_idx] = count;
     }
 }
 
