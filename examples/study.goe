@@ -1,16 +1,27 @@
-c = 0;
+a = 0;
 
-while (c < 10) {
-    print c;
-    c++;
-    if (c == 10) {
-        break;
-        print 100;
+while (a < 2) {
+
+    b = 0;
+
+    while (b < 2) {
+
+        c = 0;
+
+        while (c < 5) {
+            print c;
+
+            if (c == 1) {
+                break;
+            }
+
+            c++;
+        }
+
+        b++;
     }
 
-    if (c == 5) {
-        break;
-        prirnt 2000;
-    }
+    a++;
 }
-print 1500;
+
+print 999;

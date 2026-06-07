@@ -328,9 +328,15 @@ Token* next_token() {
 
 bool is_first_pass = true;
 
+typedef struct {
+    int breaks[128];
+    int break_count;
+} Breaks;
+
+
 int bytecode[1024];
-int break_stack[128];
-int break_count = 0;
+Breaks break_stack[128];
+int while_depth = 0;
 int count = 0;
 void emit_op (OpCode op_code, int *val) {
 
@@ -484,7 +490,10 @@ void parse_statement() {
             break;
         }
         case TK_BREAK: {
-            if (!is_first_pass) break_stack[break_count++] = count;
+            if (!is_first_pass) {
+                int index = break_stack[while_depth].break_count++;
+                break_stack[while_depth].breaks[index] = count;
+            }
             int zero = 0;
             emit_op(OP_JMP, &zero);
             break;
@@ -544,6 +553,8 @@ void parse_if () {
 }
 
 void parse_while() {
+    while_depth++;
+    break_stack[while_depth].break_count = 0;
     if (tokens[pos].kind == TK_LPAREN) next_token();
     int my_jmp_idx = count;
     parse_evaluation();
@@ -563,10 +574,12 @@ void parse_while() {
         bytecode[my_jz_idx + 1] = count;
     }
 
-    for (int i = 0; i < break_count; i++) {
-        int break_jz_idx = break_stack[i] + 1;
-        bytecode[break_jz_idx] = count;
+
+    for (int i = 0; i < break_stack[while_depth].break_count; i++) {
+        int break_jz_idx = break_stack[while_depth].breaks[i];
+        bytecode[break_jz_idx + 1] = count;
     }
+    while_depth--;
 }
 
 void parse_program () {
