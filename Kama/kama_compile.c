@@ -692,6 +692,8 @@ const char *token_kind_name[] = {
     "TK_RBRACE",
     "TK_INC",
     "TK_WHILE",
+    "TK_BREAK",
+    "TK_CONTINUE",
     "TK_EOF"
 };
 void debug_op_code() {
