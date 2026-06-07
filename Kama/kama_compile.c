@@ -67,6 +67,7 @@ typedef enum {
     TK_INC,
     TK_WHILE,
     TK_BREAK,
+    TK_CONTINUE,
     TK_EOF,
 } TokenKind;
 
@@ -173,6 +174,12 @@ int tokenize (char *p) {
         if (strncmp(p, "break", 5) == 0 && (isspace(p[5]) || p[5] == '\0' || p[5] == ';')) {
             tokens[i++].kind = TK_BREAK;
             p += 5;
+            continue;
+        }
+
+        if (strncmp(p, "continue", 8) == 0 && (isspace(p[8]) || p[8] == '\0' || p[8] == ';')) {
+            tokens[i++].kind = TK_CONTINUE;
+            p += 8;
             continue;
         }
 
@@ -331,6 +338,7 @@ bool is_first_pass = true;
 typedef struct {
     int breaks[128];
     int break_count;
+    int continue_target;
 } Breaks;
 
 
@@ -502,6 +510,15 @@ void parse_statement() {
             emit_op(OP_JMP, &zero);
             break;
         }
+        case TK_CONTINUE: {
+            if (while_depth == 0) {
+                printf("エラー: ループ分の中でしか、continueは使えません。");
+                exit(1);
+            }
+            int my_jmp_idx = break_stack[while_depth].continue_target;
+            emit_op(OP_JMP, &my_jmp_idx);
+            break;
+        }
         default:
             break;
     }
@@ -561,6 +578,7 @@ void parse_while() {
     break_stack[while_depth].break_count = 0;
     if (tokens[pos].kind == TK_LPAREN) next_token();
     int my_jmp_idx = count;
+    break_stack[while_depth].continue_target = my_jmp_idx;
     parse_evaluation();
     if (tokens[pos].kind == TK_RPAREN) next_token();
     int my_jz_idx = count;

@@ -4,28 +4,16 @@ while (a < 2) {
 
     b = 0;
 
-    while (b < 2) {
-
-        c = 0;
-
-        while (c < 5) {
-            print c;
-
-            if (c == 1) {
-                break;
-            }
-
-            c++;
-        }
+    while (b < 3) {
 
         b++;
+
+        if (b == 2) {
+            continue;
+        }
+
+        print b;
     }
 
     a++;
-}
-
-print 999;
-
-if (1) {
-    break;
 }
