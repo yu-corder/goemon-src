@@ -490,6 +490,10 @@ void parse_statement() {
             break;
         }
         case TK_BREAK: {
+            if (while_depth == 0) {
+                printf("エラー: ループ分の中でしか、breakは使えません。");
+                exit(1);
+            }
             if (!is_first_pass) {
                 int index = break_stack[while_depth].break_count++;
                 break_stack[while_depth].breaks[index] = count;

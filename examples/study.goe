@@ -25,3 +25,7 @@ while (a < 2) {
 }
 
 print 999;
+
+if (1) {
+    break;
+}
