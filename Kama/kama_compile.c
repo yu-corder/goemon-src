@@ -68,6 +68,7 @@ typedef enum {
     TK_WHILE,
     TK_BREAK,
     TK_CONTINUE,
+    TK_FOR,
     TK_EOF,
 } TokenKind;
 
@@ -180,6 +181,12 @@ int tokenize (char *p) {
         if (strncmp(p, "continue", 8) == 0 && (isspace(p[8]) || p[8] == '\0' || p[8] == ';')) {
             tokens[i++].kind = TK_CONTINUE;
             p += 8;
+            continue;
+        }
+
+        if (strncmp(p, "for", 3) == 0 && (isspace(p[3]) || p[3] == '\0')) {
+            tokens[i++].kind = TK_FOR;
+            p += 3;
             continue;
         }
 
@@ -442,6 +449,7 @@ void parse_evaluation() {
 
 void parse_if();
 void parse_while();
+void parse_for();
 
 void parse_statement() {
     Token *t = next_token();
@@ -517,6 +525,10 @@ void parse_statement() {
             }
             int my_jmp_idx = break_stack[while_depth].continue_target;
             emit_op(OP_JMP, &my_jmp_idx);
+            break;
+        }
+        case TK_FOR: {
+            parse_for();
             break;
         }
         default:
@@ -602,6 +614,48 @@ void parse_while() {
         bytecode[break_jz_idx + 1] = count;
     }
     while_depth--;
+}
+
+void parse_for() {
+    if (tokens[pos].kind == TK_LPAREN) next_token();
+    if (tokens[pos].kind == TK_IDENT) {
+        Token *t = next_token();
+        if (tokens[pos].kind == TK_ASSIGN) {
+            next_token();
+            parse_evaluation();
+            if (tokens[pos].kind == TK_SEMI) {
+                next_token();
+                int addr = find_variable(t->str);
+                emit_op(OP_STORE, &addr);
+            }
+        }
+    }
+    int my_jmp_idx = count;
+    parse_evaluation();
+    if (tokens[pos].kind == TK_SEMI) next_token();
+    int my_jz_idx = count;
+    int zero = 0;
+    emit_op(OP_JZ, &zero);
+    if (tokens[pos].kind == TK_IDENT) {
+        Token *t = next_token();
+        if (tokens[pos].kind == TK_INC) {
+            next_token();
+            int addr = find_variable(t->str);
+            emit_op(OP_INC, &addr);
+        }
+    }
+    if (tokens[pos].kind == TK_RPAREN) next_token();
+
+    if (tokens[pos].kind == TK_LBRACE) next_token();
+    while (tokens[pos].kind != TK_RBRACE && tokens[pos].kind != TK_EOF) {
+        parse_statement();
+    }
+    if (tokens[pos].kind == TK_RBRACE) next_token();
+    emit_op(OP_JMP, &my_jmp_idx);
+    if (!is_first_pass) {
+        bytecode[my_jz_idx + 1] = count;
+    }
+
 }
 
 void parse_program () {
@@ -694,6 +748,7 @@ const char *token_kind_name[] = {
     "TK_WHILE",
     "TK_BREAK",
     "TK_CONTINUE",
+    "TK_FOR",
     "TK_EOF"
 };
 void debug_op_code() {
