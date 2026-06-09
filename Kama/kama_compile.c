@@ -630,12 +630,20 @@ void parse_for() {
             }
         }
     }
-    int my_jmp_idx = count;
-    parse_evaluation();
+
+    int cond_start_idx = count;
+
+    if (tokens[pos].kind != TK_SEMI) parse_evaluation();
     if (tokens[pos].kind == TK_SEMI) next_token();
+
     int my_jz_idx = count;
     int zero = 0;
     emit_op(OP_JZ, &zero);
+
+    int jump_to_body_idx = count;
+    emit_op(OP_JMP, &zero);
+
+    int update_start_idx = count;
     if (tokens[pos].kind == TK_IDENT) {
         Token *t = next_token();
         if (tokens[pos].kind == TK_INC) {
@@ -645,13 +653,19 @@ void parse_for() {
         }
     }
     if (tokens[pos].kind == TK_RPAREN) next_token();
+    emit_op(OP_JMP, &cond_start_idx);
+
+    if (!is_first_pass) {
+        bytecode[jump_to_body_idx + 1] = count;
+    }
 
     if (tokens[pos].kind == TK_LBRACE) next_token();
     while (tokens[pos].kind != TK_RBRACE && tokens[pos].kind != TK_EOF) {
         parse_statement();
     }
     if (tokens[pos].kind == TK_RBRACE) next_token();
-    emit_op(OP_JMP, &my_jmp_idx);
+
+    emit_op(OP_JMP, &update_start_idx);
     if (!is_first_pass) {
         bytecode[my_jz_idx + 1] = count;
     }
