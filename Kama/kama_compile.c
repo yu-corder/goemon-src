@@ -617,6 +617,9 @@ void parse_while() {
 }
 
 void parse_for() {
+    while_depth++;
+    break_stack[while_depth].break_count = 0;
+
     if (tokens[pos].kind == TK_LPAREN) next_token();
     if (tokens[pos].kind == TK_IDENT) {
         Token *t = next_token();
@@ -644,6 +647,7 @@ void parse_for() {
     emit_op(OP_JMP, &zero);
 
     int update_start_idx = count;
+    break_stack[while_depth].continue_target = update_start_idx;
     if (tokens[pos].kind == TK_IDENT) {
         Token *t = next_token();
         if (tokens[pos].kind == TK_INC) {
@@ -669,6 +673,12 @@ void parse_for() {
     if (!is_first_pass) {
         bytecode[my_jz_idx + 1] = count;
     }
+
+    for (int i = 0; i < break_stack[while_depth].break_count; i++) {
+        int break_jz_idx = break_stack[while_depth].breaks[i];
+        bytecode[break_jz_idx + 1] = count;
+    }
+    while_depth--;
 
 }
 
