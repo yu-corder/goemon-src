@@ -346,12 +346,12 @@ typedef struct {
     int breaks[128];
     int break_count;
     int continue_target;
-} Breaks;
+} LoopContext;
 
 
 int bytecode[1024];
-Breaks break_stack[128];
-int while_depth = 0;
+LoopContext loop_stack[128];
+int loop_depth = 0;
 int count = 0;
 void emit_op (OpCode op_code, int *val) {
 
@@ -506,24 +506,24 @@ void parse_statement() {
             break;
         }
         case TK_BREAK: {
-            if (while_depth == 0) {
+            if (loop_depth == 0) {
                 printf("エラー: ループ分の中でしか、breakは使えません。");
                 exit(1);
             }
             if (!is_first_pass) {
-                int index = break_stack[while_depth].break_count++;
-                break_stack[while_depth].breaks[index] = count;
+                int index = loop_stack[loop_depth].break_count++;
+                loop_stack[loop_depth].breaks[index] = count;
             }
             int zero = 0;
             emit_op(OP_JMP, &zero);
             break;
         }
         case TK_CONTINUE: {
-            if (while_depth == 0) {
+            if (loop_depth == 0) {
                 printf("エラー: ループ分の中でしか、continueは使えません。");
                 exit(1);
             }
-            int my_jmp_idx = break_stack[while_depth].continue_target;
+            int my_jmp_idx = loop_stack[loop_depth].continue_target;
             emit_op(OP_JMP, &my_jmp_idx);
             break;
         }
@@ -586,11 +586,11 @@ void parse_if () {
 }
 
 void parse_while() {
-    while_depth++;
-    break_stack[while_depth].break_count = 0;
+    loop_depth++;
+    loop_stack[loop_depth].break_count = 0;
     if (tokens[pos].kind == TK_LPAREN) next_token();
     int my_jmp_idx = count;
-    break_stack[while_depth].continue_target = my_jmp_idx;
+    loop_stack[loop_depth].continue_target = my_jmp_idx;
     parse_evaluation();
     if (tokens[pos].kind == TK_RPAREN) next_token();
     int my_jz_idx = count;
@@ -609,16 +609,16 @@ void parse_while() {
     }
 
 
-    for (int i = 0; i < break_stack[while_depth].break_count; i++) {
-        int break_jz_idx = break_stack[while_depth].breaks[i];
+    for (int i = 0; i < loop_stack[loop_depth].break_count; i++) {
+        int break_jz_idx = loop_stack[loop_depth].breaks[i];
         bytecode[break_jz_idx + 1] = count;
     }
-    while_depth--;
+    loop_depth--;
 }
 
 void parse_for() {
-    while_depth++;
-    break_stack[while_depth].break_count = 0;
+    loop_depth++;
+    loop_stack[loop_depth].break_count = 0;
 
     if (tokens[pos].kind == TK_LPAREN) next_token();
     if (tokens[pos].kind == TK_IDENT) {
@@ -647,7 +647,7 @@ void parse_for() {
     emit_op(OP_JMP, &zero);
 
     int update_start_idx = count;
-    break_stack[while_depth].continue_target = update_start_idx;
+    loop_stack[loop_depth].continue_target = update_start_idx;
     if (tokens[pos].kind == TK_IDENT) {
         Token *t = next_token();
         if (tokens[pos].kind == TK_INC) {
@@ -674,11 +674,11 @@ void parse_for() {
         bytecode[my_jz_idx + 1] = count;
     }
 
-    for (int i = 0; i < break_stack[while_depth].break_count; i++) {
-        int break_jz_idx = break_stack[while_depth].breaks[i];
+    for (int i = 0; i < loop_stack[loop_depth].break_count; i++) {
+        int break_jz_idx = loop_stack[loop_depth].breaks[i];
         bytecode[break_jz_idx + 1] = count;
     }
-    while_depth--;
+    loop_depth--;
 
 }
 
