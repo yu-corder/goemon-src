@@ -1,15 +1,19 @@
 c = 0;
-
-while (c < 2) {
-
-    for (i = 0; i < 5; i++) {
-
-        if (i == 2) {
-            continue;
-        }
-
-        print i;
+for (i = 0; i < 100; i++) {
+    if (i == 8) {
+        break;
     }
 
-    c++;
+    if (i % 3 == 0) {
+        continue;
+    }
+
+    while (c < 5) {
+        if (c == 3) {
+            break;
+        }
+        print c;
+        c++;
+    }
+    print i;
 }
