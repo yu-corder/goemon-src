@@ -72,11 +72,29 @@ typedef enum {
     TK_EOF,
 } TokenKind;
 
+typedef enum {
+    ND_NUM,
+    ND_ADD,
+    ND_ASSIGN,
+    ND_VAR,
+} NodeKind;
+
 typedef struct {
     TokenKind kind;
     int val;
     char str[256];
 } Token;
+
+typedef struct {
+    NodeKind kind;
+
+    struct Node *lhs;
+    struct Node *rhs;
+
+    int val;
+    char name[32];
+} Node;
+int node_depth = 0;
 
 
 typedef struct {
@@ -91,6 +109,11 @@ typedef struct {
 
 Variable variable_table[128];
 int variable_count = 0;
+
+Node node_tree[128];
+Node* new_num_node();
+Node* new_binary_node();
+void print_ast();
 
 Label symbol_table[128];
 int label_count_internal = 0;
@@ -376,6 +399,7 @@ void parse_primary() {
     Token *t = next_token();
     if (t->kind == TK_NUMBER) {
         emit_op(OP_PUSH, &t->val);
+        Node *node = new_num_node(&t->val);
     } else if (t->kind == TK_IDENT) {
         int addr = find_variable(t->str);
         emit_op(OP_LOAD, &addr);
@@ -461,6 +485,7 @@ void parse_statement() {
                 exit(1);
             }
             emit_op(OP_PUSH, &num->val);
+            Node *node = new_num_node(&num->val);
             break;
         }
         case TK_PRINT: {
@@ -729,8 +754,36 @@ int main() {
     parse_program();
     debug_op_code();
 
+    print_ast();
+
     printf("絶景かな！ Compiled study.goe to study.gb\n");
     return 0;
+}
+
+// =========================
+// AST
+// =========================
+Node* new_num_node (int *val) {
+    node_tree[node_depth].kind = ND_NUM;
+    node_tree[node_depth].val = *val;
+    
+    return &node_tree[node_depth++];
+}
+
+Node* new_binary_node(NodeKind kind, Node* node1, Node* node2) {
+    node_tree[node_depth].kind = kind;
+    node_tree[node_depth].lhs = node1;
+    node_tree[node_depth].rhs = node2;
+
+    return &node_tree[node_depth++];
+}
+
+void print_ast() {
+    printf("\n===== AST DUMP =====\n");
+    for (int i = 0; i < node_depth; i++) {
+        printf("%d\n", node_tree[i].val);
+    }
+    printf("==========================\n");
 }
 
 // =========================
