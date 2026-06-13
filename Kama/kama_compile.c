@@ -85,7 +85,7 @@ typedef struct {
     char str[256];
 } Token;
 
-typedef struct {
+typedef struct Node {
     NodeKind kind;
 
     struct Node *lhs;
@@ -381,23 +381,25 @@ void emit_op (OpCode op_code, int *val) {
     }
 }
 
-void parse_primary() {
+Node* parse_primary() {
     if (tokens[pos].kind == TK_PLUS) {
         next_token();
     }
 
     Token *t = next_token();
+    Node *node = NULL;
     if (t->kind == TK_NUMBER) {
         emit_op(OP_PUSH, &t->val);
-        Node *node = new_num_node(&t->val);
+        node = new_num_node(&t->val);
     } else if (t->kind == TK_IDENT) {
         int addr = find_variable(t->str);
         emit_op(OP_LOAD, &addr);
     }
+    return node;
 }
 
-void parse_term() {
-    parse_primary();
+Node* parse_term() {
+    Node *node1 = parse_primary();
 
     while(tokens[pos].kind == TK_MUL || tokens[pos].kind == TK_DIV || tokens[pos].kind == TK_MOD) {
         TokenKind kind_type = tokens[pos].kind;
@@ -412,23 +414,26 @@ void parse_term() {
             emit_op(OP_MOD, NULL);
         }
     }
+    return node1;
 }
 
 
-void parse_expression() {
-    parse_term();
-
+Node* parse_expression() {
+    Node *node1 = parse_term();
+    Node *node3 = NULL;
     while (tokens[pos].kind == TK_PLUS || tokens[pos].kind == TK_MINUS) {
         TokenKind kind_type = tokens[pos].kind;
         next_token();
-        parse_term();
+        Node *node2 = parse_term();
 
         if (kind_type == TK_PLUS) {
             emit_op(OP_ADD, NULL);
+            node3 = new_binary_node(ND_ADD, node1, node2);
         } else if (kind_type == TK_MINUS) {
             emit_op(OP_SUB, NULL);
         }
     }
+    return node3;
 }
 
 void parse_evaluation() {
@@ -476,6 +481,7 @@ void parse_statement() {
             }
             emit_op(OP_PUSH, &num->val);
             Node *node = new_num_node(&num->val);
+            printf("%d", node->val);
             break;
         }
         case TK_PRINT: {
