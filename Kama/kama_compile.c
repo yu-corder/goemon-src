@@ -363,8 +363,6 @@ Token* next_token() {
     return &tokens[pos++];
 }
 
-bool is_first_pass = true;
-
 typedef struct {
     int breaks[128];
     int break_count;
@@ -377,17 +375,9 @@ LoopContext loop_stack[128];
 int loop_depth = 0;
 int count = 0;
 void emit_op (OpCode op_code, int *val) {
-
-    if (is_first_pass) {
-        count++;
-        if (val != NULL) {
-            count++;
-        }
-    } else {
-        bytecode[count++] = op_code;
-        if (val != NULL) {
-            bytecode[count++] = *val;
-        }
+    bytecode[count++] = op_code;
+    if (val != NULL) {
+        bytecode[count++] = *val;
     }
 }
 
@@ -535,10 +525,8 @@ void parse_statement() {
                 printf("エラー: ループ分の中でしか、breakは使えません。");
                 exit(1);
             }
-            if (!is_first_pass) {
-                int index = loop_stack[loop_depth].break_count++;
-                loop_stack[loop_depth].breaks[index] = count;
-            }
+            int index = loop_stack[loop_depth].break_count++;
+            loop_stack[loop_depth].breaks[index] = count;
             int zero = 0;
             emit_op(OP_JMP, &zero);
             break;
@@ -581,32 +569,23 @@ void parse_if () {
 
         int my_jmp_idx = count;
         emit_op(OP_JMP, &zero);
-        if (!is_first_pass) {
-            bytecode[my_jz_idx + 1] = count; 
-        }
+        bytecode[my_jz_idx + 1] = count; 
 
         if (tokens[pos].kind == TK_IF) {
             next_token();
             parse_if();
-            if (!is_first_pass) {
-                bytecode[my_jmp_idx + 1] = count;
-            }
+            bytecode[my_jmp_idx + 1] = count;
         } else {
             if (tokens[pos].kind == TK_LBRACE) next_token();
             while (tokens[pos].kind != TK_RBRACE && tokens[pos].kind != TK_EOF) {
                 parse_statement();
             }
             if (tokens[pos].kind == TK_RBRACE) next_token();
-
-            if (!is_first_pass) {
-                bytecode[my_jmp_idx + 1] = count;
-            }
+            bytecode[my_jmp_idx + 1] = count;
         }
 
     } else {
-        if (!is_first_pass) {
-            bytecode[my_jz_idx + 1] = count;
-        }
+        bytecode[my_jz_idx + 1] = count;
     }
 }
 
@@ -629,9 +608,7 @@ void parse_while() {
     if (tokens[pos].kind == TK_RBRACE) next_token();
 
     emit_op(OP_JMP, &my_jmp_idx);
-    if (!is_first_pass) {
-        bytecode[my_jz_idx + 1] = count;
-    }
+    bytecode[my_jz_idx + 1] = count;
 
 
     for (int i = 0; i < loop_stack[loop_depth].break_count; i++) {
@@ -683,10 +660,7 @@ void parse_for() {
     }
     if (tokens[pos].kind == TK_RPAREN) next_token();
     emit_op(OP_JMP, &cond_start_idx);
-
-    if (!is_first_pass) {
-        bytecode[jump_to_body_idx + 1] = count;
-    }
+    bytecode[jump_to_body_idx + 1] = count;
 
     if (tokens[pos].kind == TK_LBRACE) next_token();
     while (tokens[pos].kind != TK_RBRACE && tokens[pos].kind != TK_EOF) {
@@ -695,9 +669,7 @@ void parse_for() {
     if (tokens[pos].kind == TK_RBRACE) next_token();
 
     emit_op(OP_JMP, &update_start_idx);
-    if (!is_first_pass) {
-        bytecode[my_jz_idx + 1] = count;
-    }
+    bytecode[my_jz_idx + 1] = count;
 
     for (int i = 0; i < loop_stack[loop_depth].break_count; i++) {
         int break_jz_idx = loop_stack[loop_depth].breaks[i];
@@ -743,14 +715,6 @@ int main() {
     int cn = tokenize(src);
     debug_token(cn);
 
-    is_first_pass = true;
-    count = 0;
-    pos = 0;
-    parse_program();
-
-    is_first_pass = false;
-    count = 0;
-    pos = 0;
     parse_program();
     debug_op_code();
 
