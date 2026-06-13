@@ -113,6 +113,7 @@ int variable_count = 0;
 Node node_tree[128];
 Node* new_num_node();
 Node* new_binary_node();
+void debug_ast_node();
 void print_ast();
 
 Label symbol_table[128];
@@ -429,6 +430,7 @@ Node* parse_expression() {
         if (kind_type == TK_PLUS) {
             emit_op(OP_ADD, NULL);
             node3 = new_binary_node(ND_ADD, node1, node2);
+            debug_ast_node(node3, node_depth);
         } else if (kind_type == TK_MINUS) {
             emit_op(OP_SUB, NULL);
         }
@@ -734,18 +736,52 @@ int main() {
 // AST
 // =========================
 Node* new_num_node (int *val) {
-    node_tree[node_depth].kind = ND_NUM;
-    node_tree[node_depth].val = *val;
-    
-    return &node_tree[node_depth++];
+    int current_idx = node_depth;
+    node_depth++;
+
+    node_tree[current_idx].kind = ND_NUM;
+    node_tree[current_idx].val = *val;
+    node_tree[current_idx].lhs = NULL;
+    node_tree[current_idx].rhs = NULL;
+
+    return &node_tree[current_idx];
 }
 
 Node* new_binary_node(NodeKind kind, Node* node1, Node* node2) {
-    node_tree[node_depth].kind = kind;
-    node_tree[node_depth].lhs = node1;
-    node_tree[node_depth].rhs = node2;
+    int current_idx = node_depth;
+    node_depth++;
 
-    return &node_tree[node_depth++];
+    node_tree[current_idx].kind = kind;
+    node_tree[current_idx].lhs = node1;
+    node_tree[current_idx].rhs = node2;
+
+    return &node_tree[current_idx];
+}
+
+const char* node_kind_name(NodeKind kind) {
+    switch(kind) {
+        case ND_NUM: return "NUM";
+        case ND_ADD: return "ADD";
+        case ND_ASSIGN: return "ASSIGN";
+        case ND_VAR: return "VAR";
+        default: return "UNKNOWN";
+    }
+}
+
+void debug_ast_node(Node *node, int depth) {
+    if (node == NULL) return;
+    for (int i = 0; i < depth; i++) {
+        printf("  ");
+    }
+
+    if (node->kind == ND_NUM) {
+        printf("└── [NUM] val=%d\n", node->val);
+    } else if (node->kind == ND_ADD) {
+        printf("├── [ADD]\n");
+    }
+
+    debug_ast_node(node->lhs, depth + 1);
+    debug_ast_node(node->rhs, depth + 1);
 }
 
 void print_ast() {
