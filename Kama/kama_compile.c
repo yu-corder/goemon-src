@@ -75,6 +75,7 @@ typedef enum {
 typedef enum {
     ND_NUM,
     ND_ADD,
+    ND_MUL,
     ND_ASSIGN,
     ND_VAR,
 } NodeKind;
@@ -400,42 +401,41 @@ Node* parse_primary() {
 }
 
 Node* parse_term() {
-    Node *node1 = parse_primary();
+    Node *node = parse_primary();
 
     while(tokens[pos].kind == TK_MUL || tokens[pos].kind == TK_DIV || tokens[pos].kind == TK_MOD) {
         TokenKind kind_type = tokens[pos].kind;
         next_token();
-        parse_primary();
+        Node *rhs = parse_primary();
 
         if (kind_type == TK_MUL) {
             emit_op(OP_MUL, NULL);
+            node = new_binary_node(ND_MUL, node, rhs);
         } else if (kind_type == TK_DIV) {
             emit_op(OP_DIV, NULL);
         } else if (kind_type == TK_MOD) {
             emit_op(OP_MOD, NULL);
         }
     }
-    return node1;
+    return node;
 }
 
 
 Node* parse_expression() {
-    Node *node1 = parse_term();
-    Node *node3 = NULL;
+    Node *node = parse_term();
     while (tokens[pos].kind == TK_PLUS || tokens[pos].kind == TK_MINUS) {
         TokenKind kind_type = tokens[pos].kind;
         next_token();
-        Node *node2 = parse_term();
+        Node *rhs = parse_term();
 
         if (kind_type == TK_PLUS) {
             emit_op(OP_ADD, NULL);
-            node3 = new_binary_node(ND_ADD, node1, node2);
-            debug_ast_node(node3, node_depth);
+            node = new_binary_node(ND_ADD, node, rhs);
         } else if (kind_type == TK_MINUS) {
             emit_op(OP_SUB, NULL);
         }
     }
-    return node3;
+    return node;
 }
 
 void parse_evaluation() {
@@ -726,6 +726,8 @@ int main() {
     parse_program();
     debug_op_code();
 
+    Node node = node_tree[node_depth - 1];
+    debug_ast_node(&node, node_depth);
     print_ast();
 
     printf("絶景かな！ Compiled study.goe to study.gb\n");
@@ -774,11 +776,18 @@ void debug_ast_node(Node *node, int depth) {
         printf("  ");
     }
 
+    printf("[%s]",
+        node->kind == ND_NUM ? "NUM" :
+        node->kind == ND_ADD ? "ADD" :
+        node->kind == ND_MUL ? "MUL" :
+        "UNKNOWN"
+    );
+
     if (node->kind == ND_NUM) {
-        printf("└── [NUM] val=%d\n", node->val);
-    } else if (node->kind == ND_ADD) {
-        printf("├── [ADD]\n");
+        printf(" val=%d", node->val);
     }
+
+    printf("\n");
 
     debug_ast_node(node->lhs, depth + 1);
     debug_ast_node(node->rhs, depth + 1);
