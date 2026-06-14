@@ -75,7 +75,10 @@ typedef enum {
 typedef enum {
     ND_NUM,
     ND_ADD,
+    ND_MINUS,
     ND_MUL,
+    ND_DIV,
+    ND_MOD,
     ND_ASSIGN,
     ND_VAR,
 } NodeKind;
@@ -413,8 +416,10 @@ Node* parse_term() {
             node = new_binary_node(ND_MUL, node, rhs);
         } else if (kind_type == TK_DIV) {
             emit_op(OP_DIV, NULL);
+            node = new_binary_node(ND_DIV, node, rhs);
         } else if (kind_type == TK_MOD) {
             emit_op(OP_MOD, NULL);
+            node = new_binary_node(ND_MOD, node, rhs);
         }
     }
     return node;
@@ -433,6 +438,7 @@ Node* parse_expression() {
             node = new_binary_node(ND_ADD, node, rhs);
         } else if (kind_type == TK_MINUS) {
             emit_op(OP_SUB, NULL);
+            node = new_binary_node(ND_MINUS, node, rhs);
         }
     }
     return node;
@@ -779,7 +785,10 @@ void debug_ast_node(Node *node, int depth) {
     printf("[%s]",
         node->kind == ND_NUM ? "NUM" :
         node->kind == ND_ADD ? "ADD" :
+        node->kind == ND_MINUS ? "MINUS" :
         node->kind == ND_MUL ? "MUL" :
+        node->kind == ND_DIV  ? "DIV" :
+        node->kind == ND_MOD ? "MOD" :
         "UNKNOWN"
     );
 
