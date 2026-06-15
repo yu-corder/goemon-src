@@ -120,6 +120,9 @@ Node* new_binary_node();
 void debug_ast_node();
 void print_ast();
 
+void parse_evaluation();
+Node* parse_expression();
+
 Label symbol_table[128];
 int label_count_internal = 0;
 
@@ -393,6 +396,12 @@ Node* parse_primary() {
 
     Token *t = next_token();
     Node *node = NULL;
+    if (t->kind == TK_LPAREN) {
+        node = parse_expression();
+        next_token();
+        return node;
+    }
+    
     if (t->kind == TK_NUMBER) {
         emit_op(OP_PUSH, &t->val);
         node = new_num_node(&t->val);
