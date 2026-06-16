@@ -79,6 +79,12 @@ typedef enum {
     ND_MUL,
     ND_DIV,
     ND_MOD,
+    ND_LT,
+    ND_GT,
+    ND_LE,
+    ND_GE,
+    ND_EQ,
+    ND_NE,
     ND_ASSIGN,
     ND_VAR,
 } NodeKind;
@@ -120,7 +126,7 @@ Node* new_binary_node();
 void debug_ast_node();
 void print_ast();
 
-void parse_evaluation();
+Node* parse_evaluation();
 Node* parse_expression();
 
 Label symbol_table[128];
@@ -453,34 +459,43 @@ Node* parse_expression() {
     return node;
 }
 
-void parse_evaluation() {
-    parse_expression();
+Node* parse_evaluation() {
+    Node *node = parse_expression();
 
+    Node *rhs;
     if (tokens[pos].kind == TK_LT) {
         next_token();
-        parse_expression();
+        rhs = parse_expression();
         emit_op(OP_LT, NULL);
+        node = new_binary_node(ND_LT, node, rhs);
     } else if (tokens[pos].kind == TK_GT) {
         next_token();
-        parse_expression();
+        rhs = parse_expression();
         emit_op(OP_GT, NULL);
+        node = new_binary_node(ND_GT, node, rhs);
     } else if (tokens[pos].kind == TK_LE) {
         next_token();
-        parse_expression();
+        rhs = parse_expression();
         emit_op(OP_LE, NULL);
+        node = new_binary_node(ND_LE, node, rhs);
     } else if (tokens[pos].kind == TK_GE) {
         next_token();
-        parse_expression();
+        rhs = parse_expression();
         emit_op(OP_GE, NULL);
+        node = new_binary_node(ND_GE, node, rhs);
     } else if (tokens[pos].kind == TK_EQ) {
         next_token();
-        parse_expression();
+        rhs = parse_expression();
         emit_op(OP_EQ, NULL);
+        node = new_binary_node(ND_EQ, node, rhs);
     } else if (tokens[pos].kind == TK_NE) {
         next_token();
-        parse_expression();
+        rhs = parse_expression();
         emit_op(OP_NE, NULL);
+        node = new_binary_node(ND_NE, node, rhs);
     }
+
+    return node;
 }
 
 void parse_if();
@@ -798,6 +813,12 @@ void debug_ast_node(Node *node, int depth) {
         node->kind == ND_MUL ? "MUL" :
         node->kind == ND_DIV  ? "DIV" :
         node->kind == ND_MOD ? "MOD" :
+        node->kind == ND_LT ? "LT" :
+        node->kind == ND_GT ? "GT" :
+        node->kind == ND_LE ? "LE" :
+        node->kind == ND_GE ? "GE" :
+        node->kind == ND_EQ ? "EQ" :
+        node->kind == ND_NE ? "NE" :
         "UNKNOWN"
     );
 
