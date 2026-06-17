@@ -540,7 +540,7 @@ void parse_statement() {
                 if (tokens[pos].kind == TK_SEMI) {
                     int addr = find_variable(t->str);
                     emit_op(OP_STORE, &addr);
-                    Node *assign = new_binary_node(ND_ASSIGN, lhs, rhs);
+                    new_binary_node(ND_ASSIGN, lhs, rhs);
                 }
             }
 
