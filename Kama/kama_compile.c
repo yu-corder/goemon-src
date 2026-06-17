@@ -87,6 +87,7 @@ typedef enum {
     ND_NE,
     ND_ASSIGN,
     ND_VAR,
+    ND_PRINT,
 } NodeKind;
 
 typedef struct {
@@ -124,6 +125,7 @@ Node node_tree[128];
 Node* new_num_node();
 Node* new_binary_node();
 Node* new_var_node ();
+Node* new_unary_node();
 void debug_ast_node();
 void print_ast();
 
@@ -521,6 +523,8 @@ void parse_statement() {
             Token *value = next_token();
             if (value->kind == TK_IDENT) {
                 int addr = find_variable(value->str);
+                Node *var = new_var_node(value->str);
+                new_unary_node(ND_PRINT, var);
                 emit_op(OP_LOAD, &addr);
             } else if (value->kind == TK_NUMBER) {
                 emit_op(OP_PUSH, &value->val);
@@ -803,6 +807,16 @@ Node* new_binary_node(NodeKind kind, Node* node1, Node* node2) {
     return &node_tree[current_idx];
 }
 
+Node* new_unary_node(NodeKind kind, Node* node) {
+    int current_idx = node_depth;
+    node_depth++;
+
+    node_tree[current_idx].kind = kind;
+    node_tree[current_idx].lhs = node;
+
+    return &node_tree[current_idx];
+}
+
 const char* node_kind_name(NodeKind kind) {
     switch(kind) {
         case ND_NUM: return "NUM";
@@ -834,6 +848,7 @@ void debug_ast_node(Node *node, int depth) {
         node->kind == ND_NE ? "NE" :
         node->kind == ND_ASSIGN ? "ASSIGN" :
         node->kind == ND_VAR ? "VAR" :
+        node->kind == ND_PRINT ? "PRINT" :
         "UNKNOWN"
     );
 
