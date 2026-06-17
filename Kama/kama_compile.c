@@ -123,6 +123,7 @@ int variable_count = 0;
 Node node_tree[128];
 Node* new_num_node();
 Node* new_binary_node();
+Node* new_var_node ();
 void debug_ast_node();
 void print_ast();
 
@@ -532,14 +533,14 @@ void parse_statement() {
                 next_token();
             }
 
+            Node *lhs = new_var_node(t->str);
             if (tokens[pos].kind == TK_ASSIGN) {
                 next_token();
-                parse_evaluation();
+                Node *rhs = parse_evaluation();
                 if (tokens[pos].kind == TK_SEMI) {
-                    //ここに入った時点でOP_STOREは確定
-
                     int addr = find_variable(t->str);
                     emit_op(OP_STORE, &addr);
+                    Node *assign = new_binary_node(ND_ASSIGN, lhs, rhs);
                 }
             }
 
@@ -779,6 +780,18 @@ Node* new_num_node (int *val) {
     return &node_tree[current_idx];
 }
 
+Node* new_var_node (char *str) {
+    int current_idx = node_depth;
+    node_depth++;
+
+    node_tree[current_idx].kind = ND_VAR;
+    node_tree[current_idx].lhs = NULL;
+    node_tree[current_idx].rhs = NULL;
+    strcpy(node_tree[current_idx].name, str);
+
+    return &node_tree[current_idx];
+}
+
 Node* new_binary_node(NodeKind kind, Node* node1, Node* node2) {
     int current_idx = node_depth;
     node_depth++;
@@ -819,8 +832,14 @@ void debug_ast_node(Node *node, int depth) {
         node->kind == ND_GE ? "GE" :
         node->kind == ND_EQ ? "EQ" :
         node->kind == ND_NE ? "NE" :
+        node->kind == ND_ASSIGN ? "ASSIGN" :
+        node->kind == ND_VAR ? "VAR" :
         "UNKNOWN"
     );
+
+    if (node->kind == ND_VAR) {
+        printf("(%s)", node->name);
+    }
 
     if (node->kind == ND_NUM) {
         printf(" val=%d", node->val);
