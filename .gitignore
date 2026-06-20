@@ -1,7 +1,7 @@
-cat <<EOF > .gitignore
+.gitignore
 *.o
 *.gb
 kama-c
 kama-e
 .DS_Store
-EOF
+actual.txt
