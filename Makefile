@@ -17,3 +17,6 @@ run: all
 
 clean:
 		rm -f $(TARGET_EXEC) $(TARGET_COMP) examples/*.gb
+
+test: all
+	./tests/run_tests.sh
