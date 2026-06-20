@@ -505,7 +505,7 @@ void parse_if();
 void parse_while();
 void parse_for();
 
-void parse_statement() {
+Node* parse_statement() {
     Token *t = next_token();
     switch(t->kind) {
         case TK_PUSH: {
@@ -515,22 +515,21 @@ void parse_statement() {
                 exit(1);
             }
             emit_op(OP_PUSH, &num->val);
-            Node *node = new_num_node(&num->val);
-            printf("%d", node->val);
-            break;
+            return new_num_node(&num->val);
         }
         case TK_PRINT: {
             Token *value = next_token();
+            Node *var = NULL;
             if (value->kind == TK_IDENT) {
                 int addr = find_variable(value->str);
-                Node *var = new_var_node(value->str);
-                new_unary_node(ND_PRINT, var);
+                var = new_var_node(value->str);
                 emit_op(OP_LOAD, &addr);
             } else if (value->kind == TK_NUMBER) {
+                var = new_num_node(&value->val);
                 emit_op(OP_PUSH, &value->val);
             }
             emit_op(OP_PRINT, NULL);
-            break;
+            return new_unary_node(ND_PRINT, var);
         }
         case TK_IDENT: {
             if (tokens[pos].kind == TK_COLON) {
@@ -544,7 +543,7 @@ void parse_statement() {
                 if (tokens[pos].kind == TK_SEMI) {
                     int addr = find_variable(t->str);
                     emit_op(OP_STORE, &addr);
-                    new_binary_node(ND_ASSIGN, lhs, rhs);
+                    return new_binary_node(ND_ASSIGN, lhs, rhs);
                 }
             }
 
@@ -588,7 +587,7 @@ void parse_statement() {
             break;
         }
         default:
-            break;
+            return NULL;
     }
 }
 
@@ -722,11 +721,22 @@ void parse_for() {
 
 }
 
+Node *program_nodes[1024];
+int program_count = 0;
 void parse_program () {
     pos = 0;
     while (tokens[pos].kind != TK_EOF) {
-        parse_statement();
+        Node *stmt = parse_statement();
+
+        if (stmt != NULL) {
+            program_nodes[program_count++] = stmt;
+        }
     }
+
+    for (int i = 0; i < program_count; i++) {
+        debug_ast_node(program_nodes[i], node_depth);
+    }
+
     emit_op(OP_HALT, NULL);
 
     FILE *dest = fopen("examples/study.gb", "wb");
@@ -760,10 +770,6 @@ int main() {
 
     parse_program();
     debug_op_code();
-
-    Node node = node_tree[node_depth - 1];
-    debug_ast_node(&node, node_depth);
-    print_ast();
 
     printf("絶景かな！ Compiled study.goe to study.gb\n");
     return 0;
