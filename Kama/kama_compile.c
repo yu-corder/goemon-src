@@ -723,7 +723,7 @@ void parse_for() {
 
 Node *program_nodes[1024];
 int program_count = 0;
-void parse_program () {
+void parse_program (char *output_path) {
     pos = 0;
     while (tokens[pos].kind != TK_EOF) {
         Node *stmt = parse_statement();
@@ -739,7 +739,7 @@ void parse_program () {
 
     emit_op(OP_HALT, NULL);
 
-    FILE *dest = fopen("examples/study.gb", "wb");
+    FILE *dest = fopen(output_path, "wb");
     fwrite(bytecode, sizeof(int), count, dest);
     fclose(dest);
 }
@@ -763,12 +763,16 @@ char *read_file(const char *path) {
 void debug_token(int count);
 void debug_op_code();
 
-int main() {
-    char *src = read_file("examples/study.goe");
+int main(int argc, char **argv) {
+    if (argc < 3) {
+        printf("usage: kama-c input.goe output.gb\n");
+    }
+
+    char *src = read_file(argv[1]);
     int cn = tokenize(src);
     debug_token(cn);
 
-    parse_program();
+    parse_program(argv[2]);
     debug_op_code();
 
     printf("絶景かな！ Compiled study.goe to study.gb\n");

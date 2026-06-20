@@ -12,7 +12,7 @@ $(TARGET_COMP): Kama/kama_compile.c
 		$(CC) $(CFLAGS) -o $(TARGET_COMP) Kama/kama_compile.c
 
 run: all
-		./$(TARGET_COMP)
+		./$(TARGET_COMP) examples/study.goe examples/study.gb
 		./$(TARGET_EXEC) examples/study.gb
 
 clean:
