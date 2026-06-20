@@ -1,0 +1,15 @@
+for (i = 0; i < 10; i++) {
+    if (i == 5) {
+        continue;
+    }
+    print i;
+}
+
+j = 0;
+while (j < 3) {
+    if ( j == 2) {
+        break;
+    }
+    print j;
+    j++;
+}
