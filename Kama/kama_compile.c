@@ -552,15 +552,15 @@ Node* parse_statement() {
                 int addr = find_variable(t->str);
                 emit_op(OP_INC, &addr);
             }
-            break;
+            return NULL;
         }
         case TK_IF: {
             parse_if();
-            break;
+            return NULL;
         }
         case TK_WHILE: {
             parse_while();
-            break;
+            return NULL;
         }
         case TK_BREAK: {
             if (loop_depth == 0) {
@@ -571,7 +571,7 @@ Node* parse_statement() {
             loop_stack[loop_depth].breaks[index] = count;
             int zero = 0;
             emit_op(OP_JMP, &zero);
-            break;
+            return NULL;
         }
         case TK_CONTINUE: {
             if (loop_depth == 0) {
@@ -580,11 +580,11 @@ Node* parse_statement() {
             }
             int my_jmp_idx = loop_stack[loop_depth].continue_target;
             emit_op(OP_JMP, &my_jmp_idx);
-            break;
+            return NULL;
         }
         case TK_FOR: {
             parse_for();
-            break;
+            return NULL;
         }
         default:
             return NULL;
@@ -734,7 +734,7 @@ void parse_program () {
     }
 
     for (int i = 0; i < program_count; i++) {
-        debug_ast_node(program_nodes[i], node_depth);
+        debug_ast_node(program_nodes[i], 1);
     }
 
     emit_op(OP_HALT, NULL);
