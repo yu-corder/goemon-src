@@ -2,19 +2,22 @@
 
 set -e
 
-echo "=== Compile ==="
-./kama-c tests/test.goe tests/test.gb > /dev/null
+for testfile in tests/*.goe
+do
+    name=$(basename "$testfile" .goe)
 
-echo "=== Execute ==="
-result=$(./kama-e tests/test.gb)
+    expected="tests/${name}.expected"
+    bytecode="tests/${name}.gb"
 
-expected="VM Output: 7"
+    echo "Testing $name"
 
-if [ "$result" = "$expected" ]; then
-    echo "PASS"
-else
-    echo "FAIL"
-    echo "expected: $expected"
-    echo "actual:   $result"
-    exit 1
-fi
+    ./kama-c "$testfile" "$bytecode" > /dev/null
+    ./kama-e "$bytecode" > actual.txt
+
+    if diff actual.txt "$expected" > /dev/null; then
+        echo "[PASS] $name"
+    else
+        echo "[FAIL] $name"
+        exit 1
+    fi
+done
