@@ -2,6 +2,10 @@
 
 set -e
 
+GREEN='\033[32m'
+RED='\033[31m'
+NC='\033[0m'
+
 for testfile in tests/*.goe
 do
     name=$(basename "$testfile" .goe)
@@ -15,9 +19,9 @@ do
     ./kama-e "$bytecode" > actual.txt
 
     if diff actual.txt "$expected" > /dev/null; then
-        echo "[PASS] $name"
+        echo -e "${GREEN}✓ [PASS]${NC} $name"
     else
-        echo "[FAIL] $name"
+        echo -e "${RED}✗ [FAIL]${NC} $name"
         exit 1
     fi
 done
