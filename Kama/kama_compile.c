@@ -88,6 +88,8 @@ typedef enum {
     ND_ASSIGN,
     ND_VAR,
     ND_PRINT,
+    ND_IF,
+    ND_BLOCK,
 } NodeKind;
 
 typedef struct {
@@ -101,6 +103,10 @@ typedef struct Node {
 
     struct Node *lhs;
     struct Node *rhs;
+
+    struct Node *condition;
+    struct Node *then_stmt;
+    struct Node *else_stmt;
 
     int val;
     char name[32];
@@ -126,11 +132,13 @@ Node* new_num_node();
 Node* new_binary_node();
 Node* new_var_node ();
 Node* new_unary_node();
+Node* new_if_node();
 void debug_ast_node();
 void print_ast();
 
 Node* parse_evaluation();
 Node* parse_expression();
+Node* parse_if();
 
 Label symbol_table[128];
 int label_count_internal = 0;
@@ -417,6 +425,7 @@ Node* parse_primary() {
     } else if (t->kind == TK_IDENT) {
         int addr = find_variable(t->str);
         emit_op(OP_LOAD, &addr);
+        node = new_var_node(t->str);
     }
     return node;
 }
@@ -501,7 +510,6 @@ Node* parse_evaluation() {
     return node;
 }
 
-void parse_if();
 void parse_while();
 void parse_for();
 
@@ -529,6 +537,7 @@ Node* parse_statement() {
                 emit_op(OP_PUSH, &value->val);
             }
             emit_op(OP_PRINT, NULL);
+            next_token();
             return new_unary_node(ND_PRINT, var);
         }
         case TK_IDENT: {
@@ -555,8 +564,7 @@ Node* parse_statement() {
             return NULL;
         }
         case TK_IF: {
-            parse_if();
-            return NULL;
+            return parse_if();
         }
         case TK_WHILE: {
             parse_while();
@@ -591,9 +599,9 @@ Node* parse_statement() {
     }
 }
 
-void parse_if () {
+Node* parse_if () {
     if (tokens[pos].kind == TK_LPAREN) next_token();
-    parse_evaluation();
+    Node *condition = parse_evaluation();
     if (tokens[pos].kind == TK_RPAREN) next_token();
 
     int my_jz_idx = count;
@@ -601,11 +609,13 @@ void parse_if () {
     emit_op(OP_JZ, &zero);
 
     if (tokens[pos].kind == TK_LBRACE) next_token();
+    Node *block = NULL;
     while (tokens[pos].kind != TK_RBRACE && tokens[pos].kind != TK_EOF) {
-        parse_statement();
+        block = parse_statement();
     }
     if (tokens[pos].kind == TK_RBRACE) next_token();
 
+    Node *else_stmt = NULL;
     if (tokens[pos].kind == TK_ELSE) {
         next_token();
 
@@ -620,7 +630,7 @@ void parse_if () {
         } else {
             if (tokens[pos].kind == TK_LBRACE) next_token();
             while (tokens[pos].kind != TK_RBRACE && tokens[pos].kind != TK_EOF) {
-                parse_statement();
+                else_stmt = parse_statement();
             }
             if (tokens[pos].kind == TK_RBRACE) next_token();
             bytecode[my_jmp_idx + 1] = count;
@@ -629,6 +639,8 @@ void parse_if () {
     } else {
         bytecode[my_jz_idx + 1] = count;
     }
+
+    return new_if_node(ND_IF, condition, block, else_stmt);
 }
 
 void parse_while() {
@@ -827,6 +839,18 @@ Node* new_unary_node(NodeKind kind, Node* node) {
     return &node_tree[current_idx];
 }
 
+Node* new_if_node(NodeKind kind, Node* condition, Node* then, Node* else_stmt) {
+    int current_idx = node_depth;
+    node_depth++;
+
+    node_tree[current_idx].kind = kind;
+    node_tree[current_idx].condition = condition;
+    node_tree[current_idx].then_stmt = then;
+    node_tree[current_idx].else_stmt = else_stmt;
+
+    return &node_tree[current_idx];
+}
+
 const char* node_kind_name(NodeKind kind) {
     switch(kind) {
         case ND_NUM: return "NUM";
@@ -859,6 +883,7 @@ void debug_ast_node(Node *node, int depth) {
         node->kind == ND_ASSIGN ? "ASSIGN" :
         node->kind == ND_VAR ? "VAR" :
         node->kind == ND_PRINT ? "PRINT" :
+        node->kind == ND_IF ? "IF" :
         "UNKNOWN"
     );
 
@@ -874,6 +899,12 @@ void debug_ast_node(Node *node, int depth) {
 
     debug_ast_node(node->lhs, depth + 1);
     debug_ast_node(node->rhs, depth + 1);
+
+    if (node->kind == ND_IF) {
+        debug_ast_node(node->condition, depth + 1);
+        debug_ast_node(node->then_stmt, depth + 1);
+        debug_ast_node(node->else_stmt, depth + 1);
+    }
 }
 
 void print_ast() {
