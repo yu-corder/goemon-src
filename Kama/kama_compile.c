@@ -910,19 +910,20 @@ void debug_ast_node(Node *node, int depth) {
 
     printf("\n");
 
-    debug_ast_node(node->lhs, depth + 1);
-    debug_ast_node(node->rhs, depth + 1);
-
     if (node->kind == ND_IF) {
         debug_ast_node(node->condition, depth + 1);
         Node *current = node->then_stmt;
-        
+
         while (current) {
             debug_ast_node(current, depth + 1);
             current = current->next;
         }
         debug_ast_node(node->else_stmt, depth + 1);
+        return;
     }
+
+    debug_ast_node(node->lhs, depth + 1);
+    debug_ast_node(node->rhs, depth + 1);
 }
 
 void print_ast() {
