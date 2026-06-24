@@ -108,6 +108,8 @@ typedef struct Node {
     struct Node *then_stmt;
     struct Node *else_stmt;
 
+    struct Node *next;
+
     int val;
     char name[32];
 } Node;
@@ -610,8 +612,19 @@ Node* parse_if () {
 
     if (tokens[pos].kind == TK_LBRACE) next_token();
     Node *block = NULL;
+    Node *head = NULL;
+    Node *tail = NULL;
     while (tokens[pos].kind != TK_RBRACE && tokens[pos].kind != TK_EOF) {
         block = parse_statement();
+        if (!block) continue;
+
+        if (!head) {
+            head = block;
+            tail = block;
+        } else {
+            tail->next = block;
+            tail = block;
+        }
     }
     if (tokens[pos].kind == TK_RBRACE) next_token();
 
@@ -640,7 +653,7 @@ Node* parse_if () {
         bytecode[my_jz_idx + 1] = count;
     }
 
-    return new_if_node(ND_IF, condition, block, else_stmt);
+    return new_if_node(ND_IF, condition, head, else_stmt);
 }
 
 void parse_while() {
@@ -902,7 +915,12 @@ void debug_ast_node(Node *node, int depth) {
 
     if (node->kind == ND_IF) {
         debug_ast_node(node->condition, depth + 1);
-        debug_ast_node(node->then_stmt, depth + 1);
+        Node *current = node->then_stmt;
+        
+        while (current) {
+            debug_ast_node(current, depth + 1);
+            current = current->next;
+        }
         debug_ast_node(node->else_stmt, depth + 1);
     }
 }

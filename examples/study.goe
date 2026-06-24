@@ -1,4 +1,6 @@
 c = 1;
-if (c) {
+if (c < 2) {
     print c;
+    print 2;
+    print 3;
 }
