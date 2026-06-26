@@ -640,7 +640,7 @@ Node* parse_if () {
 
         if (tokens[pos].kind == TK_IF) {
             next_token();
-            parse_if();
+            else_head = parse_if();
             bytecode[my_jmp_idx + 1] = count;
         } else {
             if (tokens[pos].kind == TK_LBRACE) next_token();
