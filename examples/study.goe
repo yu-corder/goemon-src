@@ -1,6 +1,10 @@
 c = 1;
-if (c < 2) {
+if (2 < 2) {
     print c;
     print 2;
     print 3;
+} else {
+    print 8;
+    print 7;
+    print 9;
 }

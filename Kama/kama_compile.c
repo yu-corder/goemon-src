@@ -611,23 +611,25 @@ Node* parse_if () {
     emit_op(OP_JZ, &zero);
 
     if (tokens[pos].kind == TK_LBRACE) next_token();
-    Node *block = NULL;
-    Node *head = NULL;
-    Node *tail = NULL;
+    Node *then_stmt = NULL;
+    Node *then_head = NULL;
+    Node *then_tail = NULL;
     while (tokens[pos].kind != TK_RBRACE && tokens[pos].kind != TK_EOF) {
-        block = parse_statement();
-        if (!block) continue;
+        then_stmt = parse_statement();
+        if (!then_stmt) continue;
 
-        if (!head) {
-            head = block;
-            tail = block;
+        if (!then_head) {
+            then_head = then_stmt;
+            then_tail = then_stmt;
         } else {
-            tail->next = block;
-            tail = block;
+            then_tail->next = then_stmt;
+            then_tail = then_stmt;
         }
     }
     if (tokens[pos].kind == TK_RBRACE) next_token();
 
+    Node *else_head = NULL;
+    Node *else_tail = NULL;
     Node *else_stmt = NULL;
     if (tokens[pos].kind == TK_ELSE) {
         next_token();
@@ -644,6 +646,16 @@ Node* parse_if () {
             if (tokens[pos].kind == TK_LBRACE) next_token();
             while (tokens[pos].kind != TK_RBRACE && tokens[pos].kind != TK_EOF) {
                 else_stmt = parse_statement();
+
+                if (!else_stmt) continue;
+
+                if (!else_head) {
+                    else_head = else_stmt;
+                    else_tail = else_stmt;
+                } else {
+                    else_tail->next = else_stmt;
+                    else_tail = else_stmt;
+                }
             }
             if (tokens[pos].kind == TK_RBRACE) next_token();
             bytecode[my_jmp_idx + 1] = count;
@@ -652,8 +664,7 @@ Node* parse_if () {
     } else {
         bytecode[my_jz_idx + 1] = count;
     }
-
-    return new_if_node(ND_IF, condition, head, else_stmt);
+    return new_if_node(ND_IF, condition, then_head, else_head);
 }
 
 void parse_while() {
@@ -911,14 +922,36 @@ void debug_ast_node(Node *node, int depth) {
     printf("\n");
 
     if (node->kind == ND_IF) {
-        debug_ast_node(node->condition, depth + 1);
+        for (int i = 0; i < depth + 1; i++) {
+            printf("  ");
+        }
+        printf("[CONDITION]\n");
+        debug_ast_node(node->condition, depth + 2);
+
+        for (int i = 0; i < depth + 1; i++) {
+            printf("  ");
+        }
+        printf("[THEN]\n");
         Node *current = node->then_stmt;
 
         while (current) {
-            debug_ast_node(current, depth + 1);
+            debug_ast_node(current, depth + 2);
             current = current->next;
         }
-        debug_ast_node(node->else_stmt, depth + 1);
+
+        if (node->else_stmt) {
+            for (int i = 0; i < depth + 1; i++) {
+                printf("  ");
+            }
+            printf("[ELSE]\n");
+            Node *else_current = node->else_stmt;
+
+            while (else_current) {
+                debug_ast_node(else_current, depth + 2);
+                else_current = else_current->next;
+            }
+        }
+        
         return;
     }
 
