@@ -885,11 +885,15 @@ const char* node_kind_name(NodeKind kind) {
     }
 }
 
-void debug_ast_node(Node *node, int depth) {
-    if (node == NULL) return;
+void print_indent(int depth) {
     for (int i = 0; i < depth; i++) {
         printf("  ");
     }
+}
+
+void debug_ast_node(Node *node, int depth) {
+    if (node == NULL) return;
+    print_indent(depth);
 
     printf("[%s]",
         node->kind == ND_NUM ? "NUM" :
@@ -922,15 +926,11 @@ void debug_ast_node(Node *node, int depth) {
     printf("\n");
 
     if (node->kind == ND_IF) {
-        for (int i = 0; i < depth + 1; i++) {
-            printf("  ");
-        }
+        print_indent(depth + 1);
         printf("[CONDITION]\n");
         debug_ast_node(node->condition, depth + 2);
 
-        for (int i = 0; i < depth + 1; i++) {
-            printf("  ");
-        }
+        print_indent(depth + 1);
         printf("[THEN]\n");
         Node *current = node->then_stmt;
 
@@ -940,9 +940,7 @@ void debug_ast_node(Node *node, int depth) {
         }
 
         if (node->else_stmt) {
-            for (int i = 0; i < depth + 1; i++) {
-                printf("  ");
-            }
+            print_indent(depth + 1);
             printf("[ELSE]\n");
             Node *else_current = node->else_stmt;
 
