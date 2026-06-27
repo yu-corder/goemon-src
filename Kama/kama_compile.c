@@ -145,7 +145,12 @@ Node* parse_if();
 Label symbol_table[128];
 int label_count_internal = 0;
 
-bool debug_ast = false;
+bool g_debug_ast = false;
+bool g_debug_token = false;
+bool g_debug_binary = false;
+
+void debug_token(int count);
+void debug_bynary();
 
 int find_label(char *name) {
     for (int i = 0; i < label_count_internal; i++) {
@@ -176,7 +181,7 @@ int find_variable(char *name) {
 }
 
 Token tokens[MAX_TOKENS];
-int tokenize (char *p) {
+void tokenize (char *p) {
     int i = 0;
     while(*p) {
         if (isspace(*p)) { p++; continue;}
@@ -383,7 +388,8 @@ int tokenize (char *p) {
         printf("不明な文字ですぞ: %c\n", *p);
     }
     tokens[i].kind = TK_EOF;
-    return i;
+
+    if (g_debug_token) debug_token(i);
 }
 
 
@@ -771,13 +777,17 @@ void parse_program (char *output_path) {
         }
     }
 
-    if (debug_ast) {
+    if (g_debug_ast) {
         for (int i = 0; i < program_count; i++) {
             debug_ast_node(program_nodes[i], 1);
         }
     }
 
     emit_op(OP_HALT, NULL);
+
+    if (g_debug_binary) {
+        debug_bynary();
+    }
 
     FILE *dest = fopen(output_path, "wb");
     fwrite(bytecode, sizeof(int), count, dest);
@@ -800,15 +810,16 @@ char *read_file(const char *path) {
     return buf;
 }
 
-void debug_token(int count);
-void debug_op_code();
-
 int main(int argc, char **argv) {
     int arg = 1;
 
     while (arg < argc && argv[arg][0] == '-') {
         if (strcmp(argv[arg], "--ast") == 0) {
-            debug_ast = true;
+            g_debug_ast = true;
+        } else if (strcmp(argv[arg], "--token") == 0) {
+            g_debug_token = true;
+        } else if (strcmp(argv[arg], "--binary") == 0) {
+            g_debug_binary = true;
         } else {
             printf("Unknown option: %s\n", argv[arg]);
             return 1;
@@ -824,11 +835,8 @@ int main(int argc, char **argv) {
     }
 
     char *src = read_file(argv[arg]);
-    int cn = tokenize(src);
-    debug_token(cn);
-
+    tokenize(src);
     parse_program(argv[arg + 1]);
-    debug_op_code();
 
     printf("絶景かな！ Compiled study.goe to study.gb\n");
     return 0;
@@ -1026,8 +1034,8 @@ const char *token_kind_name[] = {
     "TK_FOR",
     "TK_EOF"
 };
-void debug_op_code() {
-    printf("\n===== OP_CODE DUMP =====\n");
+void debug_bynary() {
+    printf("\n===== BINARY DUMP =====\n");
     for (int i = 0; i < count; i++) {
         printf("%d\n", bytecode[i]);
     }
