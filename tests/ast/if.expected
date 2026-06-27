@@ -1,0 +1,62 @@
+  [IF]
+    [CONDITION]
+      [NUM] val=1
+    [THEN]
+      [PRINT]
+        [NUM] val=1
+  [PRINT]
+    [NUM] val=999
+  [IF]
+    [CONDITION]
+      [NUM] val=1
+    [THEN]
+      [PRINT]
+        [NUM] val=2
+  [IF]
+    [CONDITION]
+      [NUM] val=0
+    [THEN]
+      [PRINT]
+        [NUM] val=3
+      [IF]
+        [CONDITION]
+          [LT]
+            [NUM] val=1
+            [NUM] val=3
+        [THEN]
+          [PRINT]
+            [NUM] val=4
+        [ELSE]
+          [PRINT]
+            [NUM] val=5
+    [ELSE]
+      [IF]
+        [CONDITION]
+          [NUM] val=0
+        [THEN]
+          [PRINT]
+            [NUM] val=6
+        [ELSE]
+          [IF]
+            [CONDITION]
+              [NUM] val=0
+            [THEN]
+              [IF]
+                [CONDITION]
+                  [LT]
+                    [NUM] val=2
+                    [NUM] val=4
+                [THEN]
+                  [PRINT]
+                    [NUM] val=7
+                [ELSE]
+                  [PRINT]
+                    [NUM] val=8
+              [PRINT]
+                [NUM] val=9
+            [ELSE]
+              [PRINT]
+                [NUM] val=10
+  [PRINT]
+    [NUM] val=1000
+絶景かな！ Compiled study.goe to study.gb
