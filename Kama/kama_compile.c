@@ -90,6 +90,8 @@ typedef enum {
     ND_PRINT,
     ND_IF,
     ND_BLOCK,
+    ND_INC,
+    ND_WHILE,
 } NodeKind;
 
 typedef struct {
@@ -107,6 +109,9 @@ typedef struct Node {
     struct Node *condition;
     struct Node *then_stmt;
     struct Node *else_stmt;
+
+    struct Node *while_condition;
+    struct Node *body;
 
     struct Node *next;
 
@@ -135,12 +140,14 @@ Node* new_binary_node();
 Node* new_var_node ();
 Node* new_unary_node();
 Node* new_if_node();
+Node* new_loop_node();
 void debug_ast_node();
 void print_ast();
 
 Node* parse_evaluation();
 Node* parse_expression();
 Node* parse_if();
+Node* parse_while();
 
 Label symbol_table[128];
 int label_count_internal = 0;
@@ -520,7 +527,6 @@ Node* parse_evaluation() {
     return node;
 }
 
-void parse_while();
 void parse_for();
 
 Node* parse_statement() {
@@ -570,6 +576,8 @@ Node* parse_statement() {
                 next_token();
                 int addr = find_variable(t->str);
                 emit_op(OP_INC, &addr);
+                Node *var = new_var_node(t->str);
+                return new_unary_node(ND_INC, var);
             }
             return NULL;
         }
@@ -577,8 +585,7 @@ Node* parse_statement() {
             return parse_if();
         }
         case TK_WHILE: {
-            parse_while();
-            return NULL;
+            return parse_while();
         }
         case TK_BREAK: {
             if (loop_depth == 0) {
@@ -675,21 +682,36 @@ Node* parse_if () {
     return new_if_node(ND_IF, condition, then_head, else_head);
 }
 
-void parse_while() {
+Node* parse_while() {
     loop_depth++;
     loop_stack[loop_depth].break_count = 0;
     if (tokens[pos].kind == TK_LPAREN) next_token();
     int my_jmp_idx = count;
     loop_stack[loop_depth].continue_target = my_jmp_idx;
-    parse_evaluation();
+    Node *condition = parse_evaluation();
     if (tokens[pos].kind == TK_RPAREN) next_token();
     int my_jz_idx = count;
     int zero = 0;
     emit_op(OP_JZ, &zero);
 
     if (tokens[pos].kind == TK_LBRACE) next_token();
+    Node *body_head = NULL;
+    Node *body_tail = NULL;
+    Node *body_stmt = NULL;
+
     while (tokens[pos].kind != TK_RBRACE && tokens[pos].kind != TK_EOF) {
-        parse_statement();
+        body_stmt = parse_statement();
+
+        if (!body_stmt) continue;
+
+        if (!body_head) {
+            body_head = body_stmt;
+            body_tail = body_stmt;
+        } else {
+            body_tail->next = body_stmt;
+            body_tail = body_stmt;
+        }
+
     }
     if (tokens[pos].kind == TK_RBRACE) next_token();
 
@@ -702,6 +724,8 @@ void parse_while() {
         bytecode[break_jz_idx + 1] = count;
     }
     loop_depth--;
+
+    return new_loop_node(ND_WHILE, condition, body_head);
 }
 
 void parse_for() {
@@ -902,6 +926,17 @@ Node* new_if_node(NodeKind kind, Node* condition, Node* then, Node* else_stmt) {
     return &node_tree[current_idx];
 }
 
+Node* new_loop_node(NodeKind kind, Node* condition, Node* body) {
+    int current_idx = node_depth;
+    node_depth++;
+
+    node_tree[current_idx].kind = kind;
+    node_tree[current_idx].while_condition = condition;
+    node_tree[current_idx].body = body;
+
+    return &node_tree[current_idx];
+}
+
 const char* node_kind_name(NodeKind kind) {
     switch(kind) {
         case ND_NUM: return "NUM";
@@ -939,6 +974,8 @@ void debug_ast_node(Node *node, int depth) {
         node->kind == ND_VAR ? "VAR" :
         node->kind == ND_PRINT ? "PRINT" :
         node->kind == ND_IF ? "IF" :
+        node->kind == ND_INC ? "INC" :
+        node->kind == ND_WHILE ? "WHILE" :
         "UNKNOWN"
     );
 
@@ -977,6 +1014,21 @@ void debug_ast_node(Node *node, int depth) {
             }
         }
         
+        return;
+    } else if (node->kind == ND_WHILE) {
+        print_indent(depth + 1);
+        printf("[CONDITION]\n");
+        debug_ast_node(node->while_condition, depth + 2);
+
+        print_indent(depth + 1);
+        printf("[BODY]\n");
+        Node *current = node->body;
+
+        while (current) {
+            debug_ast_node(current, depth + 2);
+            current = current->next;
+        }
+
         return;
     }
 
