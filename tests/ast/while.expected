@@ -1,0 +1,16 @@
+  [ASSIGN]
+    [VAR](c)
+    [NUM] val=0
+  [WHILE]
+    [CONDITION]
+      [LT]
+        [VAR](c)
+        [NUM] val=5
+    [BODY]
+      [PRINT]
+        [VAR](c)
+      [PRINT]
+        [NUM] val=1
+      [INC]
+        [VAR](c)
+絶景かな！ Compiled study.goe to study.gb

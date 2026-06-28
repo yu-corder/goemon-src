@@ -1,0 +1,7 @@
+c = 0;
+
+while (c < 5) {
+    print c;
+    print 1;
+    c++;
+}
