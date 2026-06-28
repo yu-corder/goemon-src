@@ -107,11 +107,9 @@ typedef struct Node {
     struct Node *rhs;
 
     struct Node *condition;
-    struct Node *then_stmt;
-    struct Node *else_stmt;
-
-    struct Node *while_condition;
     struct Node *body;
+    struct Node *else_stmt;
+    
 
     struct Node *next;
 
@@ -920,7 +918,7 @@ Node* new_if_node(NodeKind kind, Node* condition, Node* then, Node* else_stmt) {
 
     node_tree[current_idx].kind = kind;
     node_tree[current_idx].condition = condition;
-    node_tree[current_idx].then_stmt = then;
+    node_tree[current_idx].body = then;
     node_tree[current_idx].else_stmt = else_stmt;
 
     return &node_tree[current_idx];
@@ -931,7 +929,7 @@ Node* new_loop_node(NodeKind kind, Node* condition, Node* body) {
     node_depth++;
 
     node_tree[current_idx].kind = kind;
-    node_tree[current_idx].while_condition = condition;
+    node_tree[current_idx].condition = condition;
     node_tree[current_idx].body = body;
 
     return &node_tree[current_idx];
@@ -996,7 +994,7 @@ void debug_ast_node(Node *node, int depth) {
 
         print_indent(depth + 1);
         printf("[THEN]\n");
-        Node *current = node->then_stmt;
+        Node *current = node->body;
 
         while (current) {
             debug_ast_node(current, depth + 2);
@@ -1018,7 +1016,7 @@ void debug_ast_node(Node *node, int depth) {
     } else if (node->kind == ND_WHILE) {
         print_indent(depth + 1);
         printf("[CONDITION]\n");
-        debug_ast_node(node->while_condition, depth + 2);
+        debug_ast_node(node->condition, depth + 2);
 
         print_indent(depth + 1);
         printf("[BODY]\n");
