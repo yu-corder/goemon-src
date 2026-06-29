@@ -92,6 +92,8 @@ typedef enum {
     ND_BLOCK,
     ND_INC,
     ND_WHILE,
+    ND_BREAK,
+    ND_CONTINUE,
 } NodeKind;
 
 typedef struct {
@@ -136,6 +138,7 @@ Node node_tree[128];
 Node* new_num_node();
 Node* new_binary_node();
 Node* new_var_node ();
+Node* new_simple_node();
 Node* new_unary_node();
 Node* new_if_node();
 Node* new_loop_node();
@@ -594,7 +597,7 @@ Node* parse_statement() {
             loop_stack[loop_depth].breaks[index] = count;
             int zero = 0;
             emit_op(OP_JMP, &zero);
-            return NULL;
+            return new_simple_node(ND_BREAK);
         }
         case TK_CONTINUE: {
             if (loop_depth == 0) {
@@ -603,7 +606,7 @@ Node* parse_statement() {
             }
             int my_jmp_idx = loop_stack[loop_depth].continue_target;
             emit_op(OP_JMP, &my_jmp_idx);
-            return NULL;
+            return new_simple_node(ND_CONTINUE);
         }
         case TK_FOR: {
             parse_for();
@@ -902,6 +905,15 @@ Node* new_binary_node(NodeKind kind, Node* node1, Node* node2) {
     return &node_tree[current_idx];
 }
 
+Node* new_simple_node(NodeKind kind) {
+    int current_idx = node_depth;
+    node_depth++;
+
+    node_tree[current_idx].kind = kind;
+
+    return &node_tree[current_idx];
+}
+
 Node* new_unary_node(NodeKind kind, Node* node) {
     int current_idx = node_depth;
     node_depth++;
@@ -974,6 +986,8 @@ void debug_ast_node(Node *node, int depth) {
         node->kind == ND_IF ? "IF" :
         node->kind == ND_INC ? "INC" :
         node->kind == ND_WHILE ? "WHILE" :
+        node->kind == ND_BREAK ? "BREAK" :
+        node->kind == ND_CONTINUE ? "CONTINUE" :
         "UNKNOWN"
     );
 
