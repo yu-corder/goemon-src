@@ -1,6 +1,9 @@
   [ASSIGN]
     [VAR](c)
     [NUM] val=0
+  [ASSIGN]
+    [VAR](d)
+    [NUM] val=1
   [WHILE]
     [CONDITION]
       [LT]
@@ -11,6 +14,61 @@
         [VAR](c)
       [PRINT]
         [NUM] val=1
+      [ASSIGN]
+        [VAR](d)
+        [NUM] val=1
+      [WHILE]
+        [CONDITION]
+          [LT]
+            [VAR](d)
+            [NUM] val=3
+        [BODY]
+          [PRINT]
+            [VAR](d)
+          [INC]
+            [VAR](d)
       [INC]
         [VAR](c)
+  [ASSIGN]
+    [VAR](e)
+    [NUM] val=0
+  [ASSIGN]
+    [VAR](f)
+    [NUM] val=0
+  [WHILE]
+    [CONDITION]
+      [LT]
+        [VAR](e)
+        [NUM] val=3
+    [BODY]
+      [IF]
+        [CONDITION]
+          [EQ]
+            [VAR](e)
+            [NUM] val=2
+        [THEN]
+          [BREAK]
+      [PRINT]
+        [VAR](e)
+      [INC]
+        [VAR](e)
+  [WHILE]
+    [CONDITION]
+      [LT]
+        [VAR](f)
+        [NUM] val=3
+    [BODY]
+      [IF]
+        [CONDITION]
+          [EQ]
+            [VAR](f)
+            [NUM] val=2
+        [THEN]
+          [INC]
+            [VAR](f)
+          [CONTINUE]
+      [PRINT]
+        [VAR](f)
+      [INC]
+        [VAR](f)
 絶景かな！ Compiled study.goe to study.gb
