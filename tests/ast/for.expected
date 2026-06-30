@@ -1,0 +1,59 @@
+  [FOR]
+    [INIT]
+      [ASSIGN]
+        [VAR](i)
+        [NUM] val=0
+    [CONDITION]
+      [LT]
+        [VAR](i)
+        [NUM] val=10
+    [UPDATE]
+      [INC]
+        [VAR](i)
+    [BODY]
+      [BREAK]
+  [FOR]
+    [INIT]
+      [ASSIGN]
+        [VAR](i)
+        [NUM] val=0
+    [CONDITION]
+      [LT]
+        [VAR](i)
+        [NUM] val=8
+    [UPDATE]
+      [INC]
+        [VAR](i)
+    [BODY]
+      [CONTINUE]
+  [FOR]
+    [INIT]
+      [ASSIGN]
+        [VAR](i)
+        [NUM] val=0
+    [CONDITION]
+      [LT]
+        [VAR](i)
+        [NUM] val=5
+    [UPDATE]
+      [INC]
+        [VAR](i)
+    [BODY]
+      [FOR]
+        [INIT]
+          [ASSIGN]
+            [VAR](j)
+            [NUM] val=0
+        [CONDITION]
+          [LT]
+            [VAR](j)
+            [NUM] val=3
+        [UPDATE]
+          [INC]
+            [VAR](j)
+        [BODY]
+          [PRINT]
+            [VAR](j)
+      [PRINT]
+        [VAR](i)
+絶景かな！ Compiled study.goe to study.gb
