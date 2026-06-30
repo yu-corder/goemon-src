@@ -739,6 +739,7 @@ Node* parse_for() {
     if (tokens[pos].kind == TK_LPAREN) next_token();
 
     Node *init = NULL;
+    Node *var = NULL;
     if (tokens[pos].kind == TK_IDENT) {
         Token *t = next_token();
         if (tokens[pos].kind == TK_ASSIGN) {
@@ -748,9 +749,11 @@ Node* parse_for() {
                 next_token();
                 int addr = find_variable(t->str);
                 emit_op(OP_STORE, &addr);
+                var = new_var_node(t->str);
             }
         }
     }
+    init = new_binary_node(ND_ASSIGN, var, init);
 
     int cond_start_idx = count;
 
