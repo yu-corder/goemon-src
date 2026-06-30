@@ -94,6 +94,7 @@ typedef enum {
     ND_WHILE,
     ND_BREAK,
     ND_CONTINUE,
+    ND_FOR,
 } NodeKind;
 
 typedef struct {
@@ -111,6 +112,9 @@ typedef struct Node {
     struct Node *condition;
     struct Node *body;
     struct Node *else_stmt;
+
+    struct Node *init;
+    struct Node *update;
     
 
     struct Node *next;
@@ -142,6 +146,7 @@ Node* new_simple_node();
 Node* new_unary_node();
 Node* new_if_node();
 Node* new_loop_node();
+Node* new_for_node();
 void debug_ast_node();
 void print_ast();
 
@@ -149,6 +154,7 @@ Node* parse_evaluation();
 Node* parse_expression();
 Node* parse_if();
 Node* parse_while();
+Node* parse_for();
 
 Label symbol_table[128];
 int label_count_internal = 0;
@@ -528,8 +534,6 @@ Node* parse_evaluation() {
     return node;
 }
 
-void parse_for();
-
 Node* parse_statement() {
     Token *t = next_token();
     switch(t->kind) {
@@ -609,8 +613,7 @@ Node* parse_statement() {
             return new_simple_node(ND_CONTINUE);
         }
         case TK_FOR: {
-            parse_for();
-            return NULL;
+            return parse_for();
         }
         default:
             return NULL;
@@ -729,16 +732,18 @@ Node* parse_while() {
     return new_loop_node(ND_WHILE, condition, body_head);
 }
 
-void parse_for() {
+Node* parse_for() {
     loop_depth++;
     loop_stack[loop_depth].break_count = 0;
 
     if (tokens[pos].kind == TK_LPAREN) next_token();
+
+    Node *init = NULL;
     if (tokens[pos].kind == TK_IDENT) {
         Token *t = next_token();
         if (tokens[pos].kind == TK_ASSIGN) {
             next_token();
-            parse_evaluation();
+            init = parse_evaluation();
             if (tokens[pos].kind == TK_SEMI) {
                 next_token();
                 int addr = find_variable(t->str);
@@ -749,7 +754,10 @@ void parse_for() {
 
     int cond_start_idx = count;
 
-    if (tokens[pos].kind != TK_SEMI) parse_evaluation();
+    Node *condition = NULL;
+    if (tokens[pos].kind != TK_SEMI) {
+        condition = parse_evaluation();
+    }
     if (tokens[pos].kind == TK_SEMI) next_token();
 
     int my_jz_idx = count;
@@ -761,12 +769,15 @@ void parse_for() {
 
     int update_start_idx = count;
     loop_stack[loop_depth].continue_target = update_start_idx;
+    Node *update = NULL;
     if (tokens[pos].kind == TK_IDENT) {
         Token *t = next_token();
         if (tokens[pos].kind == TK_INC) {
             next_token();
             int addr = find_variable(t->str);
             emit_op(OP_INC, &addr);
+            Node *var = new_var_node(t->str);
+            update = new_unary_node(ND_INC, var);
         }
     }
     if (tokens[pos].kind == TK_RPAREN) next_token();
@@ -774,8 +785,22 @@ void parse_for() {
     bytecode[jump_to_body_idx + 1] = count;
 
     if (tokens[pos].kind == TK_LBRACE) next_token();
+
+    Node *body_head = NULL;
+    Node *body_tail = NULL;
+    Node *body_stmt = NULL;
     while (tokens[pos].kind != TK_RBRACE && tokens[pos].kind != TK_EOF) {
-        parse_statement();
+        body_stmt = parse_statement();
+
+        if (!body_stmt) continue;
+
+        if (!body_head) {
+            body_head = body_stmt;
+            body_tail = body_stmt;
+        } else {
+            body_tail->next = body_stmt;
+            body_tail = body_stmt;
+        }
     }
     if (tokens[pos].kind == TK_RBRACE) next_token();
 
@@ -787,7 +812,7 @@ void parse_for() {
         bytecode[break_jz_idx + 1] = count;
     }
     loop_depth--;
-
+    return new_for_node(ND_FOR, init, condition, update, body_head);
 }
 
 Node *program_nodes[1024];
@@ -947,6 +972,19 @@ Node* new_loop_node(NodeKind kind, Node* condition, Node* body) {
     return &node_tree[current_idx];
 }
 
+Node* new_for_node(NodeKind kind, Node* init, Node* condition, Node* update, Node* body) {
+    int current_idx = node_depth;
+    node_depth++;
+
+    node_tree[current_idx].kind = kind;
+    node_tree[current_idx].init = init;
+    node_tree[current_idx].condition = condition;
+    node_tree[current_idx].update = update;
+    node_tree[current_idx].body = body;
+
+    return &node_tree[current_idx];
+}
+
 const char* node_kind_name(NodeKind kind) {
     switch(kind) {
         case ND_NUM: return "NUM";
@@ -988,6 +1026,7 @@ void debug_ast_node(Node *node, int depth) {
         node->kind == ND_WHILE ? "WHILE" :
         node->kind == ND_BREAK ? "BREAK" :
         node->kind == ND_CONTINUE ? "CONTINUE" :
+        node->kind == ND_FOR ? "FOR" :
         "UNKNOWN"
     );
 
@@ -1041,6 +1080,28 @@ void debug_ast_node(Node *node, int depth) {
             current = current->next;
         }
 
+        return;
+    } else if (node->kind == ND_FOR) {
+        print_indent(depth + 1);
+        printf("[INIT]\n");
+        debug_ast_node(node->init, depth + 2);
+
+        print_indent(depth + 1);
+        printf("[CONDITION]\n");
+        debug_ast_node(node->condition, depth + 2);
+
+        print_indent(depth + 1);
+        printf("[UPDATE]\n");
+        debug_ast_node(node->update, depth + 2);
+
+        print_indent(depth + 1);
+        printf("[BODY]\n");
+        Node *current = node->body;
+
+        while (current) {
+            debug_ast_node(current, depth + 2);
+            current = current->next;
+        }
         return;
     }
 

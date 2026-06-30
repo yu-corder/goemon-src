@@ -1,34 +1,5 @@
-c = 0;
-d = 1;
-
-while (c < 5) {
-    print c;
+for (i = 0; i < 10; i++) {
+    print i;
     print 1;
-    d = 1;
-    while (d < 3) {
-        print d;
-        d++;
-    }
-    c++;
-}
-
-e = 0;
-f = 0;
-
-while (e < 3) {
-    if (e == 2) {
-        break;
-    }
-
-    print e;
-    e++;
-}
-
-while (f < 3) {
-    if (f == 2) {
-        f++;
-        continue;
-    }
-    print f;
-    f++;
+    print 2;
 }
