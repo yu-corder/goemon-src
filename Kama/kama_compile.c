@@ -445,11 +445,8 @@ Node* parse_primary() {
     }
     
     if (t->kind == TK_NUMBER) {
-        emit_op(OP_PUSH, &t->val);
         node = new_num_node(&t->val);
     } else if (t->kind == TK_IDENT) {
-        int addr = find_variable(t->str);
-        emit_op(OP_LOAD, &addr);
         node = new_var_node(t->str);
     }
     return node;
@@ -486,7 +483,6 @@ Node* parse_expression() {
         Node *rhs = parse_term();
 
         if (kind_type == TK_PLUS) {
-            emit_op(OP_ADD, NULL);
             node = new_binary_node(ND_ADD, node, rhs);
         } else if (kind_type == TK_MINUS) {
             emit_op(OP_SUB, NULL);
@@ -568,8 +564,6 @@ Node* parse_statement() {
                 next_token();
                 Node *rhs = parse_evaluation();
                 if (tokens[pos].kind == TK_SEMI) {
-                    int addr = find_variable(t->str);
-                    emit_op(OP_STORE, &addr);
                     return new_binary_node(ND_ASSIGN, lhs, rhs);
                 }
             }
@@ -919,9 +913,21 @@ void generate(Node *node) {
                 emit_op(OP_STORE, &addr);
                 break;
             }
+            case ND_VAR: {
+                int addr = find_variable(node->name);
+                emit_op(OP_LOAD, &addr);
+                break;
+            }
             case ND_PRINT: {
                 generate(node->lhs);
                 emit_op(OP_PRINT, NULL);
+                break;
+            }
+            case ND_ADD: {
+                generate(node->lhs);
+                generate(node->rhs);
+                emit_op(OP_ADD, NULL);
+                break;
             }
             default: 
                 break;
@@ -1090,7 +1096,7 @@ void debug_ast_node(Node *node, int depth) {
             print_indent(depth + 1);
             printf("[THEN]\n");
             debug_ast_node(node->body, depth + 2);
-            
+
             if (node->else_stmt) {
                 print_indent(depth + 1);
                 printf("[ELSE]\n");
