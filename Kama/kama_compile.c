@@ -149,6 +149,7 @@ Node* new_loop_node();
 Node* new_for_node();
 void debug_ast_node();
 void print_ast();
+void generate(Node* node);
 
 Node* parse_evaluation();
 Node* parse_expression();
@@ -550,14 +551,10 @@ Node* parse_statement() {
             Token *value = next_token();
             Node *var = NULL;
             if (value->kind == TK_IDENT) {
-                int addr = find_variable(value->str);
                 var = new_var_node(value->str);
-                emit_op(OP_LOAD, &addr);
             } else if (value->kind == TK_NUMBER) {
                 var = new_num_node(&value->val);
-                emit_op(OP_PUSH, &value->val);
             }
-            emit_op(OP_PRINT, NULL);
             next_token();
             return new_unary_node(ND_PRINT, var);
         }
@@ -888,6 +885,8 @@ int main(int argc, char **argv) {
         debug_ast_node(program, 1);
     }
 
+    generate(program);
+
     emit_op(OP_HALT, NULL);
 
     if (g_debug_binary) {
@@ -900,6 +899,36 @@ int main(int argc, char **argv) {
 
     printf("絶景かな！ Compiled study.goe to study.gb\n");
     return 0;
+}
+
+// =========================
+// GENERATE
+// =========================
+void generate(Node *node) {
+    if (node == NULL) return;
+    while (node) {
+
+        switch (node->kind) {
+            case ND_NUM: {
+                emit_op(OP_PUSH, &node->val);
+                break;
+            }
+            case ND_ASSIGN: {
+                generate(node->rhs);
+                int addr = find_variable(node->lhs->name);
+                emit_op(OP_STORE, &addr);
+                break;
+            }
+            case ND_PRINT: {
+                generate(node->lhs);
+                emit_op(OP_PRINT, NULL);
+            }
+            default: 
+                break;
+        }
+
+        node = node->next;
+    }
 }
 
 // =========================
