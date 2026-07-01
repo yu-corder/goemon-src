@@ -818,33 +818,26 @@ Node* parse_for() {
     return new_for_node(ND_FOR, init, condition, update, body_head);
 }
 
-Node *program_nodes[1024];
-int program_count = 0;
-void parse_program (char *output_path) {
+Node* parse_program () {
     pos = 0;
+
+    Node *head = NULL;
+    Node *tail = NULL;
     while (tokens[pos].kind != TK_EOF) {
         Node *stmt = parse_statement();
 
-        if (stmt != NULL) {
-            program_nodes[program_count++] = stmt;
+        if (!stmt) continue;
+
+        if (!head) {
+            head = stmt;
+            tail = stmt;
+        } else {
+            tail->next = stmt;
+            tail = stmt;
         }
     }
 
-    if (g_debug_ast) {
-        for (int i = 0; i < program_count; i++) {
-            debug_ast_node(program_nodes[i], 1);
-        }
-    }
-
-    emit_op(OP_HALT, NULL);
-
-    if (g_debug_binary) {
-        debug_bynary();
-    }
-
-    FILE *dest = fopen(output_path, "wb");
-    fwrite(bytecode, sizeof(int), count, dest);
-    fclose(dest);
+    return head;
 }
 
 char *read_file(const char *path) {
@@ -889,7 +882,21 @@ int main(int argc, char **argv) {
 
     char *src = read_file(argv[arg]);
     tokenize(src);
-    parse_program(argv[arg + 1]);
+    Node *program = parse_program();
+    
+    if (g_debug_ast) {
+        debug_ast_node(program, 1);
+    }
+
+    emit_op(OP_HALT, NULL);
+
+    if (g_debug_binary) {
+        debug_bynary();
+    }
+
+    FILE *dest = fopen(argv[arg + 1], "wb");
+    fwrite(bytecode, sizeof(int), count, dest);
+    fclose(dest);
 
     printf("絶景かな！ Compiled study.goe to study.gb\n");
     return 0;
@@ -1006,110 +1013,90 @@ void print_indent(int depth) {
 
 void debug_ast_node(Node *node, int depth) {
     if (node == NULL) return;
-    print_indent(depth);
 
-    printf("[%s]",
-        node->kind == ND_NUM ? "NUM" :
-        node->kind == ND_ADD ? "ADD" :
-        node->kind == ND_MINUS ? "MINUS" :
-        node->kind == ND_MUL ? "MUL" :
-        node->kind == ND_DIV  ? "DIV" :
-        node->kind == ND_MOD ? "MOD" :
-        node->kind == ND_LT ? "LT" :
-        node->kind == ND_GT ? "GT" :
-        node->kind == ND_LE ? "LE" :
-        node->kind == ND_GE ? "GE" :
-        node->kind == ND_EQ ? "EQ" :
-        node->kind == ND_NE ? "NE" :
-        node->kind == ND_ASSIGN ? "ASSIGN" :
-        node->kind == ND_VAR ? "VAR" :
-        node->kind == ND_PRINT ? "PRINT" :
-        node->kind == ND_IF ? "IF" :
-        node->kind == ND_INC ? "INC" :
-        node->kind == ND_WHILE ? "WHILE" :
-        node->kind == ND_BREAK ? "BREAK" :
-        node->kind == ND_CONTINUE ? "CONTINUE" :
-        node->kind == ND_FOR ? "FOR" :
-        "UNKNOWN"
-    );
 
-    if (node->kind == ND_VAR) {
-        printf("(%s)", node->name);
-    }
+    while (node) {
+        print_indent(depth);
 
-    if (node->kind == ND_NUM) {
-        printf(" val=%d", node->val);
-    }
+        printf("[%s]",
+            node->kind == ND_NUM ? "NUM" :
+            node->kind == ND_ADD ? "ADD" :
+            node->kind == ND_MINUS ? "MINUS" :
+            node->kind == ND_MUL ? "MUL" :
+            node->kind == ND_DIV  ? "DIV" :
+            node->kind == ND_MOD ? "MOD" :
+            node->kind == ND_LT ? "LT" :
+            node->kind == ND_GT ? "GT" :
+            node->kind == ND_LE ? "LE" :
+            node->kind == ND_GE ? "GE" :
+            node->kind == ND_EQ ? "EQ" :
+            node->kind == ND_NE ? "NE" :
+            node->kind == ND_ASSIGN ? "ASSIGN" :
+            node->kind == ND_VAR ? "VAR" :
+            node->kind == ND_PRINT ? "PRINT" :
+            node->kind == ND_IF ? "IF" :
+            node->kind == ND_INC ? "INC" :
+            node->kind == ND_WHILE ? "WHILE" :
+            node->kind == ND_BREAK ? "BREAK" :
+            node->kind == ND_CONTINUE ? "CONTINUE" :
+            node->kind == ND_FOR ? "FOR" :
+            "UNKNOWN"
+        );
 
-    printf("\n");
-
-    if (node->kind == ND_IF) {
-        print_indent(depth + 1);
-        printf("[CONDITION]\n");
-        debug_ast_node(node->condition, depth + 2);
-
-        print_indent(depth + 1);
-        printf("[THEN]\n");
-        Node *current = node->body;
-
-        while (current) {
-            debug_ast_node(current, depth + 2);
-            current = current->next;
+        if (node->kind == ND_VAR) {
+            printf("(%s)", node->name);
         }
 
-        if (node->else_stmt) {
+        if (node->kind == ND_NUM) {
+            printf(" val=%d", node->val);
+        }
+
+        printf("\n");
+
+        if (node->kind == ND_IF) {
             print_indent(depth + 1);
-            printf("[ELSE]\n");
-            Node *else_current = node->else_stmt;
+            printf("[CONDITION]\n");
+            debug_ast_node(node->condition, depth + 2);
 
-            while (else_current) {
-                debug_ast_node(else_current, depth + 2);
-                else_current = else_current->next;
+            print_indent(depth + 1);
+            printf("[THEN]\n");
+            debug_ast_node(node->body, depth + 2);
+            
+            if (node->else_stmt) {
+                print_indent(depth + 1);
+                printf("[ELSE]\n");
+                debug_ast_node(node->else_stmt, depth + 2);
             }
+        } else if (node->kind == ND_WHILE) {
+            print_indent(depth + 1);
+            printf("[CONDITION]\n");
+            debug_ast_node(node->condition, depth + 2);
+
+            print_indent(depth + 1);
+            printf("[BODY]\n");
+            debug_ast_node(node->body, depth + 2);
+        } else if (node->kind == ND_FOR) {
+            print_indent(depth + 1);
+            printf("[INIT]\n");
+            debug_ast_node(node->init, depth + 2);
+
+            print_indent(depth + 1);
+            printf("[CONDITION]\n");
+            debug_ast_node(node->condition, depth + 2);
+
+            print_indent(depth + 1);
+            printf("[UPDATE]\n");
+            debug_ast_node(node->update, depth + 2);
+
+            print_indent(depth + 1);
+            printf("[BODY]\n");
+            debug_ast_node(node->body, depth + 2);
+        } else {
+            debug_ast_node(node->lhs, depth + 1);
+            debug_ast_node(node->rhs, depth + 1);
         }
-        
-        return;
-    } else if (node->kind == ND_WHILE) {
-        print_indent(depth + 1);
-        printf("[CONDITION]\n");
-        debug_ast_node(node->condition, depth + 2);
-
-        print_indent(depth + 1);
-        printf("[BODY]\n");
-        Node *current = node->body;
-
-        while (current) {
-            debug_ast_node(current, depth + 2);
-            current = current->next;
-        }
-
-        return;
-    } else if (node->kind == ND_FOR) {
-        print_indent(depth + 1);
-        printf("[INIT]\n");
-        debug_ast_node(node->init, depth + 2);
-
-        print_indent(depth + 1);
-        printf("[CONDITION]\n");
-        debug_ast_node(node->condition, depth + 2);
-
-        print_indent(depth + 1);
-        printf("[UPDATE]\n");
-        debug_ast_node(node->update, depth + 2);
-
-        print_indent(depth + 1);
-        printf("[BODY]\n");
-        Node *current = node->body;
-
-        while (current) {
-            debug_ast_node(current, depth + 2);
-            current = current->next;
-        }
-        return;
+        node = node->next;
     }
-
-    debug_ast_node(node->lhs, depth + 1);
-    debug_ast_node(node->rhs, depth + 1);
 }
 
 void print_ast() {
