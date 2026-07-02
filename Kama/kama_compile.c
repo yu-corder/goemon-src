@@ -461,13 +461,10 @@ Node* parse_term() {
         Node *rhs = parse_primary();
 
         if (kind_type == TK_MUL) {
-            emit_op(OP_MUL, NULL);
             node = new_binary_node(ND_MUL, node, rhs);
         } else if (kind_type == TK_DIV) {
-            emit_op(OP_DIV, NULL);
             node = new_binary_node(ND_DIV, node, rhs);
         } else if (kind_type == TK_MOD) {
-            emit_op(OP_MOD, NULL);
             node = new_binary_node(ND_MOD, node, rhs);
         }
     }
@@ -485,7 +482,6 @@ Node* parse_expression() {
         if (kind_type == TK_PLUS) {
             node = new_binary_node(ND_ADD, node, rhs);
         } else if (kind_type == TK_MINUS) {
-            emit_op(OP_SUB, NULL);
             node = new_binary_node(ND_MINUS, node, rhs);
         }
     }
@@ -499,32 +495,26 @@ Node* parse_evaluation() {
     if (tokens[pos].kind == TK_LT) {
         next_token();
         rhs = parse_expression();
-        emit_op(OP_LT, NULL);
         node = new_binary_node(ND_LT, node, rhs);
     } else if (tokens[pos].kind == TK_GT) {
         next_token();
         rhs = parse_expression();
-        emit_op(OP_GT, NULL);
         node = new_binary_node(ND_GT, node, rhs);
     } else if (tokens[pos].kind == TK_LE) {
         next_token();
         rhs = parse_expression();
-        emit_op(OP_LE, NULL);
         node = new_binary_node(ND_LE, node, rhs);
     } else if (tokens[pos].kind == TK_GE) {
         next_token();
         rhs = parse_expression();
-        emit_op(OP_GE, NULL);
         node = new_binary_node(ND_GE, node, rhs);
     } else if (tokens[pos].kind == TK_EQ) {
         next_token();
         rhs = parse_expression();
-        emit_op(OP_EQ, NULL);
         node = new_binary_node(ND_EQ, node, rhs);
     } else if (tokens[pos].kind == TK_NE) {
         next_token();
         rhs = parse_expression();
-        emit_op(OP_NE, NULL);
         node = new_binary_node(ND_NE, node, rhs);
     }
 
@@ -927,6 +917,66 @@ void generate(Node *node) {
                 generate(node->lhs);
                 generate(node->rhs);
                 emit_op(OP_ADD, NULL);
+                break;
+            }
+            case ND_MINUS: {
+                generate(node->lhs);
+                generate(node->rhs);
+                emit_op(OP_SUB, NULL);
+                break;
+            }
+            case ND_MUL: {
+                generate(node->lhs);
+                generate(node->rhs);
+                emit_op(OP_MUL, NULL);
+                break;
+            }
+            case ND_MOD: {
+                generate(node->lhs);
+                generate(node->rhs);
+                emit_op(OP_MOD, NULL);
+                break;
+            }
+            case ND_DIV: {
+                generate(node->lhs);
+                generate(node->rhs);
+                emit_op(OP_DIV, NULL);
+                break;
+            }
+            case ND_LT: {
+                generate(node->lhs);
+                generate(node->rhs);
+                emit_op(OP_LT, NULL);
+                break;
+            }
+            case ND_LE: {
+                generate(node->lhs);
+                generate(node->rhs);
+                emit_op(OP_LE, NULL);
+                break;
+            }
+            case ND_GT: {
+                generate(node->lhs);
+                generate(node->rhs);
+                emit_op(OP_GT, NULL);
+                break;
+            }
+            case ND_GE: {
+                generate(node->lhs);
+                generate(node->rhs);
+                emit_op(OP_GE, NULL);
+                break;
+            }
+            case ND_EQ: {
+                generate(node->lhs);
+                generate(node->rhs);
+                emit_op(OP_EQ, NULL);
+                break;
+            }
+            case ND_NE: {
+                generate(node->lhs);
+                generate(node->rhs);
+                emit_op(OP_NE, NULL);
                 break;
             }
             default: 
