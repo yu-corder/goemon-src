@@ -560,8 +560,6 @@ Node* parse_statement() {
 
             if (tokens[pos].kind == TK_INC) {
                 next_token();
-                int addr = find_variable(t->str);
-                emit_op(OP_INC, &addr);
                 Node *var = new_var_node(t->str);
                 return new_unary_node(ND_INC, var);
             }
@@ -652,21 +650,15 @@ Node* parse_if () {
         }
 
     }
-    
+
     return new_if_node(ND_IF, condition, then_head, else_head);
 }
 
 Node* parse_while() {
-    loop_depth++;
-    loop_stack[loop_depth].break_count = 0;
     if (tokens[pos].kind == TK_LPAREN) next_token();
-    int my_jmp_idx = count;
-    loop_stack[loop_depth].continue_target = my_jmp_idx;
+
     Node *condition = parse_evaluation();
     if (tokens[pos].kind == TK_RPAREN) next_token();
-    int my_jz_idx = count;
-    int zero = 0;
-    emit_op(OP_JZ, &zero);
 
     if (tokens[pos].kind == TK_LBRACE) next_token();
     Node *body_head = NULL;
@@ -688,16 +680,6 @@ Node* parse_while() {
 
     }
     if (tokens[pos].kind == TK_RBRACE) next_token();
-
-    emit_op(OP_JMP, &my_jmp_idx);
-    bytecode[my_jz_idx + 1] = count;
-
-
-    for (int i = 0; i < loop_stack[loop_depth].break_count; i++) {
-        int break_jz_idx = loop_stack[loop_depth].breaks[i];
-        bytecode[break_jz_idx + 1] = count;
-    }
-    loop_depth--;
 
     return new_loop_node(ND_WHILE, condition, body_head);
 }
@@ -987,6 +969,35 @@ void generate(Node *node) {
                 } else {
                     bytecode[my_jz_idx + 1] = count;
                 }
+            }
+            case ND_WHILE: {
+                loop_depth++;
+                loop_stack[loop_depth].break_count = 0;
+
+                int my_jmp_idx = count;
+                loop_stack[loop_depth].continue_target = my_jmp_idx;
+                generate(node->condition);
+
+                int my_jz_idx = count;
+                int zero = 0;
+                emit_op(OP_JZ, &zero);
+
+                generate(node->body);
+
+                emit_op(OP_JMP, &my_jmp_idx);
+                bytecode[my_jz_idx + 1] = count;
+                
+                for (int i = 0; i < loop_stack[loop_depth].break_count; i++) {
+                    int break_jz_idx = loop_stack[loop_depth].breaks[i];
+                    bytecode[break_jz_idx + 1] = count;
+                }
+                loop_depth--;
+                break;
+            }
+            case ND_INC: {
+                int addr = find_variable(node->lhs->name);
+                emit_op(OP_INC, &addr);
+                break;
             }
             default: 
                 break;
