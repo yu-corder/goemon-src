@@ -572,23 +572,9 @@ Node* parse_statement() {
             return parse_while();
         }
         case TK_BREAK: {
-            if (loop_depth == 0) {
-                printf("エラー: ループ分の中でしか、breakは使えません。");
-                exit(1);
-            }
-            int index = loop_stack[loop_depth].break_count++;
-            loop_stack[loop_depth].breaks[index] = count;
-            int zero = 0;
-            emit_op(OP_JMP, &zero);
             return new_simple_node(ND_BREAK);
         }
         case TK_CONTINUE: {
-            if (loop_depth == 0) {
-                printf("エラー: ループ分の中でしか、continueは使えません。");
-                exit(1);
-            }
-            int my_jmp_idx = loop_stack[loop_depth].continue_target;
-            emit_op(OP_JMP, &my_jmp_idx);
             return new_simple_node(ND_CONTINUE);
         }
         case TK_FOR: {
@@ -969,6 +955,7 @@ void generate(Node *node) {
                 } else {
                     bytecode[my_jz_idx + 1] = count;
                 }
+                break;
             }
             case ND_WHILE: {
                 loop_depth++;
@@ -997,6 +984,26 @@ void generate(Node *node) {
             case ND_INC: {
                 int addr = find_variable(node->lhs->name);
                 emit_op(OP_INC, &addr);
+                break;
+            }
+            case ND_BREAK: {
+                if (loop_depth == 0) {
+                    printf("エラー: ループ分の中でしか、breakは使えません。");
+                    exit(1);
+                }
+                int index = loop_stack[loop_depth].break_count++;
+                loop_stack[loop_depth].breaks[index] = count;
+                int zero = 0;
+                emit_op(OP_JMP, &zero);
+                break;
+            }
+            case ND_CONTINUE: {
+                if (loop_depth == 0) {
+                    printf("エラー: ループ分の中でしか、continueは使えません。");
+                    exit(1);
+                }
+                int my_jmp_idx = loop_stack[loop_depth].continue_target;
+                emit_op(OP_JMP, &my_jmp_idx);
                 break;
             }
             default: 
