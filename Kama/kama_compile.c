@@ -606,10 +606,6 @@ Node* parse_if () {
     Node *condition = parse_evaluation();
     if (tokens[pos].kind == TK_RPAREN) next_token();
 
-    int my_jz_idx = count;
-    int zero = 0;
-    emit_op(OP_JZ, &zero);
-
     if (tokens[pos].kind == TK_LBRACE) next_token();
     Node *then_stmt = NULL;
     Node *then_head = NULL;
@@ -634,14 +630,9 @@ Node* parse_if () {
     if (tokens[pos].kind == TK_ELSE) {
         next_token();
 
-        int my_jmp_idx = count;
-        emit_op(OP_JMP, &zero);
-        bytecode[my_jz_idx + 1] = count; 
-
         if (tokens[pos].kind == TK_IF) {
             next_token();
             else_head = parse_if();
-            bytecode[my_jmp_idx + 1] = count;
         } else {
             if (tokens[pos].kind == TK_LBRACE) next_token();
             while (tokens[pos].kind != TK_RBRACE && tokens[pos].kind != TK_EOF) {
@@ -658,12 +649,10 @@ Node* parse_if () {
                 }
             }
             if (tokens[pos].kind == TK_RBRACE) next_token();
-            bytecode[my_jmp_idx + 1] = count;
         }
 
-    } else {
-        bytecode[my_jz_idx + 1] = count;
     }
+    
     return new_if_node(ND_IF, condition, then_head, else_head);
 }
 
@@ -978,6 +967,26 @@ void generate(Node *node) {
                 generate(node->rhs);
                 emit_op(OP_NE, NULL);
                 break;
+            }
+            case ND_IF: {
+                generate(node->condition);
+
+                int my_jz_idx = count;
+                int zero = 0;
+                emit_op(OP_JZ, &zero);
+
+                generate(node->body);
+
+                if (node->else_stmt) {
+                    int my_jmp_idx = count;
+                    emit_op(OP_JMP, &zero);
+                    bytecode[my_jz_idx + 1] = count;
+
+                    generate(node->else_stmt);
+                    bytecode[my_jmp_idx + 1] = count;
+                } else {
+                    bytecode[my_jz_idx + 1] = count;
+                }
             }
             default: 
                 break;
