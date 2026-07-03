@@ -488,34 +488,27 @@ Node* parse_expression() {
     return node;
 }
 
+Node* parse_binary(Node *lhs, NodeKind kind) {
+    next_token();
+    Node *rhs = parse_expression();
+    return new_binary_node(kind, lhs, rhs);
+}
+
 Node* parse_evaluation() {
     Node *node = parse_expression();
 
-    Node *rhs;
     if (tokens[pos].kind == TK_LT) {
-        next_token();
-        rhs = parse_expression();
-        node = new_binary_node(ND_LT, node, rhs);
+        node = parse_binary(node, ND_LT);
     } else if (tokens[pos].kind == TK_GT) {
-        next_token();
-        rhs = parse_expression();
-        node = new_binary_node(ND_GT, node, rhs);
+        node = parse_binary(node, ND_GT);
     } else if (tokens[pos].kind == TK_LE) {
-        next_token();
-        rhs = parse_expression();
-        node = new_binary_node(ND_LE, node, rhs);
+        node = parse_binary(node, ND_LE);
     } else if (tokens[pos].kind == TK_GE) {
-        next_token();
-        rhs = parse_expression();
-        node = new_binary_node(ND_GE, node, rhs);
+        node = parse_binary(node, ND_GE);
     } else if (tokens[pos].kind == TK_EQ) {
-        next_token();
-        rhs = parse_expression();
-        node = new_binary_node(ND_EQ, node, rhs);
+        node = parse_binary(node, ND_EQ);
     } else if (tokens[pos].kind == TK_NE) {
-        next_token();
-        rhs = parse_expression();
-        node = new_binary_node(ND_NE, node, rhs);
+        node = parse_binary(node, ND_NE);
     }
 
     return node;
