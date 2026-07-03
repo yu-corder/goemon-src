@@ -149,6 +149,7 @@ Node* new_loop_node();
 Node* new_for_node();
 void debug_ast_node();
 void print_ast();
+void generate(Node* node);
 
 Node* parse_evaluation();
 Node* parse_expression();
@@ -444,11 +445,8 @@ Node* parse_primary() {
     }
     
     if (t->kind == TK_NUMBER) {
-        emit_op(OP_PUSH, &t->val);
         node = new_num_node(&t->val);
     } else if (t->kind == TK_IDENT) {
-        int addr = find_variable(t->str);
-        emit_op(OP_LOAD, &addr);
         node = new_var_node(t->str);
     }
     return node;
@@ -463,13 +461,10 @@ Node* parse_term() {
         Node *rhs = parse_primary();
 
         if (kind_type == TK_MUL) {
-            emit_op(OP_MUL, NULL);
             node = new_binary_node(ND_MUL, node, rhs);
         } else if (kind_type == TK_DIV) {
-            emit_op(OP_DIV, NULL);
             node = new_binary_node(ND_DIV, node, rhs);
         } else if (kind_type == TK_MOD) {
-            emit_op(OP_MOD, NULL);
             node = new_binary_node(ND_MOD, node, rhs);
         }
     }
@@ -485,10 +480,8 @@ Node* parse_expression() {
         Node *rhs = parse_term();
 
         if (kind_type == TK_PLUS) {
-            emit_op(OP_ADD, NULL);
             node = new_binary_node(ND_ADD, node, rhs);
         } else if (kind_type == TK_MINUS) {
-            emit_op(OP_SUB, NULL);
             node = new_binary_node(ND_MINUS, node, rhs);
         }
     }
@@ -502,32 +495,26 @@ Node* parse_evaluation() {
     if (tokens[pos].kind == TK_LT) {
         next_token();
         rhs = parse_expression();
-        emit_op(OP_LT, NULL);
         node = new_binary_node(ND_LT, node, rhs);
     } else if (tokens[pos].kind == TK_GT) {
         next_token();
         rhs = parse_expression();
-        emit_op(OP_GT, NULL);
         node = new_binary_node(ND_GT, node, rhs);
     } else if (tokens[pos].kind == TK_LE) {
         next_token();
         rhs = parse_expression();
-        emit_op(OP_LE, NULL);
         node = new_binary_node(ND_LE, node, rhs);
     } else if (tokens[pos].kind == TK_GE) {
         next_token();
         rhs = parse_expression();
-        emit_op(OP_GE, NULL);
         node = new_binary_node(ND_GE, node, rhs);
     } else if (tokens[pos].kind == TK_EQ) {
         next_token();
         rhs = parse_expression();
-        emit_op(OP_EQ, NULL);
         node = new_binary_node(ND_EQ, node, rhs);
     } else if (tokens[pos].kind == TK_NE) {
         next_token();
         rhs = parse_expression();
-        emit_op(OP_NE, NULL);
         node = new_binary_node(ND_NE, node, rhs);
     }
 
@@ -550,14 +537,10 @@ Node* parse_statement() {
             Token *value = next_token();
             Node *var = NULL;
             if (value->kind == TK_IDENT) {
-                int addr = find_variable(value->str);
                 var = new_var_node(value->str);
-                emit_op(OP_LOAD, &addr);
             } else if (value->kind == TK_NUMBER) {
                 var = new_num_node(&value->val);
-                emit_op(OP_PUSH, &value->val);
             }
-            emit_op(OP_PRINT, NULL);
             next_token();
             return new_unary_node(ND_PRINT, var);
         }
@@ -571,16 +554,12 @@ Node* parse_statement() {
                 next_token();
                 Node *rhs = parse_evaluation();
                 if (tokens[pos].kind == TK_SEMI) {
-                    int addr = find_variable(t->str);
-                    emit_op(OP_STORE, &addr);
                     return new_binary_node(ND_ASSIGN, lhs, rhs);
                 }
             }
 
             if (tokens[pos].kind == TK_INC) {
                 next_token();
-                int addr = find_variable(t->str);
-                emit_op(OP_INC, &addr);
                 Node *var = new_var_node(t->str);
                 return new_unary_node(ND_INC, var);
             }
@@ -593,23 +572,9 @@ Node* parse_statement() {
             return parse_while();
         }
         case TK_BREAK: {
-            if (loop_depth == 0) {
-                printf("エラー: ループ分の中でしか、breakは使えません。");
-                exit(1);
-            }
-            int index = loop_stack[loop_depth].break_count++;
-            loop_stack[loop_depth].breaks[index] = count;
-            int zero = 0;
-            emit_op(OP_JMP, &zero);
             return new_simple_node(ND_BREAK);
         }
         case TK_CONTINUE: {
-            if (loop_depth == 0) {
-                printf("エラー: ループ分の中でしか、continueは使えません。");
-                exit(1);
-            }
-            int my_jmp_idx = loop_stack[loop_depth].continue_target;
-            emit_op(OP_JMP, &my_jmp_idx);
             return new_simple_node(ND_CONTINUE);
         }
         case TK_FOR: {
@@ -624,10 +589,6 @@ Node* parse_if () {
     if (tokens[pos].kind == TK_LPAREN) next_token();
     Node *condition = parse_evaluation();
     if (tokens[pos].kind == TK_RPAREN) next_token();
-
-    int my_jz_idx = count;
-    int zero = 0;
-    emit_op(OP_JZ, &zero);
 
     if (tokens[pos].kind == TK_LBRACE) next_token();
     Node *then_stmt = NULL;
@@ -653,14 +614,9 @@ Node* parse_if () {
     if (tokens[pos].kind == TK_ELSE) {
         next_token();
 
-        int my_jmp_idx = count;
-        emit_op(OP_JMP, &zero);
-        bytecode[my_jz_idx + 1] = count; 
-
         if (tokens[pos].kind == TK_IF) {
             next_token();
             else_head = parse_if();
-            bytecode[my_jmp_idx + 1] = count;
         } else {
             if (tokens[pos].kind == TK_LBRACE) next_token();
             while (tokens[pos].kind != TK_RBRACE && tokens[pos].kind != TK_EOF) {
@@ -677,26 +633,18 @@ Node* parse_if () {
                 }
             }
             if (tokens[pos].kind == TK_RBRACE) next_token();
-            bytecode[my_jmp_idx + 1] = count;
         }
 
-    } else {
-        bytecode[my_jz_idx + 1] = count;
     }
+
     return new_if_node(ND_IF, condition, then_head, else_head);
 }
 
 Node* parse_while() {
-    loop_depth++;
-    loop_stack[loop_depth].break_count = 0;
     if (tokens[pos].kind == TK_LPAREN) next_token();
-    int my_jmp_idx = count;
-    loop_stack[loop_depth].continue_target = my_jmp_idx;
+
     Node *condition = parse_evaluation();
     if (tokens[pos].kind == TK_RPAREN) next_token();
-    int my_jz_idx = count;
-    int zero = 0;
-    emit_op(OP_JZ, &zero);
 
     if (tokens[pos].kind == TK_LBRACE) next_token();
     Node *body_head = NULL;
@@ -719,23 +667,10 @@ Node* parse_while() {
     }
     if (tokens[pos].kind == TK_RBRACE) next_token();
 
-    emit_op(OP_JMP, &my_jmp_idx);
-    bytecode[my_jz_idx + 1] = count;
-
-
-    for (int i = 0; i < loop_stack[loop_depth].break_count; i++) {
-        int break_jz_idx = loop_stack[loop_depth].breaks[i];
-        bytecode[break_jz_idx + 1] = count;
-    }
-    loop_depth--;
-
     return new_loop_node(ND_WHILE, condition, body_head);
 }
 
 Node* parse_for() {
-    loop_depth++;
-    loop_stack[loop_depth].break_count = 0;
-
     if (tokens[pos].kind == TK_LPAREN) next_token();
 
     Node *init = NULL;
@@ -747,15 +682,11 @@ Node* parse_for() {
             init = parse_evaluation();
             if (tokens[pos].kind == TK_SEMI) {
                 next_token();
-                int addr = find_variable(t->str);
-                emit_op(OP_STORE, &addr);
                 var = new_var_node(t->str);
             }
         }
     }
     init = new_binary_node(ND_ASSIGN, var, init);
-
-    int cond_start_idx = count;
 
     Node *condition = NULL;
     if (tokens[pos].kind != TK_SEMI) {
@@ -763,29 +694,16 @@ Node* parse_for() {
     }
     if (tokens[pos].kind == TK_SEMI) next_token();
 
-    int my_jz_idx = count;
-    int zero = 0;
-    emit_op(OP_JZ, &zero);
-
-    int jump_to_body_idx = count;
-    emit_op(OP_JMP, &zero);
-
-    int update_start_idx = count;
-    loop_stack[loop_depth].continue_target = update_start_idx;
     Node *update = NULL;
     if (tokens[pos].kind == TK_IDENT) {
         Token *t = next_token();
         if (tokens[pos].kind == TK_INC) {
             next_token();
-            int addr = find_variable(t->str);
-            emit_op(OP_INC, &addr);
             Node *var = new_var_node(t->str);
             update = new_unary_node(ND_INC, var);
         }
     }
     if (tokens[pos].kind == TK_RPAREN) next_token();
-    emit_op(OP_JMP, &cond_start_idx);
-    bytecode[jump_to_body_idx + 1] = count;
 
     if (tokens[pos].kind == TK_LBRACE) next_token();
 
@@ -806,15 +724,6 @@ Node* parse_for() {
         }
     }
     if (tokens[pos].kind == TK_RBRACE) next_token();
-
-    emit_op(OP_JMP, &update_start_idx);
-    bytecode[my_jz_idx + 1] = count;
-
-    for (int i = 0; i < loop_stack[loop_depth].break_count; i++) {
-        int break_jz_idx = loop_stack[loop_depth].breaks[i];
-        bytecode[break_jz_idx + 1] = count;
-    }
-    loop_depth--;
     return new_for_node(ND_FOR, init, condition, update, body_head);
 }
 
@@ -888,6 +797,8 @@ int main(int argc, char **argv) {
         debug_ast_node(program, 1);
     }
 
+    generate(program);
+
     emit_op(OP_HALT, NULL);
 
     if (g_debug_binary) {
@@ -900,6 +811,217 @@ int main(int argc, char **argv) {
 
     printf("絶景かな！ Compiled study.goe to study.gb\n");
     return 0;
+}
+
+// =========================
+// GENERATE
+// =========================
+void generate(Node *node) {
+    if (node == NULL) return;
+    while (node) {
+
+        switch (node->kind) {
+            case ND_NUM: {
+                emit_op(OP_PUSH, &node->val);
+                break;
+            }
+            case ND_ASSIGN: {
+                generate(node->rhs);
+                int addr = find_variable(node->lhs->name);
+                emit_op(OP_STORE, &addr);
+                break;
+            }
+            case ND_VAR: {
+                int addr = find_variable(node->name);
+                emit_op(OP_LOAD, &addr);
+                break;
+            }
+            case ND_PRINT: {
+                generate(node->lhs);
+                emit_op(OP_PRINT, NULL);
+                break;
+            }
+            case ND_ADD: {
+                generate(node->lhs);
+                generate(node->rhs);
+                emit_op(OP_ADD, NULL);
+                break;
+            }
+            case ND_MINUS: {
+                generate(node->lhs);
+                generate(node->rhs);
+                emit_op(OP_SUB, NULL);
+                break;
+            }
+            case ND_MUL: {
+                generate(node->lhs);
+                generate(node->rhs);
+                emit_op(OP_MUL, NULL);
+                break;
+            }
+            case ND_MOD: {
+                generate(node->lhs);
+                generate(node->rhs);
+                emit_op(OP_MOD, NULL);
+                break;
+            }
+            case ND_DIV: {
+                generate(node->lhs);
+                generate(node->rhs);
+                emit_op(OP_DIV, NULL);
+                break;
+            }
+            case ND_LT: {
+                generate(node->lhs);
+                generate(node->rhs);
+                emit_op(OP_LT, NULL);
+                break;
+            }
+            case ND_LE: {
+                generate(node->lhs);
+                generate(node->rhs);
+                emit_op(OP_LE, NULL);
+                break;
+            }
+            case ND_GT: {
+                generate(node->lhs);
+                generate(node->rhs);
+                emit_op(OP_GT, NULL);
+                break;
+            }
+            case ND_GE: {
+                generate(node->lhs);
+                generate(node->rhs);
+                emit_op(OP_GE, NULL);
+                break;
+            }
+            case ND_EQ: {
+                generate(node->lhs);
+                generate(node->rhs);
+                emit_op(OP_EQ, NULL);
+                break;
+            }
+            case ND_NE: {
+                generate(node->lhs);
+                generate(node->rhs);
+                emit_op(OP_NE, NULL);
+                break;
+            }
+            case ND_IF: {
+                generate(node->condition);
+
+                int my_jz_idx = count;
+                int zero = 0;
+                emit_op(OP_JZ, &zero);
+
+                generate(node->body);
+
+                if (node->else_stmt) {
+                    int my_jmp_idx = count;
+                    emit_op(OP_JMP, &zero);
+                    bytecode[my_jz_idx + 1] = count;
+
+                    generate(node->else_stmt);
+                    bytecode[my_jmp_idx + 1] = count;
+                } else {
+                    bytecode[my_jz_idx + 1] = count;
+                }
+                break;
+            }
+            case ND_WHILE: {
+                loop_depth++;
+                loop_stack[loop_depth].break_count = 0;
+
+                int my_jmp_idx = count;
+                loop_stack[loop_depth].continue_target = my_jmp_idx;
+                generate(node->condition);
+
+                int my_jz_idx = count;
+                int zero = 0;
+                emit_op(OP_JZ, &zero);
+
+                generate(node->body);
+
+                emit_op(OP_JMP, &my_jmp_idx);
+                bytecode[my_jz_idx + 1] = count;
+                
+                for (int i = 0; i < loop_stack[loop_depth].break_count; i++) {
+                    int break_jz_idx = loop_stack[loop_depth].breaks[i];
+                    bytecode[break_jz_idx + 1] = count;
+                }
+                loop_depth--;
+                break;
+            }
+            case ND_INC: {
+                int addr = find_variable(node->lhs->name);
+                emit_op(OP_INC, &addr);
+                break;
+            }
+            case ND_BREAK: {
+                if (loop_depth == 0) {
+                    printf("エラー: ループ分の中でしか、breakは使えません。");
+                    exit(1);
+                }
+                int index = loop_stack[loop_depth].break_count++;
+                loop_stack[loop_depth].breaks[index] = count;
+                int zero = 0;
+                emit_op(OP_JMP, &zero);
+                break;
+            }
+            case ND_CONTINUE: {
+                if (loop_depth == 0) {
+                    printf("エラー: ループ分の中でしか、continueは使えません。");
+                    exit(1);
+                }
+                int my_jmp_idx = loop_stack[loop_depth].continue_target;
+                emit_op(OP_JMP, &my_jmp_idx);
+                break;
+            }
+            case ND_FOR: {
+                loop_depth++;
+                loop_stack[loop_depth].break_count = 0;
+
+                generate(node->init);
+
+                int cond_start_idx = count;
+
+                generate(node->condition);
+
+                int my_jz_idx = count;
+                int zero = 0;
+                emit_op(OP_JZ, &zero);
+
+                int jump_to_body_idx = count;
+                emit_op(OP_JMP, &zero);
+
+                int update_start_idx = count;
+                loop_stack[loop_depth].continue_target = update_start_idx;
+
+
+                generate(node->update);
+
+                emit_op(OP_JMP, &cond_start_idx);
+                bytecode[jump_to_body_idx + 1] = count;
+
+                generate(node->body);
+
+                emit_op(OP_JMP, &update_start_idx);
+                bytecode[my_jz_idx + 1] = count;
+
+                for (int i = 0; i < loop_stack[loop_depth].break_count; i++) {
+                    int break_jz_idx = loop_stack[loop_depth].breaks[i];
+                    bytecode[break_jz_idx + 1] = count;
+                }
+                loop_depth--;
+
+                break;
+            }
+            default: 
+                break;
+        }
+
+        node = node->next;
+    }
 }
 
 // =========================
@@ -1061,7 +1183,7 @@ void debug_ast_node(Node *node, int depth) {
             print_indent(depth + 1);
             printf("[THEN]\n");
             debug_ast_node(node->body, depth + 2);
-            
+
             if (node->else_stmt) {
                 print_indent(depth + 1);
                 printf("[ELSE]\n");
