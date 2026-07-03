@@ -671,9 +671,6 @@ Node* parse_while() {
 }
 
 Node* parse_for() {
-    loop_depth++;
-    loop_stack[loop_depth].break_count = 0;
-
     if (tokens[pos].kind == TK_LPAREN) next_token();
 
     Node *init = NULL;
@@ -685,15 +682,11 @@ Node* parse_for() {
             init = parse_evaluation();
             if (tokens[pos].kind == TK_SEMI) {
                 next_token();
-                int addr = find_variable(t->str);
-                emit_op(OP_STORE, &addr);
                 var = new_var_node(t->str);
             }
         }
     }
     init = new_binary_node(ND_ASSIGN, var, init);
-
-    int cond_start_idx = count;
 
     Node *condition = NULL;
     if (tokens[pos].kind != TK_SEMI) {
@@ -701,29 +694,16 @@ Node* parse_for() {
     }
     if (tokens[pos].kind == TK_SEMI) next_token();
 
-    int my_jz_idx = count;
-    int zero = 0;
-    emit_op(OP_JZ, &zero);
-
-    int jump_to_body_idx = count;
-    emit_op(OP_JMP, &zero);
-
-    int update_start_idx = count;
-    loop_stack[loop_depth].continue_target = update_start_idx;
     Node *update = NULL;
     if (tokens[pos].kind == TK_IDENT) {
         Token *t = next_token();
         if (tokens[pos].kind == TK_INC) {
             next_token();
-            int addr = find_variable(t->str);
-            emit_op(OP_INC, &addr);
             Node *var = new_var_node(t->str);
             update = new_unary_node(ND_INC, var);
         }
     }
     if (tokens[pos].kind == TK_RPAREN) next_token();
-    emit_op(OP_JMP, &cond_start_idx);
-    bytecode[jump_to_body_idx + 1] = count;
 
     if (tokens[pos].kind == TK_LBRACE) next_token();
 
@@ -744,15 +724,6 @@ Node* parse_for() {
         }
     }
     if (tokens[pos].kind == TK_RBRACE) next_token();
-
-    emit_op(OP_JMP, &update_start_idx);
-    bytecode[my_jz_idx + 1] = count;
-
-    for (int i = 0; i < loop_stack[loop_depth].break_count; i++) {
-        int break_jz_idx = loop_stack[loop_depth].breaks[i];
-        bytecode[break_jz_idx + 1] = count;
-    }
-    loop_depth--;
     return new_for_node(ND_FOR, init, condition, update, body_head);
 }
 
@@ -1004,6 +975,45 @@ void generate(Node *node) {
                 }
                 int my_jmp_idx = loop_stack[loop_depth].continue_target;
                 emit_op(OP_JMP, &my_jmp_idx);
+                break;
+            }
+            case ND_FOR: {
+                loop_depth++;
+                loop_stack[loop_depth].break_count = 0;
+
+                generate(node->init);
+
+                int cond_start_idx = count;
+
+                generate(node->condition);
+
+                int my_jz_idx = count;
+                int zero = 0;
+                emit_op(OP_JZ, &zero);
+
+                int jump_to_body_idx = count;
+                emit_op(OP_JMP, &zero);
+
+                int update_start_idx = count;
+                loop_stack[loop_depth].continue_target = update_start_idx;
+
+
+                generate(node->update);
+
+                emit_op(OP_JMP, &cond_start_idx);
+                bytecode[jump_to_body_idx + 1] = count;
+
+                generate(node->body);
+
+                emit_op(OP_JMP, &update_start_idx);
+                bytecode[my_jz_idx + 1] = count;
+
+                for (int i = 0; i < loop_stack[loop_depth].break_count; i++) {
+                    int break_jz_idx = loop_stack[loop_depth].breaks[i];
+                    bytecode[break_jz_idx + 1] = count;
+                }
+                loop_depth--;
+
                 break;
             }
             default: 

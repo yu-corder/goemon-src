@@ -1,8 +1,6 @@
-j = 0;
-while (j < 3) {
-    if ( j == 2) {
+for (i = 0; i < 10; i++) {
+    if (i == 5) {
         break;
     }
-    print j;
-    j++;
+    print i;
 }
