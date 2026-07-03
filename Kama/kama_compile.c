@@ -33,7 +33,6 @@ typedef enum {
 } OpCode;
 
 typedef enum {
-    TK_PUSH,
     TK_INPUT,
     TK_STORE,
     TK_LOAD,
@@ -205,12 +204,6 @@ void tokenize (char *p) {
             tokens[i].kind = TK_NUMBER;
             tokens[i].val = strtol(p, &p, 10);
             i++;
-            continue;
-        }
-
-        if (strncmp(p, "push", 4) == 0 && isspace(p[4])) {
-            tokens[i++].kind = TK_PUSH;
-            p += 4;
             continue;
         }
 
@@ -517,15 +510,6 @@ Node* parse_evaluation() {
 Node* parse_statement() {
     Token *t = next_token();
     switch(t->kind) {
-        case TK_PUSH: {
-            Token *num = next_token();
-            if (num->kind != TK_NUMBER) {
-                printf("エラー: pushの次は数値を置いてくだされ");
-                exit(1);
-            }
-            emit_op(OP_PUSH, &num->val);
-            return new_num_node(&num->val);
-        }
         case TK_PRINT: {
             Token *value = next_token();
             Node *var = NULL;
@@ -1211,7 +1195,6 @@ void print_ast() {
 // Debug Utilities
 // =========================
 const char *token_kind_name[] = {
-    "TK_PUSH",
     "TK_INPUT",
     "TK_STORE",
     "TK_LOAD",
