@@ -816,6 +816,12 @@ int main(int argc, char **argv) {
 // =========================
 // GENERATE
 // =========================
+void generate_binary(Node *node, OpCode op) {
+    generate(node->lhs);
+    generate(node->rhs);
+    emit_op(op, NULL);
+}
+
 void generate(Node *node) {
     if (node == NULL) return;
     while (node) {
@@ -842,69 +848,47 @@ void generate(Node *node) {
                 break;
             }
             case ND_ADD: {
-                generate(node->lhs);
-                generate(node->rhs);
-                emit_op(OP_ADD, NULL);
+                generate_binary(node, OP_ADD);
                 break;
             }
             case ND_MINUS: {
-                generate(node->lhs);
-                generate(node->rhs);
-                emit_op(OP_SUB, NULL);
+                generate_binary(node, OP_SUB);
                 break;
             }
             case ND_MUL: {
-                generate(node->lhs);
-                generate(node->rhs);
-                emit_op(OP_MUL, NULL);
+                generate_binary(node, OP_MUL);
                 break;
             }
             case ND_MOD: {
-                generate(node->lhs);
-                generate(node->rhs);
-                emit_op(OP_MOD, NULL);
+                generate_binary(node, OP_MOD);
                 break;
             }
             case ND_DIV: {
-                generate(node->lhs);
-                generate(node->rhs);
-                emit_op(OP_DIV, NULL);
+                generate_binary(node, OP_DIV);
                 break;
             }
             case ND_LT: {
-                generate(node->lhs);
-                generate(node->rhs);
-                emit_op(OP_LT, NULL);
+                generate_binary(node, OP_LT);
                 break;
             }
             case ND_LE: {
-                generate(node->lhs);
-                generate(node->rhs);
-                emit_op(OP_LE, NULL);
+                generate_binary(node, OP_LE);
                 break;
             }
             case ND_GT: {
-                generate(node->lhs);
-                generate(node->rhs);
-                emit_op(OP_GT, NULL);
+                generate_binary(node, OP_GT);
                 break;
             }
             case ND_GE: {
-                generate(node->lhs);
-                generate(node->rhs);
-                emit_op(OP_GE, NULL);
+                generate_binary(node, OP_GE);
                 break;
             }
             case ND_EQ: {
-                generate(node->lhs);
-                generate(node->rhs);
-                emit_op(OP_EQ, NULL);
+                generate_binary(node, OP_EQ);
                 break;
             }
             case ND_NE: {
-                generate(node->lhs);
-                generate(node->rhs);
-                emit_op(OP_NE, NULL);
+                generate_binary(node, OP_NE);
                 break;
             }
             case ND_IF: {
@@ -1017,7 +1001,8 @@ void generate(Node *node) {
                 break;
             }
             default: 
-                break;
+                printf("Unknown node: %d\n", node->kind);
+                exit(1);
         }
 
         node = node->next;
