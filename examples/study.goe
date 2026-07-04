@@ -1,6 +1,6 @@
-for (i = 0; i < 10; i++) {
-    if (i == 5) {
-        break;
-    }
-    print i;
+print 1;
+
+function (a, b) {
+    print a;
+    print b;
 }

@@ -68,6 +68,7 @@ typedef enum {
     TK_BREAK,
     TK_CONTINUE,
     TK_FOR,
+    TK_FUNCTION,
     TK_EOF,
 } TokenKind;
 
@@ -94,6 +95,7 @@ typedef enum {
     ND_BREAK,
     ND_CONTINUE,
     ND_FOR,
+    ND_FUNCTION,
 } NodeKind;
 
 typedef struct {
@@ -114,6 +116,8 @@ typedef struct Node {
 
     struct Node *init;
     struct Node *update;
+
+    struct Node *arg;
     
 
     struct Node *next;
@@ -134,8 +138,18 @@ typedef struct {
     int memory_index;
 } Variable;
 
+typedef struct {
+    char name[64];
+    int address;
+    int arg_count;
+} Funcion;
+
+
 Variable variable_table[128];
 int variable_count = 0;
+
+Funcion function_table[128];
+int function_count = 0;
 
 Node node_tree[128];
 Node* new_num_node();
@@ -146,6 +160,7 @@ Node* new_unary_node();
 Node* new_if_node();
 Node* new_loop_node();
 Node* new_for_node();
+Node* new_func_node();
 void debug_ast_node();
 void print_ast();
 void generate(Node* node);
@@ -155,6 +170,7 @@ Node* parse_expression();
 Node* parse_if();
 Node* parse_while();
 Node* parse_for();
+Node* parse_function();
 
 Label symbol_table[128];
 int label_count_internal = 0;
@@ -191,6 +207,25 @@ int find_variable(char *name) {
     }
 
     return variable_table[variable_count++].memory_index;
+
+}
+
+int find_function(char *name) {
+    for (int i = 0; i < function_count; i++) {
+        if (strcmp(function_table[i].name, name) == 0) {
+            return function_table[i].address;
+        }
+    }
+
+    strcpy(function_table[function_count].name, name);
+    
+    if (strncmp(name, "__s", 3) == 0) {
+        function_table[function_count].address = 1000 + (function_count * 100);
+    } else {
+        function_table[function_count].address = function_count;
+    }
+
+    return function_table[function_count++].address;
 
 }
 
@@ -252,6 +287,12 @@ void tokenize (char *p) {
         if (strncmp(p, "for", 3) == 0 && (isspace(p[3]) || p[3] == '\0')) {
             tokens[i++].kind = TK_FOR;
             p += 3;
+            continue;
+        }
+
+        if (strncmp(p, "function", 8) == 0 && (isspace(p[8]) || p[8] == '\0')) {
+            tokens[i++].kind = TK_FUNCTION;
+            p += 8;
             continue;
         }
 
@@ -540,7 +581,7 @@ Node* parse_statement() {
                 Node *var = new_var_node(t->str);
                 return new_unary_node(ND_INC, var);
             }
-            return NULL;
+            return lhs;
         }
         case TK_IF: {
             return parse_if();
@@ -557,9 +598,58 @@ Node* parse_statement() {
         case TK_FOR: {
             return parse_for();
         }
+        case TK_FUNCTION: {
+            return parse_function();
+        }
         default:
             return NULL;
     }
+}
+
+Node* parse_function() {
+    if (tokens[pos].kind == TK_LPAREN) next_token();
+
+    Node *arg_stmt = NULL;
+    Node *arg_head = NULL;
+    Node *arg_tail = NULL;
+
+    while (tokens[pos].kind != TK_RPAREN && tokens[pos].kind != TK_EOF) {
+        arg_stmt = parse_statement();
+
+        if (!arg_stmt) continue;
+
+        if (!arg_head) {
+            arg_head = arg_stmt;
+            arg_tail = arg_stmt;
+        } else {
+            arg_tail->next = arg_stmt;
+            arg_tail = arg_stmt;
+
+        }
+    }
+
+    if (tokens[pos].kind == TK_RPAREN) next_token();
+
+    if (tokens[pos].kind == TK_LBRACE) next_token();
+
+    Node *body_stmt = NULL;
+    Node *body_head = NULL;
+    Node *body_tail = NULL;
+    while (tokens[pos].kind != TK_RBRACE && tokens[pos].kind != TK_EOF) {
+        body_stmt = parse_statement();
+        if (!body_stmt) continue;
+
+        if (!body_head) {
+            body_head = body_stmt;
+            body_tail = body_stmt;
+        } else {
+            body_tail->next = body_stmt;
+            body_tail = body_stmt;
+        }
+    }
+    if (tokens[pos].kind == TK_RBRACE) next_token();
+
+    return new_func_node(ND_FUNCTION, arg_head, body_head);
 }
 
 Node* parse_if () {
@@ -1079,6 +1169,17 @@ Node* new_for_node(NodeKind kind, Node* init, Node* condition, Node* update, Nod
     return &node_tree[current_idx];
 }
 
+Node* new_func_node(NodeKind kind, Node* arg, Node* body) {
+    int current_idx = node_depth;
+    node_depth++;
+
+    node_tree[current_idx].kind = kind;
+    node_tree[current_idx].arg = arg;
+    node_tree[current_idx].body = body;
+
+    return &node_tree[current_idx];
+}
+
 const char* node_kind_name(NodeKind kind) {
     switch(kind) {
         case ND_NUM: return "NUM";
@@ -1124,6 +1225,7 @@ void debug_ast_node(Node *node, int depth) {
             node->kind == ND_BREAK ? "BREAK" :
             node->kind == ND_CONTINUE ? "CONTINUE" :
             node->kind == ND_FOR ? "FOR" :
+            node->kind == ND_FUNCTION ? "FUNCTION" :
             "UNKNOWN"
         );
 
@@ -1171,6 +1273,14 @@ void debug_ast_node(Node *node, int depth) {
             print_indent(depth + 1);
             printf("[UPDATE]\n");
             debug_ast_node(node->update, depth + 2);
+
+            print_indent(depth + 1);
+            printf("[BODY]\n");
+            debug_ast_node(node->body, depth + 2);
+        } else if (node->kind == ND_FUNCTION) {
+            print_indent(depth + 1);
+            printf("[ARG]\n");
+            debug_ast_node(node->arg, depth + 2);
 
             print_indent(depth + 1);
             printf("[BODY]\n");
@@ -1230,6 +1340,7 @@ const char *token_kind_name[] = {
     "TK_BREAK",
     "TK_CONTINUE",
     "TK_FOR",
+    "TK_FUNCTION",
     "TK_EOF"
 };
 void debug_bynary() {
