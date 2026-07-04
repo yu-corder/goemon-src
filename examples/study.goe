@@ -1,6 +1,6 @@
 print 1;
 
-function (a, b) {
+function test (a, b) {
     print a;
     print b;
 }

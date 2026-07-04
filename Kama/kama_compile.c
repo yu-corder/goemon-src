@@ -117,13 +117,14 @@ typedef struct Node {
     struct Node *init;
     struct Node *update;
 
-    struct Node *arg;
+    struct Node *params;
     
 
     struct Node *next;
 
     int val;
     char name[32];
+    char func_name[64];
 } Node;
 int node_depth = 0;
 
@@ -607,23 +608,29 @@ Node* parse_statement() {
 }
 
 Node* parse_function() {
+    Token *value = next_token();
+    if (value->kind != TK_IDENT) {
+        printf("Function name expected.\n");
+        exit(1);
+    }
+
     if (tokens[pos].kind == TK_LPAREN) next_token();
 
-    Node *arg_stmt = NULL;
-    Node *arg_head = NULL;
-    Node *arg_tail = NULL;
+    Node *param_stmt = NULL;
+    Node *param_head = NULL;
+    Node *param_tail = NULL;
 
     while (tokens[pos].kind != TK_RPAREN && tokens[pos].kind != TK_EOF) {
-        arg_stmt = parse_statement();
+        param_stmt = parse_statement();
 
-        if (!arg_stmt) continue;
+        if (!param_stmt) continue;
 
-        if (!arg_head) {
-            arg_head = arg_stmt;
-            arg_tail = arg_stmt;
+        if (!param_head) {
+            param_head = param_stmt;
+            param_tail = param_stmt;
         } else {
-            arg_tail->next = arg_stmt;
-            arg_tail = arg_stmt;
+            param_tail->next = param_stmt;
+            param_tail = param_stmt;
 
         }
     }
@@ -649,7 +656,7 @@ Node* parse_function() {
     }
     if (tokens[pos].kind == TK_RBRACE) next_token();
 
-    return new_func_node(ND_FUNCTION, arg_head, body_head);
+    return new_func_node(ND_FUNCTION, value->str, param_head, body_head);
 }
 
 Node* parse_if () {
@@ -1169,12 +1176,14 @@ Node* new_for_node(NodeKind kind, Node* init, Node* condition, Node* update, Nod
     return &node_tree[current_idx];
 }
 
-Node* new_func_node(NodeKind kind, Node* arg, Node* body) {
+Node* new_func_node(NodeKind kind, char *str, Node* params, Node* body) {
     int current_idx = node_depth;
     node_depth++;
 
     node_tree[current_idx].kind = kind;
-    node_tree[current_idx].arg = arg;
+    strcpy(node_tree[current_idx].func_name, str);
+    
+    node_tree[current_idx].params = params;
     node_tree[current_idx].body = body;
 
     return &node_tree[current_idx];
@@ -1279,8 +1288,13 @@ void debug_ast_node(Node *node, int depth) {
             debug_ast_node(node->body, depth + 2);
         } else if (node->kind == ND_FUNCTION) {
             print_indent(depth + 1);
-            printf("[ARG]\n");
-            debug_ast_node(node->arg, depth + 2);
+            printf("[NAME]\n");
+            print_indent(depth + 2);
+            printf("(%s)\n", node->func_name);
+
+            print_indent(depth + 1);
+            printf("[PARAMS]\n");
+            debug_ast_node(node->params, depth + 2);
 
             print_indent(depth + 1);
             printf("[BODY]\n");
