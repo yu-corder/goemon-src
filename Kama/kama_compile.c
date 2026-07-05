@@ -69,6 +69,7 @@ typedef enum {
     TK_CONTINUE,
     TK_FOR,
     TK_FUNCTION,
+    TK_CALL,
     TK_EOF,
 } TokenKind;
 
@@ -96,6 +97,7 @@ typedef enum {
     ND_CONTINUE,
     ND_FOR,
     ND_FUNCTION,
+    ND_CALL,
 } NodeKind;
 
 typedef struct {
@@ -142,7 +144,10 @@ typedef struct {
 typedef struct {
     char name[64];
     int address;
-    int arg_count;
+
+    char params[16][32];
+    int param_count;
+    int call_after;
 } Funcion;
 
 
@@ -162,6 +167,7 @@ Node* new_if_node();
 Node* new_loop_node();
 Node* new_for_node();
 Node* new_func_node();
+Node* new_call_node();
 void debug_ast_node();
 void print_ast();
 void generate(Node* node);
@@ -211,23 +217,35 @@ int find_variable(char *name) {
 
 }
 
-int find_function(char *name) {
+Funcion* find_function(char *name) {
     for (int i = 0; i < function_count; i++) {
         if (strcmp(function_table[i].name, name) == 0) {
-            return function_table[i].address;
+            return &function_table[i];
         }
     }
 
-    strcpy(function_table[function_count].name, name);
-    
-    if (strncmp(name, "__s", 3) == 0) {
-        function_table[function_count].address = 1000 + (function_count * 100);
-    } else {
-        function_table[function_count].address = function_count;
+    return NULL;
+}
+
+void insert_function(char *name, int address, Node *params, int call_after) {
+    for (int i = 0; i < function_count; i++) {
+        if (strcmp(function_table[i].name, name) == 0) {
+            return;
+        }
     }
+    strcpy(function_table[function_count].name, name);
+    function_table[function_count].address = address;
+    Node *p = params;
 
-    return function_table[function_count++].address;
-
+    int p_count = 0;
+    while (p) {
+        strcpy(function_table[function_count].params[p_count], p->name);
+        p_count++;
+        p = p->next;
+    }
+    function_table[function_count].param_count = p_count;
+    function_table[function_count].call_after = call_after;
+    function_count++;
 }
 
 Token tokens[MAX_TOKENS];
@@ -424,6 +442,11 @@ void tokenize (char *p) {
             continue;
         }
 
+        if (*p == ',') {
+            p++;
+            continue;
+        }
+
         if (*p == '=') {
             p++;
             if (*p == '=') {
@@ -563,6 +586,9 @@ Node* parse_statement() {
             next_token();
             return new_unary_node(ND_PRINT, var);
         }
+        case TK_NUMBER: {
+            return new_num_node(&t->val);
+        }
         case TK_IDENT: {
             if (tokens[pos].kind == TK_COLON) {
                 next_token();
@@ -581,6 +607,27 @@ Node* parse_statement() {
                 next_token();
                 Node *var = new_var_node(t->str);
                 return new_unary_node(ND_INC, var);
+            }
+
+            if (tokens[pos].kind == TK_LPAREN) {
+                Node *arg_stmt = NULL;
+                Node *arg_head = NULL;
+                Node *arg_tail = NULL;
+                while (tokens[pos].kind != TK_RPAREN && tokens[pos].kind != TK_EOF) {
+                    arg_stmt = parse_statement();
+
+                    if (!arg_stmt) continue;
+
+                    if (!arg_head) {
+                        arg_head = arg_stmt;
+                        arg_tail = arg_stmt;
+                    } else {
+                        arg_tail->next = arg_stmt;
+                        arg_tail = arg_stmt;
+                    }
+                }
+                if (tokens[pos].kind == TK_RPAREN) next_token();
+                return new_call_node(ND_CALL, t->str, arg_head);
             }
             return lhs;
         }
@@ -1074,6 +1121,34 @@ void generate(Node *node) {
 
                 break;
             }
+            case ND_FUNCTION: {
+                int my_jmp_idx = count;
+                int zero = 0;
+                emit_op(OP_JMP, &zero);
+
+                int func_start_address = count;
+
+                generate(node->body);
+
+                int call_after = count;
+                emit_op(OP_JMP, &zero);
+
+                bytecode[my_jmp_idx + 1] = count;                
+                insert_function(node->func_name, func_start_address, node->params, call_after);
+                break;
+            }
+            case ND_CALL: {
+                Funcion *func = find_function(node->func_name);
+                generate(node->params);
+                for (int i = 0; i < func->param_count; i++) {
+                    
+                    int addr = find_variable(func->params[i]);
+                    emit_op(OP_STORE, &addr);
+                }
+                emit_op(OP_JMP, &func->address);
+                bytecode[func->call_after + 1] = count;
+                break;
+            }
             default: 
                 printf("Unknown node: %d\n", node->kind);
                 exit(1);
@@ -1189,6 +1264,18 @@ Node* new_func_node(NodeKind kind, char *str, Node* params, Node* body) {
     return &node_tree[current_idx];
 }
 
+Node* new_call_node(NodeKind kind, char *str, Node* params) {
+    int current_idx = node_depth;
+    node_depth++;
+
+    node_tree[current_idx].kind = kind;
+    strcpy(node_tree[current_idx].func_name, str);
+
+    node_tree[current_idx].params = params;
+
+    return &node_tree[current_idx];
+}
+
 const char* node_kind_name(NodeKind kind) {
     switch(kind) {
         case ND_NUM: return "NUM";
@@ -1235,6 +1322,7 @@ void debug_ast_node(Node *node, int depth) {
             node->kind == ND_CONTINUE ? "CONTINUE" :
             node->kind == ND_FOR ? "FOR" :
             node->kind == ND_FUNCTION ? "FUNCTION" :
+            node->kind == ND_CALL ? "CALL" :
             "UNKNOWN"
         );
 
@@ -1299,6 +1387,16 @@ void debug_ast_node(Node *node, int depth) {
             print_indent(depth + 1);
             printf("[BODY]\n");
             debug_ast_node(node->body, depth + 2);
+        } else if (node->kind == ND_CALL) {
+            print_indent(depth + 1);
+            printf("[NAME]\n");
+            print_indent(depth + 2);
+            printf("(%s)\n", node->func_name);
+
+            print_indent(depth + 1);
+            printf("[PARAMS]\n");
+            debug_ast_node(node->params, depth + 2);
+
         } else {
             debug_ast_node(node->lhs, depth + 1);
             debug_ast_node(node->rhs, depth + 1);
