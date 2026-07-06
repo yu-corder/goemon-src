@@ -1,0 +1,10 @@
+print 1;
+
+function add(a, b) {
+    print a;
+    print b;
+}
+
+add(10, 20);
+
+print 999;

@@ -1,0 +1,22 @@
+  [PRINT]
+    [NUM] val=1
+  [FUNCTION]
+    [NAME]
+      (add)
+    [PARAMS]
+      [VAR](a)
+      [VAR](b)
+    [BODY]
+      [PRINT]
+        [VAR](a)
+      [PRINT]
+        [VAR](b)
+  [CALL]
+    [NAME]
+      (add)
+    [PARAMS]
+      [NUM] val=10
+      [NUM] val=20
+  [PRINT]
+    [NUM] val=999
+絶景かな！ Compiled study.goe to study.gb

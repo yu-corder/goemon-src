@@ -1,0 +1,22 @@
+print 1;
+
+function test (a, b) {
+    print a;
+    print b;
+}
+
+print 100;
+
+test(1, 2);
+
+print 500;
+
+function aiueo (c, d) {
+    for (i = 0; i < 2; i++) {
+        print c;
+        print d;
+    }
+}
+
+aiueo(3, 4);
+print 600;
