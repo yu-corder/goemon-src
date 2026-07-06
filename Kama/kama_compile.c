@@ -29,6 +29,8 @@ typedef enum {
     OP_INC,
     OP_INPUT,
     OP_PRINTS,
+    OP_CALL,
+    OP_RET,
     OP_HALT 
 } OpCode;
 
@@ -147,7 +149,6 @@ typedef struct {
 
     char params[16][32];
     int param_count;
-    int call_after;
 } Funcion;
 
 
@@ -227,7 +228,7 @@ Funcion* find_function(char *name) {
     return NULL;
 }
 
-void insert_function(char *name, int address, Node *params, int call_after) {
+void insert_function(char *name, int address, Node *params) {
     for (int i = 0; i < function_count; i++) {
         if (strcmp(function_table[i].name, name) == 0) {
             return;
@@ -244,7 +245,6 @@ void insert_function(char *name, int address, Node *params, int call_after) {
         p = p->next;
     }
     function_table[function_count].param_count = p_count;
-    function_table[function_count].call_after = call_after;
     function_count++;
 }
 
@@ -1130,11 +1130,10 @@ void generate(Node *node) {
 
                 generate(node->body);
 
-                int call_after = count;
-                emit_op(OP_JMP, &zero);
+                emit_op(OP_RET, NULL);
 
                 bytecode[my_jmp_idx + 1] = count;                
-                insert_function(node->func_name, func_start_address, node->params, call_after);
+                insert_function(node->func_name, func_start_address, node->params);
                 break;
             }
             case ND_CALL: {
@@ -1145,8 +1144,7 @@ void generate(Node *node) {
                     int addr = find_variable(func->params[i]);
                     emit_op(OP_STORE, &addr);
                 }
-                emit_op(OP_JMP, &func->address);
-                bytecode[func->call_after + 1] = count;
+                emit_op(OP_CALL, &func->address);
                 break;
             }
             default: 

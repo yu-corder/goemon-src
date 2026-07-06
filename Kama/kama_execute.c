@@ -26,13 +26,17 @@ typedef enum {
     OP_INC,
     OP_INPUT,
     OP_PRINTS,
+    OP_CALL,
+    OP_RET,
     OP_HALT
 } OpCode;
 
 void run(int* program) {
     int stack[1024];
+    int call_stack[128];
     int memory[2048];
     int sp = -1;
+    int call_sp = -1;
     int pc = 0;
 
     for(int i = 0; i < 2048; i++) memory[i] = 0;
@@ -182,6 +186,16 @@ void run(int* program) {
                     address++;
                 }
                 printf("\n");
+                break;
+            }
+            case OP_CALL: {
+                call_stack[++call_sp] = pc;
+                int target =  program[pc++];
+                pc = target;
+                break;
+            }
+            case OP_RET: {
+                pc = call_stack[call_sp--];
                 break;
             }
             case OP_PRINT:
