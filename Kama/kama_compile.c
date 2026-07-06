@@ -1139,7 +1139,7 @@ void generate(Node *node) {
             case ND_CALL: {
                 Funcion *func = find_function(node->func_name);
                 generate(node->params);
-                for (int i = 0; i < func->param_count; i++) {
+                for (int i = func->param_count - 1; i >= 0; i--) {
                     
                     int addr = find_variable(func->params[i]);
                     emit_op(OP_STORE, &addr);
