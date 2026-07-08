@@ -249,9 +249,16 @@ void insert_function(char *name, int address, Node *params) {
 }
 
 Token tokens[MAX_TOKENS];
+int line = 1;
 void tokenize (char *p) {
     int i = 0;
     while(*p) {
+        if (*p == '\n') {
+            p++;
+            line++;
+            continue;
+        }
+
         if (isspace(*p)) { p++; continue;}
 
         if (isdigit(*p)) {
@@ -457,8 +464,9 @@ void tokenize (char *p) {
             }
             continue;
         }
-        p++;
-        printf("不明な文字ですぞ: %c\n", *p);
+
+        printf("Line %d: Unknown character '%c'\n", line, *p);
+        exit(1);
     }
     tokens[i].kind = TK_EOF;
 
