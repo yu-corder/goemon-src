@@ -584,15 +584,8 @@ Node* parse_statement() {
     Token *t = next_token();
     switch(t->kind) {
         case TK_PRINT: {
-            Token *value = next_token();
-            Node *var = NULL;
-            if (value->kind == TK_IDENT) {
-                var = new_var_node(value->str);
-            } else if (value->kind == TK_NUMBER) {
-                var = new_num_node(&value->val);
-            }
-            next_token();
-            return new_unary_node(ND_PRINT, var);
+            Node *rhs = parse_evaluation();
+            return new_unary_node(ND_PRINT, rhs);
         }
         case TK_NUMBER: {
             return new_num_node(&t->val);
