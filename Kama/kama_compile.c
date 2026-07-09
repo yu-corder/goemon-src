@@ -72,6 +72,7 @@ typedef enum {
     TK_FOR,
     TK_FUNCTION,
     TK_CALL,
+    TK_RET,
     TK_EOF,
 } TokenKind;
 
@@ -100,6 +101,7 @@ typedef enum {
     ND_FOR,
     ND_FUNCTION,
     ND_CALL,
+    ND_RET,
 } NodeKind;
 
 typedef struct {
@@ -319,6 +321,12 @@ void tokenize (char *p) {
         if (strncmp(p, "function", 8) == 0 && (isspace(p[8]) || p[8] == '\0')) {
             tokens[i++].kind = TK_FUNCTION;
             p += 8;
+            continue;
+        }
+
+        if (strncmp(p, "return", 6) == 0 && (isspace(p[6]) || p[6] == '\0')) {
+            tokens[i++].kind = TK_RET;
+            p += 6;
             continue;
         }
 
@@ -584,7 +592,7 @@ Node* parse_statement() {
     Token *t = next_token();
     switch(t->kind) {
         case TK_PRINT: {
-            Node *rhs = parse_evaluation();
+            Node *rhs = parse_statement();
             return new_unary_node(ND_PRINT, rhs);
         }
         case TK_NUMBER: {
@@ -649,6 +657,10 @@ Node* parse_statement() {
         }
         case TK_FUNCTION: {
             return parse_function();
+        }
+        case TK_RET: {
+            Node *rhs = parse_evaluation();
+            return new_unary_node(ND_RET, rhs);
         }
         default:
             return NULL;
@@ -1148,6 +1160,10 @@ void generate(Node *node) {
                 emit_op(OP_CALL, &func->address);
                 break;
             }
+            case ND_RET: {
+                generate(node->lhs);
+                break;
+            }
             default: 
                 printf("Unknown node: %d\n", node->kind);
                 exit(1);
@@ -1322,6 +1338,7 @@ void debug_ast_node(Node *node, int depth) {
             node->kind == ND_FOR ? "FOR" :
             node->kind == ND_FUNCTION ? "FUNCTION" :
             node->kind == ND_CALL ? "CALL" :
+            node->kind == ND_RET ? "RET" :
             "UNKNOWN"
         );
 
@@ -1452,6 +1469,8 @@ const char *token_kind_name[] = {
     "TK_CONTINUE",
     "TK_FOR",
     "TK_FUNCTION",
+    "TK_CALL",
+    "TK_RET",
     "TK_EOF"
 };
 void debug_bynary() {

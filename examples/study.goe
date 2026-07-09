@@ -1,14 +1,5 @@
-print 1;
-
-function test (a, b) {
-    print a;
-    print b;
+function test(a, b) {
+    return a + b;
 }
 
-print 100;
-
-test(1,2);
-
-print 500;
-
-test(3,4);
+print test(500, 1);

@@ -189,7 +189,7 @@ void run(int* program) {
                 break;
             }
             case OP_CALL: {
-                call_stack[++call_sp] = pc;
+                call_stack[++call_sp] = pc + 1;
                 int target =  program[pc++];
                 pc = target;
                 break;
