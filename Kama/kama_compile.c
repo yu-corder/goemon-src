@@ -175,6 +175,7 @@ void debug_ast_node();
 void print_ast();
 void generate(Node* node);
 
+Node* parse_statement();
 Node* parse_evaluation();
 Node* parse_expression();
 Node* parse_if();
@@ -487,6 +488,10 @@ Token* next_token() {
     return &tokens[pos++];
 }
 
+Token* prev_token() {
+    return &tokens[pos--];
+}
+
 typedef struct {
     int breaks[128];
     int break_count;
@@ -521,7 +526,32 @@ Node* parse_primary() {
     if (t->kind == TK_NUMBER) {
         node = new_num_node(&t->val);
     } else if (t->kind == TK_IDENT) {
-        node = new_var_node(t->str);
+        if (tokens[pos].kind == TK_LPAREN) {
+            Node *arg_stmt = NULL;
+            Node *arg_head = NULL;
+            Node *arg_tail = NULL;
+            while (tokens[pos].kind != TK_RPAREN && tokens[pos].kind != TK_EOF) {
+                arg_stmt = parse_statement();
+
+                if (!arg_stmt) continue;
+
+                if (!arg_head) {
+                    arg_head = arg_stmt;
+                    arg_tail = arg_stmt;
+                } else {
+                    arg_tail->next = arg_stmt;
+                    arg_tail = arg_stmt;
+                }
+            }
+            if (tokens[pos].kind == TK_RPAREN) next_token();
+            node =  new_call_node(ND_CALL, t->str, arg_head);
+        } else if (tokens[pos].kind == TK_INC) {
+            next_token();
+            Node *var = new_var_node(t->str);
+            node = new_unary_node(ND_INC, var);
+        } else {
+            node = new_var_node(t->str);
+        }
     }
     return node;
 }
@@ -596,7 +626,8 @@ Node* parse_statement() {
             return new_unary_node(ND_PRINT, rhs);
         }
         case TK_NUMBER: {
-            return new_num_node(&t->val);
+            prev_token();
+            return parse_evaluation();
         }
         case TK_IDENT: {
             if (tokens[pos].kind == TK_COLON) {
@@ -610,35 +641,10 @@ Node* parse_statement() {
                 if (tokens[pos].kind == TK_SEMI) {
                     return new_binary_node(ND_ASSIGN, lhs, rhs);
                 }
+            } else {
+                prev_token();
+                return parse_evaluation();
             }
-
-            if (tokens[pos].kind == TK_INC) {
-                next_token();
-                Node *var = new_var_node(t->str);
-                return new_unary_node(ND_INC, var);
-            }
-
-            if (tokens[pos].kind == TK_LPAREN) {
-                Node *arg_stmt = NULL;
-                Node *arg_head = NULL;
-                Node *arg_tail = NULL;
-                while (tokens[pos].kind != TK_RPAREN && tokens[pos].kind != TK_EOF) {
-                    arg_stmt = parse_statement();
-
-                    if (!arg_stmt) continue;
-
-                    if (!arg_head) {
-                        arg_head = arg_stmt;
-                        arg_tail = arg_stmt;
-                    } else {
-                        arg_tail->next = arg_stmt;
-                        arg_tail = arg_stmt;
-                    }
-                }
-                if (tokens[pos].kind == TK_RPAREN) next_token();
-                return new_call_node(ND_CALL, t->str, arg_head);
-            }
-            return lhs;
         }
         case TK_IF: {
             return parse_if();

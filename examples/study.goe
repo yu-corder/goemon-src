@@ -2,4 +2,7 @@ function test(a, b) {
     return a + b;
 }
 
-print test(500, 1);
+z = test(500, 1);
+print z;
+
+print 8 + 500;
