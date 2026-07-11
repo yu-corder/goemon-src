@@ -1162,6 +1162,7 @@ void generate(Node *node) {
             }
             case ND_RET: {
                 generate(node->lhs);
+                emit_op(OP_RET, NULL);
                 break;
             }
             default: 

@@ -1,0 +1,40 @@
+function add(a, b) {
+    return a + b;
+}
+
+function mul(a, b) {
+    return a * b;
+}
+
+print mul(add(1, 2), 10);
+
+print add(1, 2);
+print add(3, 4);
+print add(5, 6);
+
+function test() {
+    print 100;
+}
+
+test();
+
+function aiueo(z) {
+    if (z == 0) {
+        return 100;
+    }
+    return 200;
+}
+
+print aiueo(1);
+print aiueo(0);
+
+function kakikukeko(a) {
+    if (a == 0) {
+        return 100;
+    }
+
+    print 999;
+    return 200;
+}
+
+print kakikukeko(0);
