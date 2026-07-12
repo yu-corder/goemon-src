@@ -182,6 +182,7 @@ Node* parse_if();
 Node* parse_while();
 Node* parse_for();
 Node* parse_function();
+Node* parse_print();
 
 Label symbol_table[128];
 int label_count_internal = 0;
@@ -531,6 +532,28 @@ Node* parse_statement_list(TokenKind kind) {
     return head;
 }
 
+Node* parse_argument_list(TokenKind kind) {
+    Node *stmt = NULL;
+    Node *head = NULL;
+    Node *tail = NULL;
+
+    while (tokens[pos].kind != kind && tokens[pos].kind != TK_EOF) {
+        stmt = parse_evaluation();
+
+        if (!stmt) continue;
+
+        if (!head) {
+            head = stmt;
+            tail = stmt;
+        } else {
+            tail->next = stmt;
+            tail = stmt;
+        }
+    }
+
+    return head;
+}
+
 Node* parse_primary() {
     if (tokens[pos].kind == TK_PLUS) {
         next_token();
@@ -548,7 +571,8 @@ Node* parse_primary() {
         node = new_num_node(&t->val);
     } else if (t->kind == TK_IDENT) {
         if (tokens[pos].kind == TK_LPAREN) {
-            Node *arg_head = parse_statement_list(TK_RPAREN);
+            next_token();
+            Node *arg_head = parse_argument_list(TK_RPAREN);
             if (tokens[pos].kind == TK_RPAREN) next_token();
             node =  new_call_node(ND_CALL, t->str, arg_head);
         } else if (tokens[pos].kind == TK_INC) {
@@ -628,12 +652,8 @@ Node* parse_statement() {
     Token *t = next_token();
     switch(t->kind) {
         case TK_PRINT: {
-            Node *rhs = parse_statement();
+            Node *rhs = parse_evaluation();
             return new_unary_node(ND_PRINT, rhs);
-        }
-        case TK_NUMBER: {
-            prev_token();
-            return parse_evaluation();
         }
         case TK_IDENT: {
             if (tokens[pos].kind == TK_COLON) {
