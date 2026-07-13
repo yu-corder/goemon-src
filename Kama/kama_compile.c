@@ -1125,23 +1125,23 @@ void generate(Node *node) {
                 emit_op(OP_JMP, &zero);
 
                 int func_start_address = count;
+                insert_function(node->func_name, func_start_address, node->params);
+                Funcion *func = find_function(node->func_name);
+                for (int i = func->param_count - 1; i >= 0; i--) {
+                    int addr = find_variable(func->params[i]);
+                    emit_op(OP_STORE, &addr);
+                }
 
                 generate(node->body);
 
                 emit_op(OP_RET, NULL);
 
-                bytecode[my_jmp_idx + 1] = count;                
-                insert_function(node->func_name, func_start_address, node->params);
+                bytecode[my_jmp_idx + 1] = count;
                 break;
             }
             case ND_CALL: {
                 Funcion *func = find_function(node->func_name);
                 generate(node->params);
-                for (int i = func->param_count - 1; i >= 0; i--) {
-                    
-                    int addr = find_variable(func->params[i]);
-                    emit_op(OP_STORE, &addr);
-                }
                 emit_op(OP_CALL, &func->address);
                 break;
             }

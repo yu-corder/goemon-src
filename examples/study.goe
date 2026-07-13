@@ -4,5 +4,5 @@ function test(a, b) {
 
 z = test(500, 1);
 print z;
-
-print 8 + 500;
+print a;
+print b;
