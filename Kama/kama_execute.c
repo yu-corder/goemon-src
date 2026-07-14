@@ -31,12 +31,18 @@ typedef enum {
     OP_HALT
 } OpCode;
 
+typedef struct {
+    int locals[128];
+} Frame;
+
+
+
 void run(int* program) {
     int stack[1024];
     int call_stack[128];
     int memory[2048];
-    int frame_pointer[128][128];
-    int func_depth = -1;
+    Frame frames[128];
+    int frame_sp = -1;
     int sp = -1;
     int call_sp = -1;
     int pc = 0;
@@ -145,8 +151,8 @@ void run(int* program) {
             case OP_STORE: {
                 int address = program[pc++];
                 int value = stack[sp--];
-                if (func_depth >= 0) {
-                    frame_pointer[func_depth][address] = value;
+                if (frame_sp >= 0) {
+                    frames[frame_sp].locals[address] = value;
                 } else {
                     memory[address] = value;
                 }
@@ -155,8 +161,8 @@ void run(int* program) {
             case OP_LOAD: {
                 int address = program[pc++];
                 int value;
-                if (func_depth >= 0) {
-                    value = frame_pointer[func_depth][address];
+                if (frame_sp >= 0) {
+                    value = frames[frame_sp].locals[address];
                 } else {
                     value = memory[address];
                 }
@@ -202,13 +208,13 @@ void run(int* program) {
             }
             case OP_CALL: {
                 call_stack[++call_sp] = pc + 1;
-                func_depth++;
+                frame_sp++;
                 int target =  program[pc++];
                 pc = target;
                 break;
             }
             case OP_RET: {
-                func_depth--;
+                frame_sp--;
                 pc = call_stack[call_sp--];
                 break;
             }
