@@ -20,7 +20,9 @@ typedef enum {
     OP_JZ,
     OP_PRINT,
     OP_STORE,
+    OP_STORE_LOCAL,
     OP_LOAD,
+    OP_LOAD_LOCAL,
     OP_LT,
     OP_GT,
     OP_INC,
@@ -151,21 +153,24 @@ void run(int* program) {
             case OP_STORE: {
                 int address = program[pc++];
                 int value = stack[sp--];
-                if (frame_sp >= 0) {
-                    frames[frame_sp].locals[address] = value;
-                } else {
-                    memory[address] = value;
-                }
+                memory[address] = value;
+                break;
+            }
+            case OP_STORE_LOCAL: {
+                int address = program[pc++];
+                int value = stack[sp--];
+                frames[frame_sp].locals[address] = value;
                 break;
             }
             case OP_LOAD: {
                 int address = program[pc++];
-                int value;
-                if (frame_sp >= 0) {
-                    value = frames[frame_sp].locals[address];
-                } else {
-                    value = memory[address];
-                }
+                int value = memory[address];
+                stack[++sp] = value;
+                break;
+            }
+            case OP_LOAD_LOCAL: {
+                int address = program[pc++];
+                int value = frames[frame_sp].locals[address];
                 stack[++sp] = value;
                 break;
             }

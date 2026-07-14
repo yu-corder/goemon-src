@@ -23,7 +23,9 @@ typedef enum {
     OP_JZ,
     OP_PRINT,
     OP_STORE,
+    OP_STORE_LOCAL,
     OP_LOAD,
+    OP_LOAD_LOCAL,
     OP_LT,
     OP_GT,
     OP_INC,
@@ -154,8 +156,10 @@ typedef struct {
 } Funcion;
 
 
-Variable variable_table[128];
-int variable_count = 0;
+Variable g_variable_table[128];
+Variable l_variable_table[128];
+int g_variable_count = 0;
+int l_variable_count = 0;
 
 Funcion function_table[128];
 int function_count = 0;
@@ -203,23 +207,49 @@ int find_label(char *name) {
     return -1;
 }
 
-int find_variable(char *name) {
-    for (int i = 0; i < variable_count; i++) {
-        if (strcmp(variable_table[i].name, name) == 0) {
-            return variable_table[i].memory_index;
+int find_variable(char *name, int is_local) {
+    for (int i = 0; i < g_variable_count; i++) {
+        if (strcmp(g_variable_table[i].name, name) == 0) {
+            return g_variable_table[i].memory_index;
         }
     }
-
-    strcpy(variable_table[variable_count].name, name);
-    
-    if (strncmp(name, "__s", 3) == 0) {
-        variable_table[variable_count].memory_index = 1000 + (variable_count * 100);
-    } else {
-        variable_table[variable_count].memory_index = variable_count;
+    if (is_local >= 1) {
+        for (int i = 0; i < l_variable_count; i++) {
+            if (strcmp(l_variable_table[i].name, name) == 0) {
+                return l_variable_table[i].memory_index;
+            }
+        }
     }
+    return -1;
+}
 
-    return variable_table[variable_count++].memory_index;
+int insert_variable(char *name, int is_local) {
+    if (is_local >= 1) {
+        int current_idx = l_variable_count;
+        l_variable_count++;
 
+        strcpy(l_variable_table[current_idx].name, name);
+        
+        if (strncmp(name, "__s", 3) == 0) {
+            l_variable_table[current_idx].memory_index = 1000 + (l_variable_count * 100);
+        } else {
+            l_variable_table[current_idx].memory_index = l_variable_count;
+        }
+        return l_variable_table[current_idx].memory_index;
+
+    } else {
+        int current_idx = g_variable_count;
+        g_variable_count++;
+
+        strcpy(g_variable_table[current_idx].name, name);
+        
+        if (strncmp(name, "__s", 3) == 0) {
+            g_variable_table[current_idx].memory_index = 1000 + (g_variable_count * 100);
+        } else {
+            g_variable_table[current_idx].memory_index = g_variable_count;
+        }
+        return g_variable_table[current_idx].memory_index;
+    }
 }
 
 Funcion* find_function(char *name) {
@@ -941,6 +971,7 @@ void generate_binary(Node *node, OpCode op) {
     emit_op(op, NULL);
 }
 
+int local_scope = 0;
 void generate(Node *node) {
     if (node == NULL) return;
     while (node) {
@@ -952,13 +983,25 @@ void generate(Node *node) {
             }
             case ND_ASSIGN: {
                 generate(node->rhs);
-                int addr = find_variable(node->lhs->name);
+                int addr = find_variable(node->lhs->name, local_scope);
+                if (addr == -1) addr = insert_variable(node->lhs->name, local_scope);
                 emit_op(OP_STORE, &addr);
                 break;
             }
             case ND_VAR: {
-                int addr = find_variable(node->name);
-                emit_op(OP_LOAD, &addr);
+                int addr = find_variable(node->name, local_scope);
+                if (addr == -1) {
+                    fprintf(stderr, "Undefined variable: %s\n", node->name);
+                    exit(1);
+                }
+
+                OpCode op_code;
+                if (local_scope >= 1) {
+                    op_code = OP_LOAD_LOCAL;
+                } else {
+                    op_code = OP_LOAD;
+                }
+                emit_op(op_code, &addr);
                 break;
             }
             case ND_PRINT: {
@@ -1056,7 +1099,8 @@ void generate(Node *node) {
                 break;
             }
             case ND_INC: {
-                int addr = find_variable(node->lhs->name);
+                int addr = find_variable(node->lhs->name, local_scope);
+                if (addr == -1) addr = insert_variable(node->lhs->name, local_scope);
                 emit_op(OP_INC, &addr);
                 break;
             }
@@ -1120,6 +1164,7 @@ void generate(Node *node) {
                 break;
             }
             case ND_FUNCTION: {
+                local_scope++;
                 int my_jmp_idx = count;
                 int zero = 0;
                 emit_op(OP_JMP, &zero);
@@ -1128,8 +1173,9 @@ void generate(Node *node) {
                 insert_function(node->func_name, func_start_address, node->params);
                 Funcion *func = find_function(node->func_name);
                 for (int i = func->param_count - 1; i >= 0; i--) {
-                    int addr = find_variable(func->params[i]);
-                    emit_op(OP_STORE, &addr);
+                    int addr = find_variable(func->params[i], local_scope);
+                    if (addr == -1) addr = insert_variable(func->params[i], local_scope);
+                    emit_op(OP_STORE_LOCAL, &addr);
                 }
 
                 generate(node->body);
@@ -1137,6 +1183,7 @@ void generate(Node *node) {
                 emit_op(OP_RET, NULL);
 
                 bytecode[my_jmp_idx + 1] = count;
+                local_scope--;
                 break;
             }
             case ND_CALL: {
