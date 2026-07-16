@@ -1,8 +1,8 @@
-function test(a, b) {
-    return a + b;
+a = 1;
+print a;
+if (1) {
+    a = 2;
+    print a;
 }
 
-z = test(500, 1);
-print z;
 print a;
-print b;

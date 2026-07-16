@@ -26,6 +26,7 @@ typedef enum {
     OP_LT,
     OP_GT,
     OP_INC,
+    OP_INC_LOCAL,
     OP_INPUT,
     OP_PRINTS,
     OP_CALL,
@@ -33,18 +34,11 @@ typedef enum {
     OP_HALT
 } OpCode;
 
-typedef struct {
-    int locals[128];
-} Frame;
-
-
-
 void run(int* program) {
     int stack[1024];
     int call_stack[128];
     int memory[2048];
-    Frame frames[128];
-    int frame_sp = -1;
+    int frames[128];
     int sp = -1;
     int call_sp = -1;
     int pc = 0;
@@ -159,7 +153,7 @@ void run(int* program) {
             case OP_STORE_LOCAL: {
                 int address = program[pc++];
                 int value = stack[sp--];
-                frames[frame_sp].locals[address] = value;
+                frames[address] = value;
                 break;
             }
             case OP_LOAD: {
@@ -170,7 +164,7 @@ void run(int* program) {
             }
             case OP_LOAD_LOCAL: {
                 int address = program[pc++];
-                int value = frames[frame_sp].locals[address];
+                int value = frames[address];
                 stack[++sp] = value;
                 break;
             }
@@ -189,6 +183,11 @@ void run(int* program) {
             case OP_INC: {
                 int address = program[pc++];
                 memory[address]++;
+                break;
+            }
+            case OP_INC_LOCAL: {
+                int address = program[pc++];
+                frames[address]++;
                 break;
             }
             case OP_INPUT: {
@@ -213,13 +212,11 @@ void run(int* program) {
             }
             case OP_CALL: {
                 call_stack[++call_sp] = pc + 1;
-                frame_sp++;
                 int target =  program[pc++];
                 pc = target;
                 break;
             }
             case OP_RET: {
-                frame_sp--;
                 pc = call_stack[call_sp--];
                 break;
             }
