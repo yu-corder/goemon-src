@@ -550,7 +550,12 @@ int bytecode[1024];
 LoopContext loop_stack[128];
 int loop_depth = 0;
 int count = 0;
-void emit_op (OpCode op_code, int *val) {
+
+void emit_no_operand(OpCode op_code) {
+    bytecode[count++] = op_code;
+}
+
+void emit_one_operand (OpCode op_code, int *val) {
     bytecode[count++] = op_code;
     if (val != NULL) {
         bytecode[count++] = *val;
@@ -964,7 +969,7 @@ int main(int argc, char **argv) {
 
     generate(program);
 
-    emit_op(OP_HALT, NULL);
+    emit_no_operand(OP_HALT);
 
     if (g_debug_binary) {
         debug_bynary();
@@ -984,7 +989,7 @@ int main(int argc, char **argv) {
 void generate_binary(Node *node, OpCode op) {
     generate(node->lhs);
     generate(node->rhs);
-    emit_op(op, NULL);
+    emit_no_operand(op);
 }
 
 int local_scope = 0;
@@ -994,7 +999,7 @@ void generate(Node *node) {
 
         switch (node->kind) {
             case ND_NUM: {
-                emit_op(OP_PUSH, &node->val);
+                emit_one_operand(OP_PUSH, &node->val);
                 break;
             }
             case ND_ASSIGN: {
@@ -1011,7 +1016,7 @@ void generate(Node *node) {
                 if (addr == -1) {
                     addr = insert_variable(node->lhs->name, block_depth);
                 }
-                emit_op(op_code, &addr);
+                emit_one_operand(op_code, &addr);
                 break;
             }
             case ND_VAR: {
@@ -1030,12 +1035,12 @@ void generate(Node *node) {
                 }
 
                 
-                emit_op(op_code, &addr);
+                emit_one_operand(op_code, &addr);
                 break;
             }
             case ND_PRINT: {
                 generate(node->lhs);
-                emit_op(OP_PRINT, NULL);
+                emit_no_operand(OP_PRINT);
                 break;
             }
             case ND_ADD: {
@@ -1089,13 +1094,13 @@ void generate(Node *node) {
 
                 int my_jz_idx = count;
                 int zero = 0;
-                emit_op(OP_JZ, &zero);
+                emit_one_operand(OP_JZ, &zero);
 
                 generate(node->body);
 
                 if (node->else_stmt) {
                     int my_jmp_idx = count;
-                    emit_op(OP_JMP, &zero);
+                    emit_one_operand(OP_JMP, &zero);
                     bytecode[my_jz_idx + 1] = count;
 
                     generate(node->else_stmt);
@@ -1120,11 +1125,11 @@ void generate(Node *node) {
 
                 int my_jz_idx = count;
                 int zero = 0;
-                emit_op(OP_JZ, &zero);
+                emit_one_operand(OP_JZ, &zero);
 
                 generate(node->body);
 
-                emit_op(OP_JMP, &my_jmp_idx);
+                emit_one_operand(OP_JMP, &my_jmp_idx);
                 bytecode[my_jz_idx + 1] = count;
                 
                 for (int i = 0; i < loop_stack[loop_depth].break_count; i++) {
@@ -1148,7 +1153,7 @@ void generate(Node *node) {
 
                 if (addr == -1) addr = insert_variable(node->lhs->name, block_depth);
 
-                emit_op(op_code, &addr);
+                emit_one_operand(op_code, &addr);
                 break;
             }
             case ND_BREAK: {
@@ -1159,7 +1164,7 @@ void generate(Node *node) {
                 int index = loop_stack[loop_depth].break_count++;
                 loop_stack[loop_depth].breaks[index] = count;
                 int zero = 0;
-                emit_op(OP_JMP, &zero);
+                emit_one_operand(OP_JMP, &zero);
                 break;
             }
             case ND_CONTINUE: {
@@ -1168,7 +1173,7 @@ void generate(Node *node) {
                     exit(1);
                 }
                 int my_jmp_idx = loop_stack[loop_depth].continue_target;
-                emit_op(OP_JMP, &my_jmp_idx);
+                emit_one_operand(OP_JMP, &my_jmp_idx);
                 break;
             }
             case ND_FOR: {
@@ -1185,10 +1190,10 @@ void generate(Node *node) {
 
                 int my_jz_idx = count;
                 int zero = 0;
-                emit_op(OP_JZ, &zero);
+                emit_one_operand(OP_JZ, &zero);
 
                 int jump_to_body_idx = count;
-                emit_op(OP_JMP, &zero);
+                emit_one_operand(OP_JMP, &zero);
 
                 int update_start_idx = count;
                 loop_stack[loop_depth].continue_target = update_start_idx;
@@ -1196,12 +1201,12 @@ void generate(Node *node) {
 
                 generate(node->update);
 
-                emit_op(OP_JMP, &cond_start_idx);
+                emit_one_operand(OP_JMP, &cond_start_idx);
                 bytecode[jump_to_body_idx + 1] = count;
 
                 generate(node->body);
 
-                emit_op(OP_JMP, &update_start_idx);
+                emit_one_operand(OP_JMP, &update_start_idx);
                 bytecode[my_jz_idx + 1] = count;
 
                 for (int i = 0; i < loop_stack[loop_depth].break_count; i++) {
@@ -1217,7 +1222,7 @@ void generate(Node *node) {
                 l_variable[block_depth].variable_count = 0;
                 int my_jmp_idx = count;
                 int zero = 0;
-                emit_op(OP_JMP, &zero);
+                emit_one_operand(OP_JMP, &zero);
 
                 int func_start_address = count;
                 insert_function(node->func_name, func_start_address, node->params);
@@ -1225,12 +1230,12 @@ void generate(Node *node) {
                 for (int i = func->param_count - 1; i >= 0; i--) {
                     int addr = find_g_variable(func->params[i]);
                     if (addr == -1) addr = insert_variable(func->params[i], block_depth);
-                    emit_op(OP_STORE_LOCAL, &addr);
+                    emit_one_operand(OP_STORE_LOCAL, &addr);
                 }
 
                 generate(node->body);
 
-                emit_op(OP_RET, NULL);
+                emit_no_operand(OP_RET);
 
                 bytecode[my_jmp_idx + 1] = count;
                 block_depth--;
@@ -1239,12 +1244,12 @@ void generate(Node *node) {
             case ND_CALL: {
                 Funcion *func = find_function(node->func_name);
                 generate(node->params);
-                emit_op(OP_CALL, &func->address);
+                emit_one_operand(OP_CALL, &func->address);
                 break;
             }
             case ND_RET: {
                 generate(node->lhs);
-                emit_op(OP_RET, NULL);
+                emit_no_operand(OP_RET);
                 break;
             }
             default: 
