@@ -38,7 +38,7 @@ void run(int* program) {
     int stack[1024];
     int call_stack[128];
     int memory[2048];
-    int frames[128];
+    int frames[128][128];
     int sp = -1;
     int call_sp = -1;
     int pc = 0;
@@ -152,8 +152,9 @@ void run(int* program) {
             }
             case OP_STORE_LOCAL: {
                 int address = program[pc++];
+                int depth = program[pc++];
                 int value = stack[sp--];
-                frames[address] = value;
+                frames[depth][address] = value;
                 break;
             }
             case OP_LOAD: {
@@ -164,7 +165,8 @@ void run(int* program) {
             }
             case OP_LOAD_LOCAL: {
                 int address = program[pc++];
-                int value = frames[address];
+                int depth = program[pc++];
+                int value = frames[depth][address];
                 stack[++sp] = value;
                 break;
             }
@@ -187,7 +189,8 @@ void run(int* program) {
             }
             case OP_INC_LOCAL: {
                 int address = program[pc++];
-                frames[address]++;
+                int depth = program[pc++];
+                frames[depth][address]++;
                 break;
             }
             case OP_INPUT: {
