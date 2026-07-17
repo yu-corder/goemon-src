@@ -1258,7 +1258,8 @@ void generate(Node *node) {
                     int addr = find_g_variable(func->params[i]);
                     if (addr == -1) addr = find_l_variable(func->params[i], block_depth);
                     if (addr == -1) addr = insert_variable(func->params[i], block_depth);
-                    emit_two_operand(OP_STORE_LOCAL, &addr, &block_depth);
+                    int find_depth = find_l_depth(func->params[i], block_depth);
+                    emit_two_operand(OP_STORE_LOCAL, &addr, &find_depth);
                 }
 
                 generate(node->body);
