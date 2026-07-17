@@ -50,4 +50,30 @@ do
     fi
 done
 
+set +e
+
+echo
+echo "=== Error Tests ==="
+
+for testfile in tests/error/*.goe
+do
+    name=$(basename "$testfile" .goe)
+
+    expected="tests/error/${name}.expected"
+    bytecode="tests/error/${name}.gb"
+
+    echo "Testing Error $name"
+
+    ./kama-c "$testfile" "$bytecode" > actual.txt 2>&1
+
+    if diff actual.txt "$expected" > /dev/null; then
+        echo -e "${GREEN}✓ [PASS]${NC} $name"
+    else
+        echo -e "${RED}✗ [FAIL]${NC} $name"
+        exit 1
+    fi
+done
+
+set -e
+
 rm -f actual.txt

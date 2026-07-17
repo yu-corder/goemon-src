@@ -1,0 +1,6 @@
+function test() {
+    a = 100;
+}
+
+test();
+print a;
