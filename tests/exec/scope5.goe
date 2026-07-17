@@ -1,0 +1,9 @@
+function test(a) {
+    if (1) {
+        a = 200;
+    }
+
+    print a;
+}
+
+test(100);
