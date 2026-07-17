@@ -1,0 +1,8 @@
+a = 999;
+
+function test(a) {
+    print a;
+}
+
+test(100);
+print a;

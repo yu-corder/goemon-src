@@ -1,0 +1,14 @@
+a = 1;
+
+if (1) {
+    a = 100;
+
+    if (1) {
+        a = 200;
+        print a;
+    }
+
+    print a;
+}
+
+print a;

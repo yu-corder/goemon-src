@@ -1,0 +1,25 @@
+a = 1;
+print a;
+if (1) {
+    a = 2;
+    print a;
+}
+
+print a;
+
+
+c = 0;
+while (c < 3) {
+    print c;
+    c++;
+    if (1) {
+        print c;
+    }
+}
+
+function test(a, b) {
+    print a;
+    print b;
+}
+
+test(100, 500);
