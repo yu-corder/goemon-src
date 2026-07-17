@@ -1022,18 +1022,28 @@ void generate(Node *node) {
             }
             case ND_ASSIGN: {
                 generate(node->rhs);
-                int addr = find_g_variable(node->lhs->name);
 
-                OpCode op_code;
-                if (block_depth >= 1 && addr == -1) {
-                    op_code = OP_STORE_LOCAL;
-                    addr = find_l_variable(node->lhs->name, block_depth);
-                    if (addr == -1) addr = insert_variable(node->lhs->name, block_depth);
+                OpCode op_code = OP_STORE;
+                if (block_depth >= 1) {
+                    int addr = find_l_variable(node->lhs->name, block_depth);
+                    if (addr == -1) {
+                        addr = find_g_variable(node->lhs->name);
+                        if (addr == -1) {
+                            op_code = OP_STORE_LOCAL;
+                            addr = insert_variable(node->lhs->name, block_depth);
+                            int find_depth = find_l_depth(node->lhs->name, block_depth);
+                            emit_two_operand(op_code, &addr, &find_depth);
+                        } else {
+                            emit_one_operand(op_code, &addr);
+                        }
+                    } else {
+                        op_code = OP_STORE_LOCAL;
+                        int find_depth = find_l_depth(node->lhs->name, block_depth);
+                        emit_two_operand(op_code, &addr, &find_depth);
+                    }
 
-                    int find_depth = find_l_depth(node->lhs->name, block_depth);
-                    emit_two_operand(op_code, &addr, &find_depth);
                 } else {
-                    op_code = OP_STORE;
+                    int addr = find_g_variable(node->lhs->name);
                     if (addr == -1) addr = insert_variable(node->lhs->name, block_depth);
                     emit_one_operand(op_code, &addr);
                 }
@@ -1041,27 +1051,30 @@ void generate(Node *node) {
                 break;
             }
             case ND_VAR: {
-                int addr = find_g_variable(node->name);
+                OpCode op_code = OP_LOAD;
+                if (block_depth >= 1) {
+                    int addr = find_l_variable(node->name, block_depth);
+                    if (addr == -1) {
+                        addr = find_g_variable(node->name);
+                        emit_one_operand(op_code, &addr);
+                    } else {
+                        int find_depth = find_l_depth(node->name, block_depth);
+                        op_code = OP_LOAD_LOCAL;
+                        emit_two_operand(op_code, &addr, &find_depth);
+                    }
 
-                OpCode op_code;
-                if (block_depth >= 1 && addr == -1) {
-                    if (addr == -1) addr = find_l_variable(node->name, block_depth);
-
-                    //変数を定義した階層と今の階層が違うから、今の階層でバイトコード生成しているから。おかしなことになる。
-                    //だから、変数が見つかった階層も関数で返せるようにする or 別の関数を作って返す。
                     if (addr == -1) {
                         fprintf(stderr, "Undefined variable: %s\n", node->name);
                         exit(1);
                     }
-                    int find_depth = find_l_depth(node->name, block_depth);
-                    op_code = OP_LOAD_LOCAL;
-                    emit_two_operand(op_code, &addr, &find_depth);
+                    
+                   
                 } else {
+                    int addr = find_g_variable(node->name);
                     if (addr == -1) {
                         fprintf(stderr, "Undefined variable: %s\n", node->name);
                         exit(1);
                     }
-                    op_code = OP_LOAD;
                     emit_one_operand(op_code, &addr);
                 }
                 break;
@@ -1169,16 +1182,28 @@ void generate(Node *node) {
                 break;
             }
             case ND_INC: {
-                int addr = find_g_variable(node->lhs->name);
 
-                OpCode op_code;
-                if (block_depth >= 1 && addr == -1) {
-                    op_code = OP_INC_LOCAL;
-                    addr = find_l_variable(node->lhs->name, block_depth);
-                    int find_depth = find_l_depth(node->lhs->name, block_depth);
-                    emit_two_operand(op_code, &addr, &find_depth);
+                OpCode op_code = OP_INC;
+                if (block_depth >= 1) {
+                    int addr = find_l_variable(node->lhs->name, block_depth);
+                    if (addr == -1) {
+                        addr = find_g_variable(node->lhs->name);
+                        if (addr == -1) {
+                            fprintf(stderr, "Undefined variable: %s\n", node->name);
+                            exit(1);
+                        }
+                        emit_one_operand(op_code, &addr);
+                    } else {
+                        op_code = OP_INC_LOCAL;
+                        int find_depth = find_l_depth(node->lhs->name, block_depth);
+                        emit_two_operand(op_code, &addr, &find_depth);
+                    }
                 } else {
-                    op_code = OP_INC;
+                    int addr = find_g_variable(node->lhs->name);
+                    if (addr == -1) {
+                        fprintf(stderr, "Undefined variable: %s\n", node->name);
+                        exit(1);
+                    }
                     emit_one_operand(op_code, &addr);
                 }
                 break;
@@ -1255,8 +1280,7 @@ void generate(Node *node) {
                 insert_function(node->func_name, func_start_address, node->params);
                 Funcion *func = find_function(node->func_name);
                 for (int i = func->param_count - 1; i >= 0; i--) {
-                    int addr = find_g_variable(func->params[i]);
-                    if (addr == -1) addr = find_l_variable(func->params[i], block_depth);
+                    int addr = find_l_variable(func->params[i], block_depth);
                     if (addr == -1) addr = insert_variable(func->params[i], block_depth);
                     int find_depth = find_l_depth(func->params[i], block_depth);
                     emit_two_operand(OP_STORE_LOCAL, &addr, &find_depth);
