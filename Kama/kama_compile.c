@@ -225,7 +225,7 @@ int find_global_variable(char *name) {
     return -1;
 }
 
-int find_local_scope(char *name, int depth) {
+int find_local_variable(char *name, int depth) {
     for (int i = depth; i >= 0; i--) {
         for (int j = 0; j < local_scopes[i].variable_count; j++) {
             if (strcmp(local_scopes[i].name[j], name) == 0) {
@@ -1022,7 +1022,7 @@ void generate(Node *node) {
 
                 OpCode op_code = OP_STORE;
                 if (block_depth >= 1) {
-                    int addr = find_local_scope(node->lhs->name, block_depth);
+                    int addr = find_local_variable(node->lhs->name, block_depth);
                     if (addr == -1) {
                         addr = find_global_variable(node->lhs->name);
                         if (addr == -1) {
@@ -1050,7 +1050,7 @@ void generate(Node *node) {
             case ND_VAR: {
                 OpCode op_code = OP_LOAD;
                 if (block_depth >= 1) {
-                    int addr = find_local_scope(node->name, block_depth);
+                    int addr = find_local_variable(node->name, block_depth);
                     if (addr == -1) {
                         addr = find_global_variable(node->name);
                         emit_one_operand(op_code, &addr);
@@ -1182,7 +1182,7 @@ void generate(Node *node) {
 
                 OpCode op_code = OP_INC;
                 if (block_depth >= 1) {
-                    int addr = find_local_scope(node->lhs->name, block_depth);
+                    int addr = find_local_variable(node->lhs->name, block_depth);
                     if (addr == -1) {
                         addr = find_global_variable(node->lhs->name);
                         if (addr == -1) {
@@ -1277,7 +1277,7 @@ void generate(Node *node) {
                 insert_function(node->func_name, func_start_address, node->params);
                 Funcion *func = find_function(node->func_name);
                 for (int i = func->param_count - 1; i >= 0; i--) {
-                    int addr = find_local_scope(func->params[i], block_depth);
+                    int addr = find_local_variable(func->params[i], block_depth);
                     if (addr == -1) addr = insert_variable(func->params[i], block_depth);
                     int find_depth = find_local_depth(func->params[i], block_depth);
                     emit_two_operand(OP_STORE_LOCAL, &addr, &find_depth);
