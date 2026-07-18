@@ -249,32 +249,31 @@ int find_local_depth(char *name, int depth) {
     return -1;
 }
 
-int insert_variable(char *name, int is_local) {
-    if (is_local >= 1) {
-        int current_idx = local_scopes[is_local].variable_count;
-        local_scopes[is_local].variable_count++;
-        strcpy(local_scopes[is_local].name[current_idx], name);
-        
-        if (strncmp(name, "__s", 3) == 0) {
-            local_scopes[is_local].address[current_idx] = 1000 + (current_idx * 100);;
-        } else {
-            local_scopes[is_local].address[current_idx] = current_idx;
-        }
-        return local_scopes[is_local].address[current_idx];
+int insert_global_variable(char *name) {
+    int current_idx = global_variable_count;
+    global_variable_count++;
 
+    strcpy(global_variable_table[current_idx].name, name);
+    
+    if (strncmp(name, "__s", 3) == 0) {
+        global_variable_table[current_idx].memory_index = 1000 + (global_variable_count * 100);
     } else {
-        int current_idx = global_variable_count;
-        global_variable_count++;
-
-        strcpy(global_variable_table[current_idx].name, name);
-        
-        if (strncmp(name, "__s", 3) == 0) {
-            global_variable_table[current_idx].memory_index = 1000 + (global_variable_count * 100);
-        } else {
-            global_variable_table[current_idx].memory_index = global_variable_count;
-        }
-        return global_variable_table[current_idx].memory_index;
+        global_variable_table[current_idx].memory_index = global_variable_count;
     }
+    return global_variable_table[current_idx].memory_index;
+}
+
+int insert_local_variable(char *name, int depth) {
+    int current_idx = local_scopes[depth].variable_count;
+    local_scopes[depth].variable_count++;
+    strcpy(local_scopes[depth].name[current_idx], name);
+    
+    if (strncmp(name, "__s", 3) == 0) {
+        local_scopes[depth].address[current_idx] = 1000 + (current_idx * 100);;
+    } else {
+        local_scopes[depth].address[current_idx] = current_idx;
+    }
+    return local_scopes[depth].address[current_idx];
 }
 
 Funcion* find_function(char *name) {
@@ -1027,7 +1026,7 @@ void generate(Node *node) {
                         addr = find_global_variable(node->lhs->name);
                         if (addr == -1) {
                             op_code = OP_STORE_LOCAL;
-                            addr = insert_variable(node->lhs->name, block_depth);
+                            addr = insert_local_variable(node->lhs->name, block_depth);
                             int find_depth = find_local_depth(node->lhs->name, block_depth);
                             emit_two_operand(op_code, &addr, &find_depth);
                         } else {
@@ -1041,7 +1040,7 @@ void generate(Node *node) {
 
                 } else {
                     int addr = find_global_variable(node->lhs->name);
-                    if (addr == -1) addr = insert_variable(node->lhs->name, block_depth);
+                    if (addr == -1) addr = insert_global_variable(node->lhs->name);
                     emit_one_operand(op_code, &addr);
                 }
                 
@@ -1278,7 +1277,7 @@ void generate(Node *node) {
                 Funcion *func = find_function(node->func_name);
                 for (int i = func->param_count - 1; i >= 0; i--) {
                     int addr = find_local_variable(func->params[i], block_depth);
-                    if (addr == -1) addr = insert_variable(func->params[i], block_depth);
+                    if (addr == -1) addr = insert_local_variable(func->params[i], block_depth);
                     int find_depth = find_local_depth(func->params[i], block_depth);
                     emit_two_operand(OP_STORE_LOCAL, &addr, &find_depth);
                 }
