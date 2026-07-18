@@ -157,10 +157,17 @@ typedef struct {
 } Funcion;
 
 
-Variable g_variable_table[128];
-Variable l_variable_table[128];
-int g_variable_count = 0;
-int l_variable_count = 0;
+Variable global_variable_table[128];
+int global_variable_count = 0;
+
+typedef struct {
+    int variable_count;
+    char name[32][32];
+    int address[32];
+} LocalVariables;
+
+LocalVariables local_scopes[128];
+int block_depth = 0;
 
 Funcion function_table[128];
 int function_count = 0;
@@ -208,31 +215,21 @@ int find_label(char *name) {
     return -1;
 }
 
-typedef struct {
-    int variables[128];
-    int variable_count;
-    char name[32][32];
-    int address[32][32];
-} LocalVariables;
-
-LocalVariables l_variable[128];
-int block_depth = 0;
-
 int find_g_variable(char *name) {
-    for (int i = 0; i < g_variable_count; i++) {
-        if (strcmp(g_variable_table[i].name, name) == 0) {
-            return g_variable_table[i].memory_index;
+    for (int i = 0; i < global_variable_count; i++) {
+        if (strcmp(global_variable_table[i].name, name) == 0) {
+            return global_variable_table[i].memory_index;
         }
     }
     
     return -1;
 }
 
-int find_l_variable(char *name, int depth) {
+int find_local_scope(char *name, int depth) {
     for (int i = depth; i >= 0; i--) {
-        for (int j = 0; j < l_variable[i].variable_count; j++) {
-            if (strcmp(l_variable[i].name[j], name) == 0) {
-                return l_variable[i].address[i][j];
+        for (int j = 0; j < local_scopes[i].variable_count; j++) {
+            if (strcmp(local_scopes[i].name[j], name) == 0) {
+                return local_scopes[i].address[j];
             }
         }
     }
@@ -240,10 +237,10 @@ int find_l_variable(char *name, int depth) {
     return -1;
 }
 
-int find_l_depth(char *name, int depth) {
+int find_local_depth(char *name, int depth) {
     for (int i = depth; i >= 0; i--) {
-        for (int j = 0; j < l_variable[i].variable_count; j++) {
-            if (strcmp(l_variable[i].name[j], name) == 0) {
+        for (int j = 0; j < local_scopes[i].variable_count; j++) {
+            if (strcmp(local_scopes[i].name[j], name) == 0) {
                 return i;
             }
         }
@@ -254,29 +251,29 @@ int find_l_depth(char *name, int depth) {
 
 int insert_variable(char *name, int is_local) {
     if (is_local >= 1) {
-        int current_idx = l_variable[is_local].variable_count;
-        l_variable[is_local].variable_count++;
-        strcpy(l_variable[is_local].name[current_idx], name);
+        int current_idx = local_scopes[is_local].variable_count;
+        local_scopes[is_local].variable_count++;
+        strcpy(local_scopes[is_local].name[current_idx], name);
         
         if (strncmp(name, "__s", 3) == 0) {
-            l_variable[is_local].address[is_local][current_idx] = 1000 + (current_idx * 100);;
+            local_scopes[is_local].address[current_idx] = 1000 + (current_idx * 100);;
         } else {
-            l_variable[is_local].address[is_local][current_idx] = current_idx;
+            local_scopes[is_local].address[current_idx] = current_idx;
         }
-        return l_variable[is_local].address[is_local][current_idx];
+        return local_scopes[is_local].address[current_idx];
 
     } else {
-        int current_idx = g_variable_count;
-        g_variable_count++;
+        int current_idx = global_variable_count;
+        global_variable_count++;
 
-        strcpy(g_variable_table[current_idx].name, name);
+        strcpy(global_variable_table[current_idx].name, name);
         
         if (strncmp(name, "__s", 3) == 0) {
-            g_variable_table[current_idx].memory_index = 1000 + (g_variable_count * 100);
+            global_variable_table[current_idx].memory_index = 1000 + (global_variable_count * 100);
         } else {
-            g_variable_table[current_idx].memory_index = g_variable_count;
+            global_variable_table[current_idx].memory_index = global_variable_count;
         }
-        return g_variable_table[current_idx].memory_index;
+        return global_variable_table[current_idx].memory_index;
     }
 }
 
@@ -1025,20 +1022,20 @@ void generate(Node *node) {
 
                 OpCode op_code = OP_STORE;
                 if (block_depth >= 1) {
-                    int addr = find_l_variable(node->lhs->name, block_depth);
+                    int addr = find_local_scope(node->lhs->name, block_depth);
                     if (addr == -1) {
                         addr = find_g_variable(node->lhs->name);
                         if (addr == -1) {
                             op_code = OP_STORE_LOCAL;
                             addr = insert_variable(node->lhs->name, block_depth);
-                            int find_depth = find_l_depth(node->lhs->name, block_depth);
+                            int find_depth = find_local_depth(node->lhs->name, block_depth);
                             emit_two_operand(op_code, &addr, &find_depth);
                         } else {
                             emit_one_operand(op_code, &addr);
                         }
                     } else {
                         op_code = OP_STORE_LOCAL;
-                        int find_depth = find_l_depth(node->lhs->name, block_depth);
+                        int find_depth = find_local_depth(node->lhs->name, block_depth);
                         emit_two_operand(op_code, &addr, &find_depth);
                     }
 
@@ -1053,12 +1050,12 @@ void generate(Node *node) {
             case ND_VAR: {
                 OpCode op_code = OP_LOAD;
                 if (block_depth >= 1) {
-                    int addr = find_l_variable(node->name, block_depth);
+                    int addr = find_local_scope(node->name, block_depth);
                     if (addr == -1) {
                         addr = find_g_variable(node->name);
                         emit_one_operand(op_code, &addr);
                     } else {
-                        int find_depth = find_l_depth(node->name, block_depth);
+                        int find_depth = find_local_depth(node->name, block_depth);
                         op_code = OP_LOAD_LOCAL;
                         emit_two_operand(op_code, &addr, &find_depth);
                     }
@@ -1130,7 +1127,7 @@ void generate(Node *node) {
             }
             case ND_IF: {
                 block_depth++;
-                l_variable[block_depth].variable_count = 0;
+                local_scopes[block_depth].variable_count = 0;
                 generate(node->condition);
 
                 int my_jz_idx = count;
@@ -1155,7 +1152,7 @@ void generate(Node *node) {
             }
             case ND_WHILE: {
                 block_depth++;
-                l_variable[block_depth].variable_count = 0;
+                local_scopes[block_depth].variable_count = 0;
 
                 loop_depth++;
                 loop_stack[loop_depth].break_count = 0;
@@ -1185,7 +1182,7 @@ void generate(Node *node) {
 
                 OpCode op_code = OP_INC;
                 if (block_depth >= 1) {
-                    int addr = find_l_variable(node->lhs->name, block_depth);
+                    int addr = find_local_scope(node->lhs->name, block_depth);
                     if (addr == -1) {
                         addr = find_g_variable(node->lhs->name);
                         if (addr == -1) {
@@ -1195,7 +1192,7 @@ void generate(Node *node) {
                         emit_one_operand(op_code, &addr);
                     } else {
                         op_code = OP_INC_LOCAL;
-                        int find_depth = find_l_depth(node->lhs->name, block_depth);
+                        int find_depth = find_local_depth(node->lhs->name, block_depth);
                         emit_two_operand(op_code, &addr, &find_depth);
                     }
                 } else {
@@ -1230,7 +1227,7 @@ void generate(Node *node) {
             }
             case ND_FOR: {
                 block_depth++;
-                l_variable[block_depth].variable_count = 0;
+                local_scopes[block_depth].variable_count = 0;
                 loop_depth++;
                 loop_stack[loop_depth].break_count = 0;
 
@@ -1271,7 +1268,7 @@ void generate(Node *node) {
             }
             case ND_FUNCTION: {
                 block_depth++;
-                l_variable[block_depth].variable_count = 0;
+                local_scopes[block_depth].variable_count = 0;
                 int my_jmp_idx = count;
                 int zero = 0;
                 emit_one_operand(OP_JMP, &zero);
@@ -1280,9 +1277,9 @@ void generate(Node *node) {
                 insert_function(node->func_name, func_start_address, node->params);
                 Funcion *func = find_function(node->func_name);
                 for (int i = func->param_count - 1; i >= 0; i--) {
-                    int addr = find_l_variable(func->params[i], block_depth);
+                    int addr = find_local_scope(func->params[i], block_depth);
                     if (addr == -1) addr = insert_variable(func->params[i], block_depth);
-                    int find_depth = find_l_depth(func->params[i], block_depth);
+                    int find_depth = find_local_depth(func->params[i], block_depth);
                     emit_two_operand(OP_STORE_LOCAL, &addr, &find_depth);
                 }
 
