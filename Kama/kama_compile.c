@@ -215,7 +215,7 @@ int find_label(char *name) {
     return -1;
 }
 
-int find_g_variable(char *name) {
+int find_global_variable(char *name) {
     for (int i = 0; i < global_variable_count; i++) {
         if (strcmp(global_variable_table[i].name, name) == 0) {
             return global_variable_table[i].memory_index;
@@ -1024,7 +1024,7 @@ void generate(Node *node) {
                 if (block_depth >= 1) {
                     int addr = find_local_scope(node->lhs->name, block_depth);
                     if (addr == -1) {
-                        addr = find_g_variable(node->lhs->name);
+                        addr = find_global_variable(node->lhs->name);
                         if (addr == -1) {
                             op_code = OP_STORE_LOCAL;
                             addr = insert_variable(node->lhs->name, block_depth);
@@ -1040,7 +1040,7 @@ void generate(Node *node) {
                     }
 
                 } else {
-                    int addr = find_g_variable(node->lhs->name);
+                    int addr = find_global_variable(node->lhs->name);
                     if (addr == -1) addr = insert_variable(node->lhs->name, block_depth);
                     emit_one_operand(op_code, &addr);
                 }
@@ -1052,7 +1052,7 @@ void generate(Node *node) {
                 if (block_depth >= 1) {
                     int addr = find_local_scope(node->name, block_depth);
                     if (addr == -1) {
-                        addr = find_g_variable(node->name);
+                        addr = find_global_variable(node->name);
                         emit_one_operand(op_code, &addr);
                     } else {
                         int find_depth = find_local_depth(node->name, block_depth);
@@ -1067,7 +1067,7 @@ void generate(Node *node) {
                     
                    
                 } else {
-                    int addr = find_g_variable(node->name);
+                    int addr = find_global_variable(node->name);
                     if (addr == -1) {
                         fprintf(stderr, "Undefined variable: %s\n", node->name);
                         exit(1);
@@ -1184,7 +1184,7 @@ void generate(Node *node) {
                 if (block_depth >= 1) {
                     int addr = find_local_scope(node->lhs->name, block_depth);
                     if (addr == -1) {
-                        addr = find_g_variable(node->lhs->name);
+                        addr = find_global_variable(node->lhs->name);
                         if (addr == -1) {
                             fprintf(stderr, "Undefined variable: %s\n", node->name);
                             exit(1);
@@ -1196,7 +1196,7 @@ void generate(Node *node) {
                         emit_two_operand(op_code, &addr, &find_depth);
                     }
                 } else {
-                    int addr = find_g_variable(node->lhs->name);
+                    int addr = find_global_variable(node->lhs->name);
                     if (addr == -1) {
                         fprintf(stderr, "Undefined variable: %s\n", node->name);
                         exit(1);
