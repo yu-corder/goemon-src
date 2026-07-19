@@ -1,8 +1,14 @@
-a = 1;
-print a;
-if (1) {
-    a = 2;
+print 1;
+
+function test (a, b) {
     print a;
+    print b;
 }
 
-print a;
+print 100;
+
+test(1,2);
+
+print 500;
+
+test(3,4);

@@ -166,6 +166,13 @@ typedef struct {
     int address[32];
 } LocalVariables;
 
+typedef struct {
+    int address;
+    int depth;
+
+    bool found;
+} LocalVariablesInfo;
+
 LocalVariables local_scopes[128];
 int block_depth = 0;
 
@@ -225,28 +232,21 @@ int find_global_variable(char *name) {
     return -1;
 }
 
-int find_local_variable(char *name, int depth) {
+LocalVariablesInfo find_local_variable(char *name, int depth) {
+    LocalVariablesInfo var;
+    var.found = false;
+    var.address = -1;
     for (int i = depth; i >= 0; i--) {
         for (int j = 0; j < local_scopes[i].variable_count; j++) {
             if (strcmp(local_scopes[i].name[j], name) == 0) {
-                return local_scopes[i].address[j];
+                var.address = local_scopes[i].address[j];
+                var.depth = i;
+                var.found = true;
+                return var;
             }
         }
     }
-
-    return -1;
-}
-
-int find_local_depth(char *name, int depth) {
-    for (int i = depth; i >= 0; i--) {
-        for (int j = 0; j < local_scopes[i].variable_count; j++) {
-            if (strcmp(local_scopes[i].name[j], name) == 0) {
-                return i;
-            }
-        }
-    }
-
-    return -1;
+    return var;
 }
 
 int insert_global_variable(char *name) {
@@ -1021,20 +1021,22 @@ void generate(Node *node) {
 
                 OpCode op_code = OP_STORE;
                 if (block_depth >= 1) {
-                    int addr = find_local_variable(node->lhs->name, block_depth);
-                    if (addr == -1) {
+                    LocalVariablesInfo var = find_local_variable(node->lhs->name, block_depth);
+                    int addr = var.address;
+                    int find_depth = var.depth;
+                    if (!var.found) {
                         addr = find_global_variable(node->lhs->name);
                         if (addr == -1) {
                             op_code = OP_STORE_LOCAL;
                             addr = insert_local_variable(node->lhs->name, block_depth);
-                            int find_depth = find_local_depth(node->lhs->name, block_depth);
+                            var = find_local_variable(node->lhs->name, block_depth);
+                            find_depth = var.depth;
                             emit_two_operand(op_code, &addr, &find_depth);
                         } else {
                             emit_one_operand(op_code, &addr);
                         }
                     } else {
                         op_code = OP_STORE_LOCAL;
-                        int find_depth = find_local_depth(node->lhs->name, block_depth);
                         emit_two_operand(op_code, &addr, &find_depth);
                     }
 
@@ -1049,12 +1051,13 @@ void generate(Node *node) {
             case ND_VAR: {
                 OpCode op_code = OP_LOAD;
                 if (block_depth >= 1) {
-                    int addr = find_local_variable(node->name, block_depth);
-                    if (addr == -1) {
+                    LocalVariablesInfo var = find_local_variable(node->name, block_depth);
+                    int addr = var.address;
+                    int find_depth = var.depth;
+                    if (!var.found) {
                         addr = find_global_variable(node->name);
                         emit_one_operand(op_code, &addr);
                     } else {
-                        int find_depth = find_local_depth(node->name, block_depth);
                         op_code = OP_LOAD_LOCAL;
                         emit_two_operand(op_code, &addr, &find_depth);
                     }
@@ -1181,23 +1184,24 @@ void generate(Node *node) {
 
                 OpCode op_code = OP_INC;
                 if (block_depth >= 1) {
-                    int addr = find_local_variable(node->lhs->name, block_depth);
-                    if (addr == -1) {
+                    LocalVariablesInfo var = find_local_variable(node->lhs->name, block_depth);
+                    int addr = var.address;
+                    int find_depth = var.depth;
+                    if (!var.found) {
                         addr = find_global_variable(node->lhs->name);
                         if (addr == -1) {
-                            fprintf(stderr, "Undefined variable: %s\n", node->name);
+                            fprintf(stderr, "Undefined variable: %s\n", node->lhs->name);
                             exit(1);
                         }
                         emit_one_operand(op_code, &addr);
                     } else {
                         op_code = OP_INC_LOCAL;
-                        int find_depth = find_local_depth(node->lhs->name, block_depth);
                         emit_two_operand(op_code, &addr, &find_depth);
                     }
                 } else {
                     int addr = find_global_variable(node->lhs->name);
                     if (addr == -1) {
-                        fprintf(stderr, "Undefined variable: %s\n", node->name);
+                        fprintf(stderr, "Undefined variable: %s\n", node->lhs->name);
                         exit(1);
                     }
                     emit_one_operand(op_code, &addr);
@@ -1276,9 +1280,11 @@ void generate(Node *node) {
                 insert_function(node->func_name, func_start_address, node->params);
                 Funcion *func = find_function(node->func_name);
                 for (int i = func->param_count - 1; i >= 0; i--) {
-                    int addr = find_local_variable(func->params[i], block_depth);
-                    if (addr == -1) addr = insert_local_variable(func->params[i], block_depth);
-                    int find_depth = find_local_depth(func->params[i], block_depth);
+                    LocalVariablesInfo var = find_local_variable(func->params[i], block_depth);
+                    int addr = var.address;
+                    if (!var.found) addr = insert_local_variable(func->params[i], block_depth);
+                    var = find_local_variable(func->params[i], block_depth);
+                    int find_depth = var.depth;
                     emit_two_operand(OP_STORE_LOCAL, &addr, &find_depth);
                 }
 
