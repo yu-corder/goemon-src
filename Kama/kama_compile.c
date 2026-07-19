@@ -149,12 +149,25 @@ typedef struct {
 } Variable;
 
 typedef struct {
-    char name[64];
+    char name[64][64];
+    int address[64];
+
+    char params[16][16][32];
+    int param_count[64];
+    int function_count;
+} Funcion;
+
+Funcion function_table[128];
+
+typedef struct {
     int address;
+    int depth;
+    int param_count;
 
     char params[16][32];
-    int param_count;
-} Funcion;
+
+    bool found;
+} FuncionInfo;
 
 
 Variable global_variable_table[128];
@@ -175,9 +188,6 @@ typedef struct {
 
 LocalVariables local_scopes[128];
 int block_depth = 0;
-
-Funcion function_table[128];
-int function_count = 0;
 
 Node node_tree[128];
 Node* new_num_node();
@@ -276,34 +286,57 @@ int insert_local_variable(char *name, int depth) {
     return local_scopes[depth].address[current_idx];
 }
 
-Funcion* find_function(char *name) {
-    for (int i = 0; i < function_count; i++) {
-        if (strcmp(function_table[i].name, name) == 0) {
-            return &function_table[i];
+FuncionInfo find_function(char *name, int depth) {
+    FuncionInfo var;
+    var.found = false;
+    var.address = -1;
+
+    for (int i = depth + 1; i >= 0; i--) {
+        for (int j = 0; j < function_table[i].function_count; j++) {
+            if (strcmp(function_table[i].name[j], name) == 0) {
+                var.found = true;
+                var.address = function_table[i].address[j];
+                var.depth = i;
+                var.param_count = function_table[i].param_count[j];
+
+                int index = 0;
+                for (int k = var.param_count - 1; k >= 0; k--) {
+                    strcpy(var.params[index], function_table[i].params[j][k]);
+                    index++;
+                }
+                return var;
+            }
         }
     }
 
-    return NULL;
+    return var;
 }
 
-void insert_function(char *name, int address, Node *params) {
-    for (int i = 0; i < function_count; i++) {
-        if (strcmp(function_table[i].name, name) == 0) {
-            return;
+void insert_function(char *name, int address, Node *params, int depth) {
+    int current_idx = function_table[depth].function_count;
+    
+
+    for (int i = depth; i >= 0; i--) {
+        for (int j = 0; j < function_table[i].function_count; j++) {
+            if (strcmp(function_table[i].name[j], name) == 0) {
+                return;
+            }
         }
     }
-    strcpy(function_table[function_count].name, name);
-    function_table[function_count].address = address;
+
+    strcpy(function_table[depth].name[current_idx], name);
+    function_table[depth].address[current_idx] = address;
+
     Node *p = params;
 
     int p_count = 0;
     while (p) {
-        strcpy(function_table[function_count].params[p_count], p->name);
+        strcpy(function_table[depth].params[current_idx][p_count], p->name);
         p_count++;
         p = p->next;
     }
-    function_table[function_count].param_count = p_count;
-    function_count++;
+    function_table[depth].param_count[current_idx] = p_count;
+    function_table[depth].function_count++;
 }
 
 Token tokens[MAX_TOKENS];
@@ -1240,20 +1273,42 @@ void generate(Node *node) {
             case ND_FUNCTION: {
                 block_depth++;
                 local_scopes[block_depth].variable_count = 0;
+                
                 int my_jmp_idx = count;
                 int zero = 0;
                 emit_one_operand(OP_JMP, &zero);
 
                 int func_start_address = count;
-                insert_function(node->func_name, func_start_address, node->params);
-                Funcion *func = find_function(node->func_name);
-                for (int i = func->param_count - 1; i >= 0; i--) {
-                    LocalVariablesInfo var = find_local_variable(func->params[i], block_depth);
+                insert_function(node->func_name, func_start_address, node->params, block_depth);
+                FuncionInfo func = find_function(node->func_name, block_depth);
+                for (int i = 0; i < func.param_count; i++) {
+                    LocalVariablesInfo var = find_local_variable(func.params[i], block_depth);
                     int addr = var.address;
-                    if (!var.found) addr = insert_local_variable(func->params[i], block_depth);
-                    var = find_local_variable(func->params[i], block_depth);
+                    if (!var.found) addr = insert_local_variable(func.params[i], block_depth);
+                    var = find_local_variable(func.params[i], block_depth);
                     emit_two_operand(OP_STORE_LOCAL, &var.address, &var.depth);
                 }
+
+                // Node *p = node->params;
+
+                // while (p) {
+                //     // strcpy(function_table[depth].params[current_idx][p_count], p->name);
+                //     LocalVariablesInfo var = find_local_variable(p->name, block_depth);
+                //     printf("param_name == %s\n", p->name);
+                //     int addr = var.address;
+                //     if (!var.found) addr = insert_local_variable(p->name, block_depth);
+                //     var = find_local_variable(p->name, block_depth);
+                //     emit_two_operand(OP_STORE_LOCAL, &var.address, &var.depth);
+                //     p = p->next;
+                // }
+
+                // for (int i = func.param_count - 1; i >= 0; i--) {
+                //     LocalVariablesInfo var = find_local_variable(func->params[i], block_depth);
+                //     int addr = var.address;
+                //     if (!var.found) addr = insert_local_variable(func->params[i], block_depth);
+                //     var = find_local_variable(func->params[i], block_depth);
+                //     emit_two_operand(OP_STORE_LOCAL, &var.address, &var.depth);
+                // }
 
                 generate(node->body);
 
@@ -1264,13 +1319,13 @@ void generate(Node *node) {
                 break;
             }
             case ND_CALL: {
-                Funcion *func = find_function(node->func_name);
-                if (func == NULL) {
+                FuncionInfo func = find_function(node->func_name, block_depth);
+                if (!func.found) {
                     fprintf(stderr, "Undefined function: %s\n", node->func_name);
                     exit(1);
                 }
                 generate(node->params);
-                emit_one_operand(OP_CALL, &func->address);
+                emit_one_operand(OP_CALL, &func.address);
                 break;
             }
             case ND_RET: {
