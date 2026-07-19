@@ -1265,6 +1265,10 @@ void generate(Node *node) {
             }
             case ND_CALL: {
                 Funcion *func = find_function(node->func_name);
+                if (func == NULL) {
+                    fprintf(stderr, "Undefined function: %s\n", node->func_name);
+                    exit(1);
+                }
                 generate(node->params);
                 emit_one_operand(OP_CALL, &func->address);
                 break;
