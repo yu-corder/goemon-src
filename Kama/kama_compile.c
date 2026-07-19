@@ -576,6 +576,51 @@ void emit_two_operand(OpCode op_code, int *val1, int *val2) {
     bytecode[count++] = *val2;
 }
 
+void emit_variable(char* name, OpCode global_opcode, OpCode local_opcode, bool allow_create) {
+    int addr = -1;
+    if (block_depth >= 1) {
+        LocalVariablesInfo var = find_local_variable(name, block_depth);
+        addr = var.address;
+        int find_depth = var.depth;
+        if (!var.found) {
+            addr = find_global_variable(name);
+
+            if (addr == -1) {
+                if (allow_create) {
+                    addr = insert_local_variable(name, block_depth);
+                    var = find_local_variable(name, block_depth);
+
+                    emit_two_operand(local_opcode, &var.address, &var.depth);
+                    return;
+                }
+
+                fprintf(stderr, "Undefined variable: %s\n", name);
+                exit(1);
+            }
+
+            emit_one_operand(global_opcode, &addr);
+            return;
+        } else {
+            emit_two_operand(local_opcode, &addr, &find_depth);
+        }
+        
+    } else {
+        addr = find_global_variable(name);
+        if (addr == -1) {
+            if (allow_create) {
+                addr = insert_global_variable(name);
+                emit_one_operand(global_opcode, &addr);
+                return;
+            }
+
+            fprintf(stderr, "Undefined variable: %s\n", name);
+            exit(1);
+        }
+        emit_one_operand(global_opcode, &addr);
+        return;
+    }
+}
+
 Node* parse_statement_list(TokenKind kind) {
     Node *stmt = NULL;
     Node *head = NULL;
@@ -1018,64 +1063,11 @@ void generate(Node *node) {
             }
             case ND_ASSIGN: {
                 generate(node->rhs);
-
-                OpCode op_code = OP_STORE;
-                if (block_depth >= 1) {
-                    LocalVariablesInfo var = find_local_variable(node->lhs->name, block_depth);
-                    int addr = var.address;
-                    int find_depth = var.depth;
-                    if (!var.found) {
-                        addr = find_global_variable(node->lhs->name);
-                        if (addr == -1) {
-                            op_code = OP_STORE_LOCAL;
-                            addr = insert_local_variable(node->lhs->name, block_depth);
-                            var = find_local_variable(node->lhs->name, block_depth);
-                            find_depth = var.depth;
-                            emit_two_operand(op_code, &addr, &find_depth);
-                        } else {
-                            emit_one_operand(op_code, &addr);
-                        }
-                    } else {
-                        op_code = OP_STORE_LOCAL;
-                        emit_two_operand(op_code, &addr, &find_depth);
-                    }
-
-                } else {
-                    int addr = find_global_variable(node->lhs->name);
-                    if (addr == -1) addr = insert_global_variable(node->lhs->name);
-                    emit_one_operand(op_code, &addr);
-                }
-                
+                emit_variable(node->lhs->name, OP_STORE, OP_STORE_LOCAL, true);
                 break;
             }
             case ND_VAR: {
-                OpCode op_code = OP_LOAD;
-                if (block_depth >= 1) {
-                    LocalVariablesInfo var = find_local_variable(node->name, block_depth);
-                    int addr = var.address;
-                    int find_depth = var.depth;
-                    if (!var.found) {
-                        addr = find_global_variable(node->name);
-                        emit_one_operand(op_code, &addr);
-                    } else {
-                        op_code = OP_LOAD_LOCAL;
-                        emit_two_operand(op_code, &addr, &find_depth);
-                    }
-
-                    if (addr == -1) {
-                        fprintf(stderr, "Undefined variable: %s\n", node->name);
-                        exit(1);
-                    }
-                    
-                   
-                } else {
-                    int addr = find_global_variable(node->name);
-                    if (addr == -1) {
-                        fprintf(stderr, "Undefined variable: %s\n", node->name);
-                        exit(1);
-                    }
-                    emit_one_operand(op_code, &addr);
-                }
+                emit_variable(node->name, OP_LOAD, OP_LOAD_LOCAL, false);
                 break;
             }
             case ND_PRINT: {
@@ -1181,31 +1173,7 @@ void generate(Node *node) {
                 break;
             }
             case ND_INC: {
-
-                OpCode op_code = OP_INC;
-                if (block_depth >= 1) {
-                    LocalVariablesInfo var = find_local_variable(node->lhs->name, block_depth);
-                    int addr = var.address;
-                    int find_depth = var.depth;
-                    if (!var.found) {
-                        addr = find_global_variable(node->lhs->name);
-                        if (addr == -1) {
-                            fprintf(stderr, "Undefined variable: %s\n", node->lhs->name);
-                            exit(1);
-                        }
-                        emit_one_operand(op_code, &addr);
-                    } else {
-                        op_code = OP_INC_LOCAL;
-                        emit_two_operand(op_code, &addr, &find_depth);
-                    }
-                } else {
-                    int addr = find_global_variable(node->lhs->name);
-                    if (addr == -1) {
-                        fprintf(stderr, "Undefined variable: %s\n", node->lhs->name);
-                        exit(1);
-                    }
-                    emit_one_operand(op_code, &addr);
-                }
+                emit_variable(node->lhs->name, OP_INC, OP_INC_LOCAL, false);
                 break;
             }
             case ND_BREAK: {
@@ -1284,8 +1252,7 @@ void generate(Node *node) {
                     int addr = var.address;
                     if (!var.found) addr = insert_local_variable(func->params[i], block_depth);
                     var = find_local_variable(func->params[i], block_depth);
-                    int find_depth = var.depth;
-                    emit_two_operand(OP_STORE_LOCAL, &addr, &find_depth);
+                    emit_two_operand(OP_STORE_LOCAL, &var.address, &var.depth);
                 }
 
                 generate(node->body);
