@@ -164,7 +164,7 @@ typedef struct {
     int depth;
     int param_count;
 
-    char params[16][32];
+    char (*params)[32];
 
     bool found;
 } FuncionInfo;
@@ -298,12 +298,7 @@ FuncionInfo find_function(char *name, int depth) {
                 var.address = function_table[i].address[j];
                 var.depth = i;
                 var.param_count = function_table[i].param_count[j];
-
-                int index = 0;
-                for (int k = var.param_count - 1; k >= 0; k--) {
-                    strcpy(var.params[index], function_table[i].params[j][k]);
-                    index++;
-                }
+                var.params = function_table[i].params[j];
                 return var;
             }
         }
@@ -328,11 +323,19 @@ void insert_function(char *name, int address, Node *params, int depth) {
     Node *p = params;
 
     int p_count = 0;
+    char params_tmp[16][32];
     while (p) {
-        strcpy(function_table[depth].params[current_idx][p_count], p->name);
+        strcpy(params_tmp[p_count], p->name);
         p_count++;
         p = p->next;
     }
+
+    int index = 0;
+    for (int i = p_count - 1; i >= 0; i--) {
+        strcpy(function_table[depth].params[current_idx][index], params_tmp[i]);
+        index++;
+    }
+    
     function_table[depth].param_count[current_idx] = p_count;
     function_table[depth].function_count++;
 }
@@ -1286,27 +1289,6 @@ void generate(Node *node) {
                     var = find_local_variable(func.params[i], block_depth);
                     emit_two_operand(OP_STORE_LOCAL, &var.address, &var.depth);
                 }
-
-                // Node *p = node->params;
-
-                // while (p) {
-                //     // strcpy(function_table[depth].params[current_idx][p_count], p->name);
-                //     LocalVariablesInfo var = find_local_variable(p->name, block_depth);
-                //     printf("param_name == %s\n", p->name);
-                //     int addr = var.address;
-                //     if (!var.found) addr = insert_local_variable(p->name, block_depth);
-                //     var = find_local_variable(p->name, block_depth);
-                //     emit_two_operand(OP_STORE_LOCAL, &var.address, &var.depth);
-                //     p = p->next;
-                // }
-
-                // for (int i = func.param_count - 1; i >= 0; i--) {
-                //     LocalVariablesInfo var = find_local_variable(func->params[i], block_depth);
-                //     int addr = var.address;
-                //     if (!var.found) addr = insert_local_variable(func->params[i], block_depth);
-                //     var = find_local_variable(func->params[i], block_depth);
-                //     emit_two_operand(OP_STORE_LOCAL, &var.address, &var.depth);
-                // }
 
                 generate(node->body);
 
