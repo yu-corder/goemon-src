@@ -1085,6 +1085,20 @@ void generate_binary(Node *node, OpCode op) {
     emit_no_operand(op);
 }
 
+void enter_scope() {
+    block_depth++;
+    local_scopes[block_depth].variable_count = 0;
+
+    // Nested function definitions are scoped.
+    // Reset the next function table when entering a new function scope.
+    function_table[block_depth + 1].function_count = 0;
+}
+
+void leave_scope() {
+    local_scopes[block_depth].variable_count = 0;
+    block_depth--;
+}
+
 int local_scope = 0;
 void generate(Node *node) {
     if (node == NULL) return;
@@ -1154,8 +1168,7 @@ void generate(Node *node) {
                 break;
             }
             case ND_IF: {
-                block_depth++;
-                local_scopes[block_depth].variable_count = 0;
+                enter_scope();
                 generate(node->condition);
 
                 int my_jz_idx = count;
@@ -1175,12 +1188,11 @@ void generate(Node *node) {
                     bytecode[my_jz_idx + 1] = count;
                 }
 
-                block_depth--;
+                leave_scope();
                 break;
             }
             case ND_WHILE: {
-                block_depth++;
-                local_scopes[block_depth].variable_count = 0;
+                enter_scope();
 
                 loop_depth++;
                 loop_stack[loop_depth].break_count = 0;
@@ -1203,7 +1215,7 @@ void generate(Node *node) {
                     bytecode[break_jz_idx + 1] = count;
                 }
                 loop_depth--;
-                block_depth--;
+                leave_scope();
                 break;
             }
             case ND_INC: {
@@ -1231,8 +1243,8 @@ void generate(Node *node) {
                 break;
             }
             case ND_FOR: {
-                block_depth++;
-                local_scopes[block_depth].variable_count = 0;
+                enter_scope();
+
                 loop_depth++;
                 loop_stack[loop_depth].break_count = 0;
 
@@ -1268,12 +1280,12 @@ void generate(Node *node) {
                     bytecode[break_jz_idx + 1] = count;
                 }
                 loop_depth--;
-                block_depth--;
+
+                leave_scope();
                 break;
             }
             case ND_FUNCTION: {
-                block_depth++;
-                local_scopes[block_depth].variable_count = 0;
+                enter_scope();
                 
                 int my_jmp_idx = count;
                 int zero = 0;
@@ -1295,7 +1307,7 @@ void generate(Node *node) {
                 emit_no_operand(OP_RET);
 
                 bytecode[my_jmp_idx + 1] = count;
-                block_depth--;
+                leave_scope();
                 break;
             }
             case ND_CALL: {

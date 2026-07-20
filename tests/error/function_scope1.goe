@@ -1,0 +1,11 @@
+function a() {
+    function b() {
+        print 1;
+    }
+}
+
+function c() {
+    b();
+}
+
+c();
