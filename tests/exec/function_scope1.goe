@@ -1,0 +1,13 @@
+function a() {
+    function b() {
+        function c() {
+            print 999;
+        }
+
+        c();
+    }
+
+    b();
+}
+
+a();

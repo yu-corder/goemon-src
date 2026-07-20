@@ -1,0 +1,9 @@
+function outer() {
+    function inner() {
+        print 100;
+    }
+
+    inner();
+}
+
+outer();

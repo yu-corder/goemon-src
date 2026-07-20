@@ -1,0 +1,9 @@
+function foo() {
+    print 100;
+}
+
+function outer() {
+    foo();
+}
+
+outer();

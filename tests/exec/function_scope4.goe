@@ -1,0 +1,14 @@
+function test() {
+    print 1;
+}
+
+function outer() {
+    function test() {
+        print 2;
+    }
+
+    test();
+}
+
+outer();
+test();
