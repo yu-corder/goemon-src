@@ -316,11 +316,9 @@ void insert_function(char *name, int address, Node *params, int depth) {
     int current_idx = function_table[depth].function_count;
     
 
-    for (int i = depth; i >= 0; i--) {
-        for (int j = 0; j < function_table[i].function_count; j++) {
-            if (strcmp(function_table[i].name[j], name) == 0) {
-                return;
-            }
+    for (int i = 0; i < function_table[depth].function_count; i++) {
+        if (strcmp(function_table[depth].name[i], name) == 0) {
+            return;
         }
     }
 
