@@ -1,0 +1,11 @@
+c = 1;
+while (c < 2) {
+    function test (a, b) {
+        print a;
+        print b;
+    }
+
+    test(100, 500);
+}
+
+test(999, 3000);

@@ -1,0 +1,8 @@
+for (i = 0; i < 3; i++) {
+    function test (a, b) {
+        print a;
+        print b;
+    }
+}
+
+test(500, 300);

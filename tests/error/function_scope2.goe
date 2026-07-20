@@ -1,0 +1,6 @@
+test(100, 999);
+
+function test (a, b) {
+    print a;
+    print b;
+}
