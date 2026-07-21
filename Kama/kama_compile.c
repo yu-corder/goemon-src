@@ -76,6 +76,8 @@ typedef enum {
     TK_FUNCTION,
     TK_CALL,
     TK_RET,
+    TK_INT,
+    TK_STRING_TYPE,
     TK_EOF,
 } TokenKind;
 
@@ -203,6 +205,7 @@ Node* new_call_node();
 void debug_ast_node();
 void print_ast();
 void generate(Node* node);
+const char* token_name(TokenKind kind);
 
 Node* parse_statement();
 Node* parse_evaluation();
@@ -417,6 +420,23 @@ void tokenize (char *p) {
         if (strncmp(p, "return", 6) == 0 && (isspace(p[6]) || p[6] == '\0')) {
             tokens[i++].kind = TK_RET;
             p += 6;
+            continue;
+        }
+
+        if (strncmp(p, "int", 3) == 0 && (isspace(p[3]) || p[3] == '\0')) {
+            p += 3;
+            int len = 0;
+            tokens[i++].kind = TK_INT;
+
+            while (isspace(*p)) {
+                p++;
+            }
+            
+            while (isalnum(*p) || *p == '_') {
+                tokens[i].str[len++] = *p++;
+            }
+            tokens[i].str[len] = '\0';
+            tokens[i++].kind = TK_IDENT;
             continue;
         }
 
@@ -655,6 +675,37 @@ void emit_variable(char* name, OpCode global_opcode, OpCode local_opcode, bool a
     }
 }
 
+bool consume(TokenKind kind) {
+    if (tokens[pos].kind != kind) {
+        return false;
+    }
+
+    next_token();
+    return true;
+}
+
+Token *expect_ident() {
+    if (tokens[pos].kind != TK_IDENT) {
+        fprintf(stderr,
+            "Expected TK_IDENT but got %s\n",
+            token_name(tokens[pos].kind));
+        exit(1);
+    }
+
+    Token *tok = next_token();
+    return tok;
+}
+
+void expect(TokenKind kind) {
+    if (!consume(kind)) {
+        fprintf(stderr,
+            "Expected %s but got %s\n",
+            token_name(kind),
+            token_name(tokens[pos].kind));
+        exit(1);
+    }
+}
+
 Node* parse_statement_list(TokenKind kind) {
     Node *stmt = NULL;
     Node *head = NULL;
@@ -798,6 +849,16 @@ Node* parse_statement() {
         case TK_PRINT: {
             Node *rhs = parse_evaluation();
             return new_unary_node(ND_PRINT, rhs);
+        }
+        case TK_INT: {
+            Token *ident = expect_ident();
+            Node *lhs = new_var_node(ident->str);
+            
+            if (consume(TK_ASSIGN)) {
+                Node *rhs = parse_evaluation();
+                expect(TK_SEMI);
+                return new_binary_node(ND_ASSIGN, lhs, rhs);
+            }
         }
         case TK_IDENT: {
             if (tokens[pos].kind == TK_COLON) {
@@ -1632,8 +1693,14 @@ const char *token_kind_name[] = {
     "TK_FUNCTION",
     "TK_CALL",
     "TK_RET",
+    "TK_INT",
+    "TK_STRING_TYPE",
     "TK_EOF"
 };
+
+const char* token_name(TokenKind kind) {
+    return token_kind_name[kind];
+}
 void debug_bynary() {
     printf("\n===== BINARY DUMP =====\n");
     for (int i = 0; i < count; i++) {
