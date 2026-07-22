@@ -94,6 +94,7 @@ typedef enum {
     ND_GE,
     ND_EQ,
     ND_NE,
+    ND_VAR_DECL,
     ND_ASSIGN,
     ND_VAR,
     ND_PRINT,
@@ -108,6 +109,10 @@ typedef enum {
     ND_CALL,
     ND_RET,
 } NodeKind;
+
+typedef enum {
+    TY_INT,
+} TypeKind;
 
 typedef struct {
     TokenKind kind;
@@ -136,6 +141,8 @@ typedef struct Node {
     int val;
     char name[32];
     char func_name[64];
+
+    TypeKind type; 
 } Node;
 int node_depth = 0;
 
@@ -194,6 +201,7 @@ int block_depth = 0;
 Node node_tree[128];
 Node* new_num_node();
 Node* new_binary_node();
+Node* new_decl_node();
 Node* new_var_node ();
 Node* new_simple_node();
 Node* new_unary_node();
@@ -857,7 +865,7 @@ Node* parse_statement() {
             if (consume(TK_ASSIGN)) {
                 Node *rhs = parse_evaluation();
                 expect(TK_SEMI);
-                return new_binary_node(ND_ASSIGN, lhs, rhs);
+                return new_decl_node(ND_VAR_DECL, lhs, rhs, TY_INT);
             }
         }
         case TK_IDENT: {
@@ -1161,6 +1169,11 @@ void generate(Node *node) {
                 emit_one_operand(OP_PUSH, &node->val);
                 break;
             }
+            case ND_VAR_DECL: {
+                generate(node->rhs);
+                emit_variable(node->lhs->name, OP_STORE, OP_STORE_LOCAL, true);
+                break;
+            }
             case ND_ASSIGN: {
                 generate(node->rhs);
                 emit_variable(node->lhs->name, OP_STORE, OP_STORE_LOCAL, true);
@@ -1424,6 +1437,18 @@ Node* new_binary_node(NodeKind kind, Node* node1, Node* node2) {
     return &node_tree[current_idx];
 }
 
+Node* new_decl_node(NodeKind kind, Node* node1, Node* node2, TypeKind type) {
+    int current_idx = node_depth;
+    node_depth++;
+
+    node_tree[current_idx].kind = kind;
+    node_tree[current_idx].lhs = node1;
+    node_tree[current_idx].rhs = node2;
+    node_tree[current_idx].type = type;
+
+    return &node_tree[current_idx];
+}
+
 Node* new_simple_node(NodeKind kind) {
     int current_idx = node_depth;
     node_depth++;
@@ -1514,6 +1539,13 @@ const char* node_kind_name(NodeKind kind) {
     }
 }
 
+const char* type_name(TypeKind kind) {
+    switch(kind) {
+        case TY_INT: return "INT";
+        default: return "UNKNOWN";
+    }
+}
+
 void print_indent(int depth) {
     for (int i = 0; i < depth; i++) {
         printf("  ");
@@ -1540,6 +1572,7 @@ void debug_ast_node(Node *node, int depth) {
             node->kind == ND_GE ? "GE" :
             node->kind == ND_EQ ? "EQ" :
             node->kind == ND_NE ? "NE" :
+            node->kind == ND_VAR_DECL ? "DECL" :
             node->kind == ND_ASSIGN ? "ASSIGN" :
             node->kind == ND_VAR ? "VAR" :
             node->kind == ND_PRINT ? "PRINT" :
@@ -1554,6 +1587,10 @@ void debug_ast_node(Node *node, int depth) {
             node->kind == ND_RET ? "RET" :
             "UNKNOWN"
         );
+
+        if (node->kind == ND_VAR_DECL) {
+            printf("(%s)", type_name(node->type));
+        }
 
         if (node->kind == ND_VAR) {
             printf("(%s)", node->name);
