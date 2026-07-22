@@ -861,17 +861,13 @@ Node* parse_statement() {
             }
         }
         case TK_IDENT: {
-            if (tokens[pos].kind == TK_COLON) {
-                next_token();
-            }
+            consume(TK_COLON);
 
             Node *lhs = new_var_node(t->str);
-            if (tokens[pos].kind == TK_ASSIGN) {
-                next_token();
+            if (consume(TK_ASSIGN)) {
                 Node *rhs = parse_evaluation();
-                if (tokens[pos].kind == TK_SEMI) {
-                    return new_binary_node(ND_ASSIGN, lhs, rhs);
-                }
+                expect(TK_SEMI);
+                return new_binary_node(ND_ASSIGN, lhs, rhs);
             } else {
                 prev_token();
                 return parse_evaluation();
@@ -905,35 +901,35 @@ Node* parse_statement() {
 }
 
 Node* parse_function() {
-    Token *value = next_token();
-    if (value->kind != TK_IDENT) {
-        printf("Function name expected.\n");
-        exit(1);
-    }
+    Token *ident = expect_ident();
 
-    if (tokens[pos].kind == TK_LPAREN) next_token();
+    consume(TK_LPAREN);
 
     Node *param_head = parse_statement_list(TK_RPAREN);
 
-    if (tokens[pos].kind == TK_RPAREN) next_token();
+    consume(TK_RPAREN);
 
-    if (tokens[pos].kind == TK_LBRACE) next_token();
+    consume(TK_LBRACE);
 
     Node *body_head = parse_statement_list(TK_RBRACE);
-    if (tokens[pos].kind == TK_RBRACE) next_token();
 
-    return new_func_node(ND_FUNCTION, value->str, param_head, body_head);
+    consume(TK_RBRACE);
+
+    return new_func_node(ND_FUNCTION, ident->str, param_head, body_head);
 }
 
 Node* parse_if () {
-    if (tokens[pos].kind == TK_LPAREN) next_token();
+    consume(TK_LPAREN);
     Node *condition = parse_evaluation();
-    if (tokens[pos].kind == TK_RPAREN) next_token();
 
-    if (tokens[pos].kind == TK_LBRACE) next_token();
+    consume(TK_RPAREN);
+
+    consume(TK_LBRACE);
+
     Node *then_stmt = NULL;
     Node *then_head = NULL;
     Node *then_tail = NULL;
+
     while (tokens[pos].kind != TK_RBRACE && tokens[pos].kind != TK_EOF) {
         then_stmt = parse_statement();
         if (!then_stmt) continue;
@@ -946,19 +942,17 @@ Node* parse_if () {
             then_tail = then_stmt;
         }
     }
-    if (tokens[pos].kind == TK_RBRACE) next_token();
+
+    consume(TK_RBRACE);
 
     Node *else_head = NULL;
     Node *else_tail = NULL;
     Node *else_stmt = NULL;
-    if (tokens[pos].kind == TK_ELSE) {
-        next_token();
-
-        if (tokens[pos].kind == TK_IF) {
-            next_token();
+    if (consume(TK_ELSE)) {
+        if (consume(TK_IF)) {
             else_head = parse_if();
         } else {
-            if (tokens[pos].kind == TK_LBRACE) next_token();
+            consume(TK_LBRACE);
             while (tokens[pos].kind != TK_RBRACE && tokens[pos].kind != TK_EOF) {
                 else_stmt = parse_statement();
 
@@ -972,7 +966,8 @@ Node* parse_if () {
                     else_tail = else_stmt;
                 }
             }
-            if (tokens[pos].kind == TK_RBRACE) next_token();
+
+            consume(TK_RBRACE);
         }
 
     }
@@ -981,34 +976,31 @@ Node* parse_if () {
 }
 
 Node* parse_while() {
-    if (tokens[pos].kind == TK_LPAREN) next_token();
+    consume(TK_LPAREN);
 
     Node *condition = parse_evaluation();
-    if (tokens[pos].kind == TK_RPAREN) next_token();
 
-    if (tokens[pos].kind == TK_LBRACE) next_token();
+    consume(TK_RPAREN);
+
+    consume(TK_LBRACE);
     Node *body_head = parse_statement_list(TK_RBRACE);
 
-    if (tokens[pos].kind == TK_RBRACE) next_token();
+    consume(TK_RBRACE);
 
     return new_loop_node(ND_WHILE, condition, body_head);
 }
 
 Node* parse_for() {
-    if (tokens[pos].kind == TK_LPAREN) next_token();
+    consume(TK_LPAREN);
 
     Node *init = NULL;
     Node *var = NULL;
-    if (tokens[pos].kind == TK_IDENT) {
-        Token *t = next_token();
-        if (tokens[pos].kind == TK_ASSIGN) {
-            next_token();
-            init = parse_evaluation();
-            if (tokens[pos].kind == TK_SEMI) {
-                next_token();
-                var = new_var_node(t->str);
-            }
-        }
+    
+    Token *t = expect_ident();
+    if (consume(TK_ASSIGN)) {
+        init = parse_evaluation();
+        expect(TK_SEMI);
+        var = new_var_node(t->str);
     }
     init = new_binary_node(ND_ASSIGN, var, init);
 
@@ -1016,20 +1008,18 @@ Node* parse_for() {
     if (tokens[pos].kind != TK_SEMI) {
         condition = parse_evaluation();
     }
-    if (tokens[pos].kind == TK_SEMI) next_token();
+    consume(TK_SEMI);
 
     Node *update = NULL;
-    if (tokens[pos].kind == TK_IDENT) {
-        Token *t = next_token();
-        if (tokens[pos].kind == TK_INC) {
-            next_token();
-            Node *var = new_var_node(t->str);
-            update = new_unary_node(ND_INC, var);
-        }
+    Token *upd_t = expect_ident();
+    if (consume(TK_INC)) {
+        Node *var = new_var_node(upd_t->str);
+        update = new_unary_node(ND_INC, var);
     }
-    if (tokens[pos].kind == TK_RPAREN) next_token();
 
-    if (tokens[pos].kind == TK_LBRACE) next_token();
+    consume(TK_RPAREN);
+
+    consume(TK_LBRACE);
 
     Node *body_head = NULL;
     Node *body_tail = NULL;
@@ -1047,7 +1037,8 @@ Node* parse_for() {
             body_tail = body_stmt;
         }
     }
-    if (tokens[pos].kind == TK_RBRACE) next_token();
+
+    consume(TK_RBRACE);
     return new_for_node(ND_FOR, init, condition, update, body_head);
 }
 
