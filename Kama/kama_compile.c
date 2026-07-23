@@ -111,6 +111,7 @@ typedef enum {
 } NodeKind;
 
 typedef enum {
+    TY_VOID,
     TY_INT,
 } TypeKind;
 
@@ -213,6 +214,9 @@ Node* new_call_node();
 void debug_ast_node();
 void print_ast();
 void generate(Node* node);
+TypeKind type_check();
+
+const char* type_name(TypeKind type);
 const char* token_name(TokenKind kind);
 
 Node* parse_statement();
@@ -1115,10 +1119,13 @@ int main(int argc, char **argv) {
     char *src = read_file(argv[arg]);
     tokenize(src);
     Node *program = parse_program();
+
+    type_check(program);
     
     if (g_debug_ast) {
         debug_ast_node(program, 1);
     }
+    
 
     generate(program);
 
@@ -1135,6 +1142,46 @@ int main(int argc, char **argv) {
     printf("絶景かな！ Compiled study.goe to study.gb\n");
     return 0;
 }
+
+// =========================
+// TYPE CHECK
+// =========================
+TypeKind type_check(Node* node) {
+    if (node == NULL) return TY_VOID;
+    switch (node->kind) {
+        case ND_NUM: {
+            return TY_INT;
+        }
+        case ND_VAR_DECL: {
+            TypeKind rhs = type_check(node->rhs);
+            
+            if (rhs != node->type) {
+                fprintf(stderr,
+                    "Expected: %s\n", type_name(node->type));
+                exit(1);
+            }
+
+            return TY_VOID;
+        }
+        case ND_ADD: {
+            TypeKind lhs = type_check(node->lhs);
+            TypeKind rhs = type_check(node->rhs);
+
+            node->type = TY_INT;
+            if (lhs != TY_INT || rhs != TY_INT) {
+                fprintf(stderr,
+                    "Expected: %s\n", type_name(node->type));
+                exit(1);
+            }
+
+            return TY_INT;
+        }
+        default: 
+        // TODO: implement type check
+            return TY_VOID;
+    }
+}
+
 
 // =========================
 // GENERATE
@@ -1588,9 +1635,8 @@ void debug_ast_node(Node *node, int depth) {
             "UNKNOWN"
         );
 
-        if (node->kind == ND_VAR_DECL) {
-            printf("(%s)", type_name(node->type));
-        }
+        printf("(%s)", type_name(node->type));
+        
 
         if (node->kind == ND_VAR) {
             printf("(%s)", node->name);
