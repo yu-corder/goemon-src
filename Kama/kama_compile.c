@@ -215,6 +215,7 @@ void debug_ast_node();
 void print_ast();
 void generate(Node* node);
 TypeKind type_check();
+void type_check_program();
 
 const char* type_name(TypeKind type);
 const char* token_name(TokenKind kind);
@@ -1120,7 +1121,7 @@ int main(int argc, char **argv) {
     tokenize(src);
     Node *program = parse_program();
 
-    type_check(program);
+    type_check_program(program);
     
     if (g_debug_ast) {
         debug_ast_node(program, 1);
@@ -1146,6 +1147,14 @@ int main(int argc, char **argv) {
 // =========================
 // TYPE CHECK
 // =========================
+void type_check_program(Node *program) {
+    while(program) {
+        type_check(program);
+        program = program->next;
+    }
+
+}
+
 TypeKind type_check(Node* node) {
     if (node == NULL) return TY_VOID;
     switch (node->kind) {
