@@ -143,7 +143,11 @@ typedef struct Node {
     char name[32];
     char func_name[64];
 
-    TypeKind type; 
+    TypeKind type;
+
+    int address;
+    int depth;
+    bool is_global;
 } Node;
 int node_depth = 0;
 
@@ -214,6 +218,9 @@ Node* new_call_node();
 void debug_ast_node();
 void print_ast();
 void generate(Node* node);
+
+void name_resolution();
+
 TypeKind type_check();
 void type_check_program();
 
@@ -354,6 +361,20 @@ void insert_function(char *name, int address, Node *params, int depth) {
     
     function_table[depth].param_count[current_idx] = p_count;
     function_table[depth].function_count++;
+}
+
+void enter_scope() {
+    block_depth++;
+    local_scopes[block_depth].variable_count = 0;
+
+    // Nested function definitions are scoped.
+    // Reset the next function table when entering a new function scope.
+    function_table[block_depth + 1].function_count = 0;
+}
+
+void leave_scope() {
+    local_scopes[block_depth].variable_count = 0;
+    block_depth--;
 }
 
 Token tokens[MAX_TOKENS];
@@ -1121,14 +1142,16 @@ int main(int argc, char **argv) {
     tokenize(src);
     Node *program = parse_program();
 
-    type_check_program(program);
+    // type_check_program(program);
+
+    name_resolution(program);
     
     if (g_debug_ast) {
         debug_ast_node(program, 1);
     }
     
 
-    generate(program);
+    // generate(program);
 
     emit_no_operand(OP_HALT);
 
@@ -1142,6 +1165,229 @@ int main(int argc, char **argv) {
 
     printf("絶景かな！ Compiled study.goe to study.gb\n");
     return 0;
+}
+
+// =========================
+// NAME RESOLUTION
+// =========================
+
+void resolution_variable(Node* node, bool allow_create) {
+    int addr = -1;
+    printf("resolution==%d\n", block_depth);
+    if (block_depth >= 1) {
+        LocalVariablesInfo var = find_local_variable(node->name, block_depth);
+        addr = var.address;
+        int find_depth = var.depth;
+        if (!var.found) {
+            addr = find_global_variable(node->name);
+
+            if (addr == -1) {
+                if (allow_create) {
+                    addr = insert_local_variable(node->name, block_depth);
+                    var = find_local_variable(node->name, block_depth);
+
+                    node->address = var.address;
+                    node->depth = var.depth;
+                    node->is_global = false;
+                    // emit_two_operand(local_opcode, &var.address, &var.depth);
+                    return;
+                }
+
+                fprintf(stderr, "Undefined variable: %s\n", node->name);
+                exit(1);
+            }
+
+            node->address = addr;
+            node->is_global = true;
+            // emit_one_operand(global_opcode, &addr);
+            return;
+        } else {
+            
+            node->address = addr;
+            node->depth = find_depth;
+            node->is_global = false;
+            // emit_two_operand(local_opcode, &addr, &find_depth);
+        }
+        
+    } else {
+        addr = find_global_variable(node->name);
+        if (addr == -1) {
+            if (allow_create) {
+                addr = insert_global_variable(node->name);
+
+                node->address = addr;
+                node->is_global = true;
+                // emit_one_operand(global_opcode, &addr);
+                return;
+            }
+
+            fprintf(stderr, "Undefined variable: %s\n", node->name);
+            exit(1);
+        }
+
+        node->address = addr;
+        node->is_global = true;
+        // emit_one_operand(global_opcode, &addr);
+        return;
+    }
+}
+
+void name_resolution_binary(Node *node) {
+    name_resolution(node->lhs);
+    name_resolution(node->rhs);
+}
+
+void name_resolution(Node *node) {
+    if (node == NULL) return;
+    while (node) {
+        switch (node->kind) {
+            case ND_NUM: {
+                break;
+            }
+            case ND_VAR_DECL: {
+                name_resolution(node->rhs);
+                printf("%s\n", node->lhs->name);
+                resolution_variable(node->lhs, true);
+                break;
+            }
+            case ND_ASSIGN: {
+                name_resolution(node->rhs);
+                resolution_variable(node->lhs, true);
+                break;
+            }
+            case ND_VAR: {
+                resolution_variable(node, false);
+                break;
+            }
+            case ND_PRINT: {
+                name_resolution(node->lhs);
+                break;
+            }
+            case ND_ADD: {
+                name_resolution_binary(node);
+                break;
+            }
+            case ND_MINUS: {
+                name_resolution_binary(node);
+                break;
+            }
+            case ND_MUL: {
+                name_resolution_binary(node);
+                break;
+            }
+            case ND_MOD: {
+                name_resolution_binary(node);
+                break;
+            }
+            case ND_DIV: {
+                name_resolution_binary(node);
+                break;
+            }
+            case ND_LT: {
+                name_resolution_binary(node);
+                break;
+            }
+            case ND_LE: {
+                name_resolution_binary(node);
+                break;
+            }
+            case ND_GT: {
+                name_resolution_binary(node);
+                break;
+            }
+            case ND_GE: {
+                name_resolution_binary(node);
+                break;
+            }
+            case ND_EQ: {
+                name_resolution_binary(node);
+                break;
+            }
+            case ND_NE: {
+                name_resolution_binary(node);
+                break;
+            }
+            case ND_IF: {
+                enter_scope();
+                name_resolution(node->condition);
+                name_resolution(node->body);
+                if (node->else_stmt) {
+                    name_resolution(node->else_stmt);
+                }
+                leave_scope();
+                break;
+            }
+            case ND_WHILE: {
+                enter_scope();
+                name_resolution(node->condition);
+                name_resolution(node->body);
+                leave_scope();
+                break;
+            }
+            case ND_INC: {
+                resolution_variable(node->lhs, false);
+                break;
+            }
+            case ND_BREAK: {
+                break;
+            }
+            case ND_CONTINUE: {
+                break;
+            }
+            case ND_FOR: {
+                enter_scope();
+                name_resolution(node->init);
+                name_resolution(node->condition);
+                name_resolution(node->update);
+                name_resolution(node->body);
+                leave_scope();
+                break;
+            }
+            case ND_FUNCTION: {
+                enter_scope();
+                
+                int my_jmp_idx = count;
+                int zero = 0;
+                emit_one_operand(OP_JMP, &zero);
+
+                int func_start_address = count;
+                insert_function(node->func_name, func_start_address, node->params, block_depth);
+                FuncionInfo func = find_function(node->func_name, block_depth);
+                for (int i = 0; i < func.param_count; i++) {
+                    LocalVariablesInfo var = find_local_variable(func.params[i], block_depth);
+                    int addr = var.address;
+                    if (!var.found) addr = insert_local_variable(func.params[i], block_depth);
+                    var = find_local_variable(func.params[i], block_depth);
+                    // emit_two_operand(OP_STORE_LOCAL, &var.address, &var.depth);
+                }
+
+                generate(node->body);
+
+                emit_no_operand(OP_RET);
+
+                bytecode[my_jmp_idx + 1] = count;
+                leave_scope();
+                break;
+            }
+            case ND_CALL: {
+                FuncionInfo func = find_function(node->func_name, block_depth);
+                if (!func.found) {
+                    fprintf(stderr, "Undefined function: %s\n", node->func_name);
+                    exit(1);
+                }
+                name_resolution(node->params);
+                break;
+            }
+            case ND_RET: {
+                name_resolution(node->lhs);
+                break;
+            }
+            default: 
+                printf("Unknown node: %d\n", node->kind);
+                exit(1);
+        }
+        node = node->next;
+    }
 }
 
 // =========================
@@ -1199,20 +1445,6 @@ void generate_binary(Node *node, OpCode op) {
     generate(node->lhs);
     generate(node->rhs);
     emit_no_operand(op);
-}
-
-void enter_scope() {
-    block_depth++;
-    local_scopes[block_depth].variable_count = 0;
-
-    // Nested function definitions are scoped.
-    // Reset the next function table when entering a new function scope.
-    function_table[block_depth + 1].function_count = 0;
-}
-
-void leave_scope() {
-    local_scopes[block_depth].variable_count = 0;
-    block_depth--;
 }
 
 int local_scope = 0;
@@ -1644,11 +1876,15 @@ void debug_ast_node(Node *node, int depth) {
             "UNKNOWN"
         );
 
-        printf("(%s)", type_name(node->type));
+        //printf("(%s)", type_name(node->type));
         
 
         if (node->kind == ND_VAR) {
             printf("(%s)", node->name);
+            printf("(address=%d)", node->address);
+            if (!node->is_global) {
+                printf("(depth=%d)", node->depth);
+            }
         }
 
         if (node->kind == ND_NUM) {

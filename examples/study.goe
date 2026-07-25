@@ -1,3 +1,7 @@
-int a = 5;
-int num = 1 + a;
-print num;
+int a = 1;
+
+if (a < 1) {
+    int b = 501;
+    print a;
+    print b;
+}
