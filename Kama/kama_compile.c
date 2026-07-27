@@ -330,26 +330,6 @@ int insert_local_variable(char *name, int depth) {
     return local_scopes[depth].address[current_idx];
 }
 
-// typedef struct {
-//     char name[64][64];
-
-//     char params[16][16][32];
-//     int param_count[64];
-//     int function_count;
-// } FuncionParams;
-
-// FuncionParams function_params_table[128];
-
-// typedef struct {
-//     int address;
-//     int depth;
-//     int param_count;
-
-//     char (*params)[32];
-
-//     bool found;
-// } FuncionParamsInfo;
-
 FuncionParamsInfo find_function_params(char *name, int depth) {
     FuncionParamsInfo var;
     var.found = false;
@@ -387,7 +367,6 @@ void insert_function_params(char *name, Node *params, int depth) {
     int p_count = 0;
     char params_tmp[16][32];
     while (p) {
-        printf("param_name == %s\n", p->lhs->name);
         strcpy(params_tmp[p_count], p->lhs->name);
         p_count++;
         p = p->next;
@@ -1287,7 +1266,6 @@ void resolution_variable(Node* node, bool allow_create) {
                     node->address = var.address;
                     node->depth = var.depth;
                     node->is_global = false;
-                    // emit_two_operand(local_opcode, &var.address, &var.depth);
                     return;
                 }
 
@@ -1297,14 +1275,12 @@ void resolution_variable(Node* node, bool allow_create) {
 
             node->address = addr;
             node->is_global = true;
-            // emit_one_operand(global_opcode, &addr);
             return;
         } else {
             
             node->address = addr;
             node->depth = find_depth;
             node->is_global = false;
-            // emit_two_operand(local_opcode, &addr, &find_depth);
         }
         
     } else {
@@ -1315,7 +1291,6 @@ void resolution_variable(Node* node, bool allow_create) {
 
                 node->address = addr;
                 node->is_global = true;
-                // emit_one_operand(global_opcode, &addr);
                 return;
             }
 
@@ -1325,7 +1300,6 @@ void resolution_variable(Node* node, bool allow_create) {
 
         node->address = addr;
         node->is_global = true;
-        // emit_one_operand(global_opcode, &addr);
         return;
     }
 }
