@@ -165,9 +165,6 @@ typedef struct {
 typedef struct {
     char name[64][64];
     int address[64];
-
-    char params[16][16][32];
-    int param_count[64];
     int function_count;
 } Funcion;
 
@@ -394,8 +391,6 @@ FuncionInfo find_function(char *name, int depth) {
                 var.found = true;
                 var.address = function_table[i].address[j];
                 var.depth = i;
-                var.param_count = function_table[i].param_count[j];
-                var.params = function_table[i].params[j];
                 return var;
             }
         }
@@ -404,7 +399,7 @@ FuncionInfo find_function(char *name, int depth) {
     return var;
 }
 
-void insert_function(char *name, int address, Node *params, int depth) {
+void insert_function(char *name, int address, int depth) {
     int current_idx = function_table[depth].function_count;
     
 
@@ -416,24 +411,6 @@ void insert_function(char *name, int address, Node *params, int depth) {
 
     strcpy(function_table[depth].name[current_idx], name);
     function_table[depth].address[current_idx] = address;
-
-    Node *p = params;
-
-    int p_count = 0;
-    char params_tmp[16][32];
-    while (p) {
-        strcpy(params_tmp[p_count], p->name);
-        p_count++;
-        p = p->next;
-    }
-
-    int index = 0;
-    for (int i = p_count - 1; i >= 0; i--) {
-        strcpy(function_table[depth].params[current_idx][index], params_tmp[i]);
-        index++;
-    }
-    
-    function_table[depth].param_count[current_idx] = p_count;
     function_table[depth].function_count++;
 }
 
@@ -1743,7 +1720,7 @@ void generate(Node *node) {
                 emit_one_operand(OP_JMP, &zero);
 
                 int func_start_address = count;
-                insert_function(node->func_name, func_start_address, node->params, block_depth);
+                insert_function(node->func_name, func_start_address, block_depth);
 
                 Node *params = node->params;
                 ParamsTmp params_tmp_table[128];
