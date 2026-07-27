@@ -1,4 +1,4 @@
-a = 999;
+int a = 999;
 
 function test(int a) {
     print a;

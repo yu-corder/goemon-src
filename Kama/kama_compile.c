@@ -1086,6 +1086,8 @@ Node* parse_for() {
 
     Node *init = NULL;
     Node *var = NULL;
+
+    consume(TK_INT);
     
     Token *t = expect_ident();
     if (consume(TK_ASSIGN)) {
