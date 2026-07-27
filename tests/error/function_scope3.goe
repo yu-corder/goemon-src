@@ -1,6 +1,6 @@
-c = 1;
+int c = 1;
 while (c < 2) {
-    function test (a, b) {
+    function test (int a, int b) {
         print a;
         print b;
     }

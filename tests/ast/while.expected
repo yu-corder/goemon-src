@@ -1,74 +1,74 @@
-  [ASSIGN]
-    [VAR](c)
+  [DECL]
+    [VAR](c)(address=1)
     [NUM] val=0
-  [ASSIGN]
-    [VAR](d)
+  [DECL]
+    [VAR](d)(address=2)
     [NUM] val=1
   [WHILE]
     [CONDITION]
       [LT]
-        [VAR](c)
+        [VAR](c)(address=1)
         [NUM] val=5
     [BODY]
       [PRINT]
-        [VAR](c)
+        [VAR](c)(address=1)
       [PRINT]
         [NUM] val=1
-      [ASSIGN]
-        [VAR](d)
+      [DECL]
+        [VAR](d)(address=2)
         [NUM] val=1
       [WHILE]
         [CONDITION]
           [LT]
-            [VAR](d)
+            [VAR](d)(address=2)
             [NUM] val=3
         [BODY]
           [PRINT]
-            [VAR](d)
+            [VAR](d)(address=2)
           [INC]
-            [VAR](d)
+            [VAR](d)(address=2)
       [INC]
-        [VAR](c)
-  [ASSIGN]
-    [VAR](e)
+        [VAR](c)(address=1)
+  [DECL]
+    [VAR](e)(address=3)
     [NUM] val=0
-  [ASSIGN]
-    [VAR](f)
+  [DECL]
+    [VAR](f)(address=4)
     [NUM] val=0
   [WHILE]
     [CONDITION]
       [LT]
-        [VAR](e)
+        [VAR](e)(address=3)
         [NUM] val=3
     [BODY]
       [IF]
         [CONDITION]
           [EQ]
-            [VAR](e)
+            [VAR](e)(address=3)
             [NUM] val=2
         [THEN]
           [BREAK]
       [PRINT]
-        [VAR](e)
+        [VAR](e)(address=3)
       [INC]
-        [VAR](e)
+        [VAR](e)(address=3)
   [WHILE]
     [CONDITION]
       [LT]
-        [VAR](f)
+        [VAR](f)(address=4)
         [NUM] val=3
     [BODY]
       [IF]
         [CONDITION]
           [EQ]
-            [VAR](f)
+            [VAR](f)(address=4)
             [NUM] val=2
         [THEN]
           [INC]
-            [VAR](f)
+            [VAR](f)(address=4)
           [CONTINUE]
       [PRINT]
-        [VAR](f)
+        [VAR](f)(address=4)
       [INC]
-        [VAR](f)
+        [VAR](f)(address=4)
 絶景かな！ Compiled study.goe to study.gb

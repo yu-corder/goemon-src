@@ -4,13 +4,15 @@
     [NAME]
       (add)
     [PARAMS]
-      [VAR](a)
-      [VAR](b)
+      [DECL]
+        [VAR](a)(address=1)(depth=1)
+      [DECL]
+        [VAR](b)(address=0)(depth=1)
     [BODY]
       [PRINT]
-        [VAR](a)
+        [VAR](a)(address=1)(depth=1)
       [PRINT]
-        [VAR](b)
+        [VAR](b)(address=0)(depth=1)
   [CALL]
     [NAME]
       (add)

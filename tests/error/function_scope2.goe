@@ -1,6 +1,6 @@
 test(100, 999);
 
-function test (a, b) {
+function test (int a, int b) {
     print a;
     print b;
 }

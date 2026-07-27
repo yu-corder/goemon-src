@@ -1305,8 +1305,6 @@ void name_resolution(Node *node) {
                 break;
             }
             case ND_VAR_DECL: {
-                printf("MAJIKA\n");
-
                 if (node->rhs != NULL) {
                     name_resolution(node->rhs);
                 }

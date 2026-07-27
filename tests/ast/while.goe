@@ -1,10 +1,10 @@
-c = 0;
-d = 1;
+int c = 0;
+int d = 1;
 
 while (c < 5) {
     print c;
     print 1;
-    d = 1;
+    int d = 1;
     while (d < 3) {
         print d;
         d++;
@@ -12,8 +12,8 @@ while (c < 5) {
     c++;
 }
 
-e = 0;
-f = 0;
+int e = 0;
+int f = 0;
 
 while (e < 3) {
     if (e == 2) {

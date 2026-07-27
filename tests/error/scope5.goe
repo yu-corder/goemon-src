@@ -1,4 +1,4 @@
-function test(a) {
+function test(int a) {
     print a;
 }
 

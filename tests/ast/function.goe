@@ -1,6 +1,6 @@
 print 1;
 
-function add(a, b) {
+function add(int a, int b) {
     print a;
     print b;
 }
