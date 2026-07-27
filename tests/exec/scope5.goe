@@ -1,4 +1,4 @@
-function test(a) {
+function test(int a) {
     if (1) {
         a = 200;
     }

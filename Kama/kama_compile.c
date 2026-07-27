@@ -1466,10 +1466,6 @@ void name_resolution(Node *node) {
                     if (!var.found) addr = insert_local_variable(func_params.params[i], block_depth);
                     var = find_local_variable(func_params.params[i], block_depth);
                     param_name_resolution(node->params, func_params.params[i], var.address, var.depth);
-
-                    //ND_VAR_DECLの時になんかフラグが立っていたら、逆順に読み込むようにする？→いや、フラグは別に立てなくてもいける。どうせ、ND_FUNCTIONで見るでしょう。
-                    //正直ここで逆順にやるよりはマシな気がする。関数や変数テーブルをクリアにするなら別だけど。2週目の時にゴミデータが残っているからね。。。
-                    //とりあえず、addresやdepthは付与はできてるので、あとはそれを元に
                 }
 
                 name_resolution(node->body);
@@ -1550,6 +1546,13 @@ void generate_binary(Node *node, OpCode op) {
 }
 
 int local_scope = 0;
+
+typedef struct {
+    char name[32];
+    int address;
+    int depth;
+} ParamsTmp;
+
 void generate(Node *node) {
     if (node == NULL) return;
     while (node) {
@@ -1767,8 +1770,21 @@ void generate(Node *node) {
 
                 int func_start_address = count;
                 insert_function(node->func_name, func_start_address, node->params, block_depth);
-                FuncionInfo func = find_function(node->func_name, block_depth);
-                generate(node->params);
+
+                Node *params = node->params;
+                ParamsTmp params_tmp_table[128];
+                int p_count = 0;
+                while (params) {
+                    params_tmp_table[p_count].address = params->lhs->address;
+                    params_tmp_table[p_count].depth = params->lhs->depth;
+                    strcpy(params_tmp_table[p_count].name, params->lhs->name);
+                    p_count++;
+                    params = params->next;
+                }
+                
+                for (int i = p_count - 1; i >= 0; i--) {
+                    emit_two_operand(OP_STORE_LOCAL, &params_tmp_table[i].address, &params_tmp_table[i].depth);
+                }
 
                 generate(node->body);
 

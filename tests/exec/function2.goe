@@ -1,8 +1,8 @@
-function add(a, b) {
+function add(int a, int b) {
     return a + b;
 }
 
-function mul(a, b) {
+function mul(int a, int b) {
     return a * b;
 }
 
@@ -18,7 +18,7 @@ function test() {
 
 test();
 
-function aiueo(z) {
+function aiueo(int z) {
     if (z == 0) {
         return 100;
     }
@@ -28,7 +28,7 @@ function aiueo(z) {
 print aiueo(1);
 print aiueo(0);
 
-function kakikukeko(a) {
+function kakikukeko(int a) {
     if (a == 0) {
         return 100;
     }
