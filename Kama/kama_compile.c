@@ -364,6 +364,10 @@ void insert_function_params(char *name, Node *params, int depth) {
     int p_count = 0;
     char params_tmp[16][32];
     while (p) {
+        if (p->lhs == NULL) {
+            fprintf(stderr, "Parameter '%s' requires an explicit type declaration.\n", p->name);
+            exit(1);
+        }
         strcpy(params_tmp[p_count], p->lhs->name);
         p_count++;
         p = p->next;
