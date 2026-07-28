@@ -160,6 +160,8 @@ typedef struct {
 typedef struct {
     char name[32];
     int memory_index;
+
+    TypeKind type;
 } Variable;
 
 typedef struct {
@@ -176,6 +178,8 @@ typedef struct {
     char params[16][16][32];
     int param_count[64];
     int function_count;
+
+    TypeKind type[16][16];
 } FuncionParams;
 
 FuncionParams function_params_table[128];
@@ -198,6 +202,8 @@ typedef struct {
     char (*params)[32];
 
     bool found;
+
+    TypeKind (*type)[16];
 } FuncionParamsInfo;
 
 
@@ -208,6 +214,8 @@ typedef struct {
     int variable_count;
     char name[32][32];
     int address[32];
+
+    TypeKind type[32];
 } LocalVariables;
 
 typedef struct {
@@ -215,7 +223,18 @@ typedef struct {
     int depth;
 
     bool found;
+
+    TypeKind type;
 } LocalVariablesInfo;
+
+typedef struct {
+    int address;
+    int depth;
+
+    bool found;
+
+    TypeKind type;
+} GlobalVariablesInfo;
 
 LocalVariables local_scopes[128];
 int block_depth = 0;
@@ -273,14 +292,20 @@ int find_label(char *name) {
     return -1;
 }
 
-int find_global_variable(char *name) {
+GlobalVariablesInfo find_global_variable(char *name) {
+    GlobalVariablesInfo var;
+    var.found = false;
+    var.address = -1;
     for (int i = 0; i < global_variable_count; i++) {
         if (strcmp(global_variable_table[i].name, name) == 0) {
-            return global_variable_table[i].memory_index;
+            var.address = global_variable_table[i].memory_index;
+            var.type = global_variable_table[i].type;
+            var.found = true;
+            return var;
         }
     }
     
-    return -1;
+    return var;
 }
 
 LocalVariablesInfo find_local_variable(char *name, int depth) {
@@ -293,6 +318,7 @@ LocalVariablesInfo find_local_variable(char *name, int depth) {
                 var.address = local_scopes[i].address[j];
                 var.depth = i;
                 var.found = true;
+                var.type = local_scopes[i].type[j];
                 return var;
             }
         }
@@ -300,11 +326,12 @@ LocalVariablesInfo find_local_variable(char *name, int depth) {
     return var;
 }
 
-int insert_global_variable(char *name) {
+int insert_global_variable(char *name, TypeKind* type) {
     int current_idx = global_variable_count;
     global_variable_count++;
 
     strcpy(global_variable_table[current_idx].name, name);
+    global_variable_table[current_idx].type = *type;
     
     if (strncmp(name, "__s", 3) == 0) {
         global_variable_table[current_idx].memory_index = 1000 + (global_variable_count * 100);
@@ -314,10 +341,11 @@ int insert_global_variable(char *name) {
     return global_variable_table[current_idx].memory_index;
 }
 
-int insert_local_variable(char *name, int depth) {
+int insert_local_variable(char *name, int depth, TypeKind* type) {
     int current_idx = local_scopes[depth].variable_count;
     local_scopes[depth].variable_count++;
     strcpy(local_scopes[depth].name[current_idx], name);
+    local_scopes[depth].type[current_idx] = *type;
     
     if (strncmp(name, "__s", 3) == 0) {
         local_scopes[depth].address[current_idx] = 1000 + (current_idx * 100);;
@@ -339,6 +367,7 @@ FuncionParamsInfo find_function_params(char *name, int depth) {
                 var.depth = i;
                 var.param_count = function_params_table[i].param_count[j];
                 var.params = function_params_table[i].params[j];
+                var.type = &function_params_table[i].type[j];
                 return var;
             }
         }
@@ -363,12 +392,14 @@ void insert_function_params(char *name, Node *params, int depth) {
 
     int p_count = 0;
     char params_tmp[16][32];
+    TypeKind type_tmp[16];
     while (p) {
         if (p->lhs == NULL) {
             fprintf(stderr, "Parameter '%s' requires an explicit type declaration.\n", p->name);
             exit(1);
         }
         strcpy(params_tmp[p_count], p->lhs->name);
+        type_tmp[p_count] = p->type;
         p_count++;
         p = p->next;
     }
@@ -376,6 +407,7 @@ void insert_function_params(char *name, Node *params, int depth) {
     int index = 0;
     for (int i = p_count - 1; i >= 0; i--) {
         strcpy(function_params_table[depth].params[current_idx][index], params_tmp[i]);
+        function_params_table[depth].type[current_idx][index] = type_tmp[i];
         index++;
     }
     
@@ -1187,23 +1219,25 @@ int main(int argc, char **argv) {
 // NAME RESOLUTION
 // =========================
 
-void resolution_variable(Node* node, bool allow_create) {
+void resolution_variable(Node* node, bool allow_create, TypeKind* type) {
     int addr = -1;
     if (block_depth >= 1) {
         LocalVariablesInfo var = find_local_variable(node->name, block_depth);
         addr = var.address;
         int find_depth = var.depth;
         if (!var.found) {
-            addr = find_global_variable(node->name);
+            GlobalVariablesInfo g_var = find_global_variable(node->name);
+            addr = g_var.address;
 
-            if (addr == -1) {
+            if (!g_var.found) {
                 if (allow_create) {
-                    addr = insert_local_variable(node->name, block_depth);
+                    addr = insert_local_variable(node->name, block_depth, type);
                     var = find_local_variable(node->name, block_depth);
 
                     node->address = var.address;
                     node->depth = var.depth;
                     node->is_global = false;
+                    node->type = var.type;
                     return;
                 }
 
@@ -1213,6 +1247,7 @@ void resolution_variable(Node* node, bool allow_create) {
 
             node->address = addr;
             node->is_global = true;
+            node->type = g_var.type;
             return;
         } else {
             
@@ -1222,13 +1257,15 @@ void resolution_variable(Node* node, bool allow_create) {
         }
         
     } else {
-        addr = find_global_variable(node->name);
-        if (addr == -1) {
+        GlobalVariablesInfo var = find_global_variable(node->name);
+        if (!var.found) {
             if (allow_create) {
-                addr = insert_global_variable(node->name);
+                addr = insert_global_variable(node->name, type);
+                var = find_global_variable(node->name);
 
-                node->address = addr;
+                node->address = var.address;
                 node->is_global = true;
+                node->type = var.type;
                 return;
             }
 
@@ -1236,8 +1273,9 @@ void resolution_variable(Node* node, bool allow_create) {
             exit(1);
         }
 
-        node->address = addr;
+        node->address = var.address;
         node->is_global = true;
+        node->type = var.type;
         return;
     }
 }
@@ -1270,16 +1308,16 @@ void name_resolution(Node *node) {
                     name_resolution(node->rhs);
                 }
                 
-                resolution_variable(node->lhs, true);
+                resolution_variable(node->lhs, true, &node->type);
                 break;
             }
             case ND_ASSIGN: {
                 name_resolution(node->rhs);
-                resolution_variable(node->lhs, true);
+                resolution_variable(node->lhs, true, &node->type);
                 break;
             }
             case ND_VAR: {
-                resolution_variable(node, false);
+                resolution_variable(node, false, NULL);
                 break;
             }
             case ND_PRINT: {
@@ -1348,7 +1386,7 @@ void name_resolution(Node *node) {
                 break;
             }
             case ND_INC: {
-                resolution_variable(node->lhs, false);
+                resolution_variable(node->lhs, false, NULL);
                 break;
             }
             case ND_BREAK: {
@@ -1373,7 +1411,7 @@ void name_resolution(Node *node) {
                 for (int i = 0; i < func_params.param_count; i++) {
                     LocalVariablesInfo var = find_local_variable(func_params.params[i], block_depth);
                     int addr = var.address;
-                    if (!var.found) addr = insert_local_variable(func_params.params[i], block_depth);
+                    if (!var.found) addr = insert_local_variable(func_params.params[i], block_depth, func_params.type[i]);
                     var = find_local_variable(func_params.params[i], block_depth);
                     param_name_resolution(node->params, func_params.params[i], var.address, var.depth);
                 }
@@ -1928,7 +1966,8 @@ void debug_ast_node(Node *node, int depth) {
             "UNKNOWN"
         );
 
-        //printf("(%s)", type_name(node->type));
+
+        if (node->type != 0) printf("(%s)", type_name(node->type));
         
 
         if (node->kind == ND_VAR) {
