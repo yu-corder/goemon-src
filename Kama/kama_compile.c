@@ -719,51 +719,6 @@ void emit_two_operand(OpCode op_code, int *val1, int *val2) {
     bytecode[count++] = *val2;
 }
 
-void emit_variable(char* name, OpCode global_opcode, OpCode local_opcode, bool allow_create) {
-    int addr = -1;
-    if (block_depth >= 1) {
-        LocalVariablesInfo var = find_local_variable(name, block_depth);
-        addr = var.address;
-        int find_depth = var.depth;
-        if (!var.found) {
-            addr = find_global_variable(name);
-
-            if (addr == -1) {
-                if (allow_create) {
-                    addr = insert_local_variable(name, block_depth);
-                    var = find_local_variable(name, block_depth);
-
-                    emit_two_operand(local_opcode, &var.address, &var.depth);
-                    return;
-                }
-
-                fprintf(stderr, "Undefined variable: %s\n", name);
-                exit(1);
-            }
-
-            emit_one_operand(global_opcode, &addr);
-            return;
-        } else {
-            emit_two_operand(local_opcode, &addr, &find_depth);
-        }
-        
-    } else {
-        addr = find_global_variable(name);
-        if (addr == -1) {
-            if (allow_create) {
-                addr = insert_global_variable(name);
-                emit_one_operand(global_opcode, &addr);
-                return;
-            }
-
-            fprintf(stderr, "Undefined variable: %s\n", name);
-            exit(1);
-        }
-        emit_one_operand(global_opcode, &addr);
-        return;
-    }
-}
-
 bool consume(TokenKind kind) {
     if (tokens[pos].kind != kind) {
         return false;
