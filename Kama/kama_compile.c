@@ -203,7 +203,7 @@ typedef struct {
 
     bool found;
 
-    TypeKind (*type)[16];
+    TypeKind *type;
 } FuncionParamsInfo;
 
 
@@ -367,7 +367,7 @@ FuncionParamsInfo find_function_params(char *name, int depth) {
                 var.depth = i;
                 var.param_count = function_params_table[i].param_count[j];
                 var.params = function_params_table[i].params[j];
-                var.type = &function_params_table[i].type[j];
+                var.type = function_params_table[i].type[j];
                 return var;
             }
         }
@@ -1254,6 +1254,7 @@ void resolution_variable(Node* node, bool allow_create, TypeKind* type) {
             node->address = addr;
             node->depth = find_depth;
             node->is_global = false;
+            node->type = var.type;
         }
         
     } else {
@@ -1285,11 +1286,12 @@ void name_resolution_binary(Node *node) {
     name_resolution(node->rhs);
 }
 
-void param_name_resolution(Node *node, char* name, int address, int depth) {
+void param_name_resolution(Node *node, char* name, int address, int depth, TypeKind type) {
     while (node) {
         if (strcmp(node->lhs->name, name) == 0) {
             node->lhs->address = address;
             node->lhs->depth = depth;
+            node->lhs->type = type;
             return;
         }
         node = node->next;
@@ -1411,9 +1413,9 @@ void name_resolution(Node *node) {
                 for (int i = 0; i < func_params.param_count; i++) {
                     LocalVariablesInfo var = find_local_variable(func_params.params[i], block_depth);
                     int addr = var.address;
-                    if (!var.found) addr = insert_local_variable(func_params.params[i], block_depth, func_params.type[i]);
+                    if (!var.found) addr = insert_local_variable(func_params.params[i], block_depth, &func_params.type[i]);
                     var = find_local_variable(func_params.params[i], block_depth);
-                    param_name_resolution(node->params, func_params.params[i], var.address, var.depth);
+                    param_name_resolution(node->params, func_params.params[i], var.address, var.depth, var.type);
                 }
 
                 name_resolution(node->body);
