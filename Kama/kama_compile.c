@@ -1188,17 +1188,14 @@ int main(int argc, char **argv) {
     tokenize(src);
     Node *program = parse_program();
 
-    // type_check_program(program);
-
     name_resolution(program);
 
     if (g_debug_ast) {
         debug_ast_node(program, 1);
     }
 
+    type_check_program(program);
     
-    
-
     generate(program);
 
     emit_no_operand(OP_HALT);
@@ -1464,6 +1461,13 @@ TypeKind type_check(Node* node) {
                 exit(1);
             }
 
+            return TY_VOID;
+        }
+        case ND_VAR: {
+            return node->type;
+        }
+        case ND_PRINT: {
+            type_check(node->lhs);
             return TY_VOID;
         }
         case ND_ADD: {

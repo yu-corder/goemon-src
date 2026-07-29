@@ -1,8 +1,7 @@
-if (1) {
-    function test (int a, int b) {
-        print a;
-        print b;
-    }
-}
+int a = 10;
+int b = 5;
+int c = 2;
 
-test(500, 999);
+int i = (a + b) * c - (a / c) + ((b + c) * (a - b));
+
+print i;
