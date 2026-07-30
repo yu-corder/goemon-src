@@ -1446,6 +1446,20 @@ void type_check_program(Node *program) {
 
 }
 
+TypeKind type_check_expression(Node* node) {
+    TypeKind lhs = type_check(node->lhs);
+    TypeKind rhs = type_check(node->rhs);
+
+    node->type = TY_INT;
+    if (lhs != TY_INT || rhs != TY_INT) {
+        fprintf(stderr,
+            "Expected: %s\n", type_name(node->type));
+        exit(1);
+    }
+
+    return TY_INT;
+}
+
 TypeKind type_check(Node* node) {
     if (node == NULL) return TY_VOID;
     switch (node->kind) {
@@ -1471,17 +1485,47 @@ TypeKind type_check(Node* node) {
             return TY_VOID;
         }
         case ND_ADD: {
-            TypeKind lhs = type_check(node->lhs);
-            TypeKind rhs = type_check(node->rhs);
-
-            node->type = TY_INT;
-            if (lhs != TY_INT || rhs != TY_INT) {
-                fprintf(stderr,
-                    "Expected: %s\n", type_name(node->type));
-                exit(1);
-            }
-
-            return TY_INT;
+            return type_check_expression(node);
+        }
+        case ND_MINUS: {
+            return type_check_expression(node);
+        }
+        case ND_MUL: {
+            return type_check_expression(node);
+        }
+        case ND_MOD: {
+            return type_check_expression(node);
+        }
+        case ND_DIV: {
+            return type_check_expression(node);
+        }
+        case ND_LT: {
+            return type_check_expression(node);
+        }
+        case ND_LE: {
+            return type_check_expression(node);
+        }
+        case ND_GT: {
+            return type_check_expression(node);
+        }
+        case ND_GE: {
+            return type_check_expression(node);
+        }
+        case ND_EQ: {
+            return type_check_expression(node);
+        }
+        case ND_NE: {
+            return type_check_expression(node);
+        }
+        case ND_FUNCTION: {
+            type_check(node->body);
+            return TY_VOID;
+        }
+        case ND_CALL: {
+            return type_check(node->params);
+        }
+        case ND_RET: {
+            return type_check(node->lhs);
         }
         default: 
         // TODO: implement type check
