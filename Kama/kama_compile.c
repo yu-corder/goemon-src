@@ -1224,13 +1224,13 @@ int main(int argc, char **argv) {
     tokenize(src);
     Node *program = parse_program();
 
-    // name_resolution(program);
+    name_resolution(program);
 
     if (g_debug_ast) {
         debug_ast_node(program, 1);
     }
 
-    // type_check_program(program);
+    type_check_program(program);
     
     generate(program);
 
@@ -1336,6 +1336,9 @@ void name_resolution(Node *node) {
     while (node) {
         switch (node->kind) {
             case ND_NUM: {
+                break;
+            }
+            case ND_STR: {
                 break;
             }
             case ND_VAR_DECL: {
@@ -1501,6 +1504,9 @@ TypeKind type_check(Node* node) {
     switch (node->kind) {
         case ND_NUM: {
             return TY_INT;
+        }
+        case ND_STR: {
+            return TY_STRING;
         }
         case ND_VAR_DECL: {
             TypeKind rhs = type_check(node->rhs);
