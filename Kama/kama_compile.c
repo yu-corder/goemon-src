@@ -83,6 +83,7 @@ typedef enum {
 
 typedef enum {
     ND_NUM,
+    ND_STR,
     ND_ADD,
     ND_MINUS,
     ND_MUL,
@@ -113,6 +114,7 @@ typedef enum {
 typedef enum {
     TY_VOID,
     TY_INT,
+    TY_STRING,
 } TypeKind;
 
 typedef struct {
@@ -140,6 +142,7 @@ typedef struct Node {
     struct Node *next;
 
     int val;
+    char str[128];
     char name[32];
     char func_name[64];
 
@@ -241,6 +244,7 @@ int block_depth = 0;
 
 Node node_tree[128];
 Node* new_num_node();
+Node* new_str_node();
 Node* new_binary_node();
 Node* new_decl_no_assignment_node();
 Node* new_decl_node();
@@ -561,6 +565,24 @@ void tokenize (char *p) {
             continue;
         }
 
+        if (strncmp(p, "str", 3) == 0 && (isspace(p[3]) || p[3] == '\0')) {
+            p += 3;
+            int len = 0;
+            tokens[i++].kind = TK_STRING_TYPE;
+
+            while (isspace(*p)) {
+                p++;
+            }
+            
+            while (isalnum(*p) || *p == '_') {
+                tokens[i].str[len++] = *p++;
+            }
+            tokens[i].str[len] = '\0';
+            tokens[i++].kind = TK_IDENT;
+            continue;
+        }
+
+
         if (*p == '(') {
             tokens[i++].kind = TK_LPAREN;
             p++;
@@ -853,6 +875,8 @@ Node* parse_primary() {
         } else {
             node = new_var_node(t->str);
         }
+    } else if (t->kind == TK_STRING) {
+        node = new_str_node(t->str);
     }
     return node;
 }
@@ -936,6 +960,18 @@ Node* parse_statement() {
                 return new_decl_node(ND_VAR_DECL, lhs, rhs, TY_INT);
             } else {
                 return new_decl_no_assignment_node(ND_VAR_DECL, lhs, TY_INT);
+            }
+        }
+        case TK_STRING_TYPE: {
+            Token *ident = expect_ident();
+            Node *lhs = new_var_node(ident->str);
+
+            if (consume(TK_ASSIGN)) {
+                Node *rhs = parse_evaluation();
+                expect(TK_SEMI);
+                return new_decl_node(ND_VAR_DECL, lhs, rhs, TY_STRING);
+            } else {
+                return new_decl_no_assignment_node(ND_VAR_DECL, lhs, TY_STRING);
             }
         }
         case TK_IDENT: {
@@ -1188,13 +1224,13 @@ int main(int argc, char **argv) {
     tokenize(src);
     Node *program = parse_program();
 
-    name_resolution(program);
+    // name_resolution(program);
 
     if (g_debug_ast) {
         debug_ast_node(program, 1);
     }
 
-    type_check_program(program);
+    // type_check_program(program);
     
     generate(program);
 
@@ -1560,6 +1596,9 @@ void generate(Node *node) {
                 emit_one_operand(OP_PUSH, &node->val);
                 break;
             }
+            case ND_STR: {
+                break;
+            }
             case ND_VAR_DECL: {
                 if (node->rhs != NULL) {
                     generate(node->rhs);
@@ -1831,6 +1870,18 @@ Node* new_num_node (int *val) {
     return &node_tree[current_idx];
 }
 
+Node* new_str_node (char *str) {
+    int current_idx = node_depth;
+    node_depth++;
+
+    node_tree[current_idx].kind = ND_STR;
+    strcpy(node_tree[current_idx].str, str);
+    node_tree[current_idx].lhs = NULL;
+    node_tree[current_idx].rhs = NULL;
+
+    return &node_tree[current_idx];
+}
+
 Node* new_var_node (char *str) {
     int current_idx = node_depth;
     node_depth++;
@@ -1970,6 +2021,7 @@ const char* node_kind_name(NodeKind kind) {
 const char* type_name(TypeKind kind) {
     switch(kind) {
         case TY_INT: return "INT";
+        case TY_STRING: return "STRING";
         default: return "UNKNOWN";
     }
 }
@@ -1989,6 +2041,7 @@ void debug_ast_node(Node *node, int depth) {
 
         printf("[%s]",
             node->kind == ND_NUM ? "NUM" :
+            node->kind == ND_STR ? "STR" :
             node->kind == ND_ADD ? "ADD" :
             node->kind == ND_MINUS ? "MINUS" :
             node->kind == ND_MUL ? "MUL" :
@@ -2030,6 +2083,10 @@ void debug_ast_node(Node *node, int depth) {
 
         if (node->kind == ND_NUM) {
             printf(" val=%d", node->val);
+        }
+
+        if (node->kind == ND_STR) {
+            printf(" val=%s", node->str);
         }
 
         printf("\n");
