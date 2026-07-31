@@ -1679,6 +1679,7 @@ void generate(Node *node) {
                 break;
             }
             case ND_BOOL: {
+                emit_one_operand(OP_PUSH, &node->val);
                 break;
             }
             case ND_VAR_DECL: {
@@ -1960,6 +1961,8 @@ Node* new_bool_node (bool *val) {
     node_tree[current_idx].bool_val = val;
     node_tree[current_idx].lhs = NULL;
     node_tree[current_idx].rhs = NULL;
+
+    node_tree[current_idx].val = val ? 1 : 0;
 
     return &node_tree[current_idx];
 }

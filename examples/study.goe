@@ -1,5 +1,9 @@
 int num = 500;
 
-str val = "hello World!";
+int goemon = 1;
 
-bool chk = false;
+bool chk = true;
+
+if (chk) {
+    print num;
+}
