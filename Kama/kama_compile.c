@@ -78,12 +78,15 @@ typedef enum {
     TK_RET,
     TK_INT,
     TK_STRING_TYPE,
+    TK_BOOL,
+    TK_BOOL_TYPE,
     TK_EOF,
 } TokenKind;
 
 typedef enum {
     ND_NUM,
     ND_STR,
+    ND_BOOL,
     ND_ADD,
     ND_MINUS,
     ND_MUL,
@@ -115,12 +118,14 @@ typedef enum {
     TY_VOID,
     TY_INT,
     TY_STRING,
+    TY_BOOL,
 } TypeKind;
 
 typedef struct {
     TokenKind kind;
     int val;
     char str[256];
+    bool bool_val;
 } Token;
 
 typedef struct Node {
@@ -142,6 +147,7 @@ typedef struct Node {
     struct Node *next;
 
     int val;
+    bool bool_val;
     char str[128];
     char name[32];
     char func_name[64];
@@ -245,6 +251,7 @@ int block_depth = 0;
 Node node_tree[128];
 Node* new_num_node();
 Node* new_str_node();
+Node* new_bool_node();
 Node* new_binary_node();
 Node* new_decl_no_assignment_node();
 Node* new_decl_node();
@@ -582,6 +589,40 @@ void tokenize (char *p) {
             continue;
         }
 
+        if (strncmp(p, "bool", 4) == 0 && (isspace(p[4]) || p[4] == '\0')) {
+            printf("ALNANANN\n");
+            p += 4;
+            int len = 0;
+            tokens[i++].kind = TK_BOOL_TYPE;
+
+            while (isspace(*p)) {
+                p++;
+            }
+            
+            while (isalnum(*p) || *p == '_') {
+                tokens[i].str[len++] = *p++;
+            }
+            tokens[i].str[len] = '\0';
+            tokens[i++].kind = TK_IDENT;
+            continue;
+        }
+
+        if (strncmp(p, "true", 4) == 0 && (isspace(p[4]) || p[4] == '\0' || p[4] == ';')) {
+            printf("LTLT\n");
+            tokens[i].kind = TK_BOOL;
+            tokens[i].bool_val = true;
+            i++;
+            p += 4;
+            continue;
+        }
+
+        if (strncmp(p, "false", 5) == 0 && (isspace(p[5]) || p[5] == '\0' || p[5] == ';')) {
+            tokens[i].kind = TK_BOOL;
+            tokens[i].bool_val = false;
+            i++;
+            p += 5;
+            continue;
+        }
 
         if (*p == '(') {
             tokens[i++].kind = TK_LPAREN;
@@ -794,6 +835,18 @@ Token *expect_ident() {
     return tok;
 }
 
+Token *expect_bool() {
+    if (tokens[pos].kind != TK_BOOL) {
+        fprintf(stderr,
+            "Expected TK_BOOL but got %s\n",
+            token_name(tokens[pos].kind));
+        exit(1);
+    }
+
+    Token *tok = next_token();
+    return tok;
+}
+
 void expect(TokenKind kind) {
     if (!consume(kind)) {
         fprintf(stderr,
@@ -972,6 +1025,20 @@ Node* parse_statement() {
                 return new_decl_node(ND_VAR_DECL, lhs, rhs, TY_STRING);
             } else {
                 return new_decl_no_assignment_node(ND_VAR_DECL, lhs, TY_STRING);
+            }
+        }
+        case TK_BOOL_TYPE: {
+            Token *ident = expect_ident();
+            Node *lhs = new_var_node(ident->str);
+
+            if (consume(TK_ASSIGN)) {
+                Token *bool_tk = expect_bool();
+                Node *rhs = new_bool_node(bool_tk->bool_val);
+                
+                expect(TK_SEMI);
+                return new_decl_node(ND_VAR_DECL, lhs, rhs, TY_BOOL);
+            } else {
+                return new_decl_no_assignment_node(ND_VAR_DECL, lhs, TY_BOOL);
             }
         }
         case TK_IDENT: {
@@ -1341,6 +1408,9 @@ void name_resolution(Node *node) {
             case ND_STR: {
                 break;
             }
+            case ND_BOOL: {
+                break;
+            }
             case ND_VAR_DECL: {
                 if (node->rhs != NULL) {
                     name_resolution(node->rhs);
@@ -1508,6 +1578,9 @@ TypeKind type_check(Node* node) {
         case ND_STR: {
             return TY_STRING;
         }
+        case ND_BOOL: {
+            return TY_BOOL;
+        }
         case ND_VAR_DECL: {
             TypeKind rhs = type_check(node->rhs);
             
@@ -1603,6 +1676,9 @@ void generate(Node *node) {
                 break;
             }
             case ND_STR: {
+                break;
+            }
+            case ND_BOOL: {
                 break;
             }
             case ND_VAR_DECL: {
@@ -1876,6 +1952,18 @@ Node* new_num_node (int *val) {
     return &node_tree[current_idx];
 }
 
+Node* new_bool_node (bool *val) {
+    int current_idx = node_depth;
+    node_depth++;
+
+    node_tree[current_idx].kind = ND_BOOL;
+    node_tree[current_idx].bool_val = val;
+    node_tree[current_idx].lhs = NULL;
+    node_tree[current_idx].rhs = NULL;
+
+    return &node_tree[current_idx];
+}
+
 Node* new_str_node (char *str) {
     int current_idx = node_depth;
     node_depth++;
@@ -2028,6 +2116,7 @@ const char* type_name(TypeKind kind) {
     switch(kind) {
         case TY_INT: return "INT";
         case TY_STRING: return "STRING";
+        case TY_BOOL: return "BOOL";
         default: return "UNKNOWN";
     }
 }
@@ -2072,6 +2161,7 @@ void debug_ast_node(Node *node, int depth) {
             node->kind == ND_FUNCTION ? "FUNCTION" :
             node->kind == ND_CALL ? "CALL" :
             node->kind == ND_RET ? "RET" :
+            node->kind == ND_BOOL ? "BOOL" :
             "UNKNOWN"
         );
 
@@ -2089,6 +2179,10 @@ void debug_ast_node(Node *node, int depth) {
 
         if (node->kind == ND_NUM) {
             printf(" val=%d", node->val);
+        }
+
+        if (node->kind == ND_BOOL) {
+            printf(" val=%s", node->bool_val ? "true" : "false");
         }
 
         if (node->kind == ND_STR) {
@@ -2218,6 +2312,8 @@ const char *token_kind_name[] = {
     "TK_RET",
     "TK_INT",
     "TK_STRING_TYPE",
+    "TK_BOOL",
+    "TK_BOOL_TYPE",
     "TK_EOF"
 };
 
@@ -2243,6 +2339,10 @@ void debug_token(int count) {
 
         if (tokens[i].kind == TK_NUMBER) {
             printf(" value=%d", tokens[i].val);
+        }
+
+        if (tokens[i].kind == TK_BOOL) {
+            printf(" bool_val=%s", tokens[i].bool_val ? "true" : "false");
         }
 
         if (

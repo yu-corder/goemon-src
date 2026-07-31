@@ -1,3 +1,5 @@
-int num = 1;
+int num = 500;
 
-str one = "aiueo";
+str val = "hello World!";
+
+bool chk = false;
