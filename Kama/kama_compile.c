@@ -1325,17 +1325,10 @@ int main(int argc, char **argv) {
         debug_bynary();
     }
 
-    // typedef struct {
-    //     uint32_t magic;
-    //     uint32_t version;
-    //     uint32_t bytecode_size;
-    //     uint32_t string_count;
-    // } GoemonHeader;
-
     GoemonHeader hed = header();
 
-
     FILE *dest = fopen(argv[arg + 1], "wb");
+    fwrite(&hed, sizeof(GoemonHeader), 1, dest);
     fwrite(bytecode, sizeof(int), count, dest);
     fclose(dest);
 

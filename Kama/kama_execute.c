@@ -34,6 +34,13 @@ typedef enum {
     OP_HALT
 } OpCode;
 
+typedef struct {
+    uint32_t magic;
+    uint32_t version;
+    uint32_t bytecode_size;
+    uint32_t string_count;
+} GoemonHeader;
+
 void run(int* program) {
     int stack[1024];
     int call_stack[128];
@@ -240,12 +247,17 @@ void load_and_run(const char* filename) {
     FILE* f = fopen(filename, "rb");
     if (!f) return;
 
-    fseek(f, 0, SEEK_END);
-    long size = ftell(f);
-    fseek(f, 0, SEEK_SET);
+    GoemonHeader header;
+    fread(&header, sizeof(GoemonHeader), 1, f);
 
-    int* code = malloc(size);
-    fread(code, 1, size, f);
+    int *code = malloc(header.bytecode_size * sizeof(int));
+    if (code == NULL) {
+        perror("malloc");
+        exit(1);
+    }
+
+    fseek(f, sizeof(GoemonHeader), SEEK_SET);
+    fread(code, sizeof(int), header.bytecode_size, f);
     fclose(f);
 
     run(code);
