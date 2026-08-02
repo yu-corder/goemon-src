@@ -1330,6 +1330,7 @@ int main(int argc, char **argv) {
     FILE *dest = fopen(argv[arg + 1], "wb");
     fwrite(&hed, sizeof(GoemonHeader), 1, dest);
     fwrite(bytecode, sizeof(int), count, dest);
+    fwrite(string_table, sizeof(String), string_count, dest);
     fclose(dest);
 
     printf("絶景かな！ Compiled study.goe to study.gb\n");

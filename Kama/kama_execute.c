@@ -41,6 +41,11 @@ typedef struct {
     uint32_t string_count;
 } GoemonHeader;
 
+typedef struct {
+    char str[32];
+    int length;
+} String;
+
 void run(int* program) {
     int stack[1024];
     int call_stack[128];
@@ -258,6 +263,11 @@ void load_and_run(const char* filename) {
 
     fseek(f, sizeof(GoemonHeader), SEEK_SET);
     fread(code, sizeof(int), header.bytecode_size, f);
+
+    fseek(f, sizeof(GoemonHeader) + header.bytecode_size * sizeof(int), SEEK_SET);
+    String *string_table = malloc(sizeof(String) * header.string_count);
+    fread(string_table, sizeof(String), header.string_count, f);
+
     fclose(f);
 
     run(code);
