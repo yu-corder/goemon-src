@@ -126,6 +126,7 @@ typedef struct {
     int val;
     char str[256];
     bool bool_val;
+    int length;
 } Token;
 
 typedef struct Node {
@@ -149,6 +150,7 @@ typedef struct Node {
     int val;
     bool bool_val;
     char str[128];
+    int len;
     char name[32];
     char func_name[64];
 
@@ -245,8 +247,25 @@ typedef struct {
     TypeKind type;
 } GlobalVariablesInfo;
 
+typedef struct {
+    uint32_t magic;
+    uint32_t version;
+    uint32_t bytecode_size;
+    uint32_t string_count;
+} GoemonHeader;
+
+typedef struct {
+    char str[32];
+    int length;
+} String;
+
+String string_table[128];
+int string_count = 0;
+
 LocalVariables local_scopes[128];
 int block_depth = 0;
+
+GoemonHeader header();
 
 Node node_tree[128];
 Node* new_num_node();
@@ -590,7 +609,6 @@ void tokenize (char *p) {
         }
 
         if (strncmp(p, "bool", 4) == 0 && (isspace(p[4]) || p[4] == '\0')) {
-            printf("ALNANANN\n");
             p += 4;
             int len = 0;
             tokens[i++].kind = TK_BOOL_TYPE;
@@ -608,7 +626,6 @@ void tokenize (char *p) {
         }
 
         if (strncmp(p, "true", 4) == 0 && (isspace(p[4]) || p[4] == '\0' || p[4] == ';')) {
-            printf("LTLT\n");
             tokens[i].kind = TK_BOOL;
             tokens[i].bool_val = true;
             i++;
@@ -719,6 +736,7 @@ void tokenize (char *p) {
             }
             tokens[i].str[len] = '\0';
             tokens[i].kind = TK_STRING;
+            tokens[i].length = len;
             p++;
             i++;
             continue;
@@ -929,7 +947,7 @@ Node* parse_primary() {
             node = new_var_node(t->str);
         }
     } else if (t->kind == TK_STRING) {
-        node = new_str_node(t->str);
+        node = new_str_node(t->str, &t->length);
     }
     return node;
 }
@@ -1307,12 +1325,37 @@ int main(int argc, char **argv) {
         debug_bynary();
     }
 
+    // typedef struct {
+    //     uint32_t magic;
+    //     uint32_t version;
+    //     uint32_t bytecode_size;
+    //     uint32_t string_count;
+    // } GoemonHeader;
+
+    GoemonHeader hed = header();
+
+
     FILE *dest = fopen(argv[arg + 1], "wb");
     fwrite(bytecode, sizeof(int), count, dest);
     fclose(dest);
 
     printf("絶景かな！ Compiled study.goe to study.gb\n");
     return 0;
+}
+
+
+// =========================
+// BINARY HEADER
+// =========================
+
+GoemonHeader header() {
+    GoemonHeader header;
+    header.magic = 1.0;
+    header.version = 1.0;
+    header.bytecode_size = count;
+    header.string_count = string_count;
+
+    return header;
 }
 
 // =========================
@@ -1676,6 +1719,9 @@ void generate(Node *node) {
                 break;
             }
             case ND_STR: {
+                string_table[string_count].length = node->len;
+                strcpy(string_table[string_count].str, node->str);
+                string_count++;
                 break;
             }
             case ND_BOOL: {
@@ -1967,12 +2013,13 @@ Node* new_bool_node (bool *val) {
     return &node_tree[current_idx];
 }
 
-Node* new_str_node (char *str) {
+Node* new_str_node (char *str, int *len) {
     int current_idx = node_depth;
     node_depth++;
 
     node_tree[current_idx].kind = ND_STR;
     strcpy(node_tree[current_idx].str, str);
+    node_tree[current_idx].len = *len;
     node_tree[current_idx].lhs = NULL;
     node_tree[current_idx].rhs = NULL;
 

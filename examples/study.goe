@@ -2,6 +2,8 @@ int num = 500;
 
 int goemon = 1;
 
+str value = "HELLO WORLD!";
+
 bool chk = true;
 
 if (chk) {
