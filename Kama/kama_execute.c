@@ -249,6 +249,7 @@ void run(int* program) {
             case OP_PRINT_STRING: {
                 int address =  stack[sp--];
                 printf("VM Output: %s\n", string_table[address].str);
+                break;
             }
             case OP_HALT:
                 return;

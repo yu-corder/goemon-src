@@ -1,7 +1,4 @@
-str moji = "Hello World!";
+str aiueo = "Hello";
 
-
-int num = 500 + 1;
-
-print num;
-print moji;
+print aiueo;
+print "World";
