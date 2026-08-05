@@ -31,6 +31,7 @@ typedef enum {
     OP_PRINTS,
     OP_CALL,
     OP_RET,
+    OP_PRINT_STRING,
     OP_HALT
 } OpCode;
 
@@ -45,6 +46,8 @@ typedef struct {
     char str[32];
     int length;
 } String;
+
+String *string_table;
 
 void run(int* program) {
     int stack[1024];
@@ -235,13 +238,18 @@ void run(int* program) {
                 pc = call_stack[call_sp--];
                 break;
             }
-            case OP_PRINT:
+            case OP_PRINT: {
                 if (sp < 0) {
                     printf("エラー：スタックが空なのに print しようとしましたぞ！\n");
                 } else {
                     printf("VM Output: %d\n", stack[sp]);
                 }
                 break;
+            }
+            case OP_PRINT_STRING: {
+                int address =  program[pc++];
+                printf("VM Output: %s\n", string_table[address].str);
+            }
             case OP_HALT:
                 return;
         }
@@ -265,7 +273,7 @@ void load_and_run(const char* filename) {
     fread(code, sizeof(int), header.bytecode_size, f);
 
     fseek(f, sizeof(GoemonHeader) + header.bytecode_size * sizeof(int), SEEK_SET);
-    String *string_table = malloc(sizeof(String) * header.string_count);
+    string_table = malloc(sizeof(String) * header.string_count);
     fread(string_table, sizeof(String), header.string_count, f);
 
     fclose(f);

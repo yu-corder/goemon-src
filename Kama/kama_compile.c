@@ -34,6 +34,7 @@ typedef enum {
     OP_PRINTS,
     OP_CALL,
     OP_RET,
+    OP_PRINT_STRING,
     OP_HALT 
 } OpCode;
 
@@ -1715,6 +1716,8 @@ void generate(Node *node) {
             case ND_STR: {
                 string_table[string_count].length = node->len;
                 strcpy(string_table[string_count].str, node->str);
+                node->address = string_count;
+                emit_one_operand(OP_PUSH, &node->address);
                 string_count++;
                 break;
             }
@@ -1753,7 +1756,12 @@ void generate(Node *node) {
             }
             case ND_PRINT: {
                 generate(node->lhs);
-                emit_no_operand(OP_PRINT);
+                if (node->lhs->kind != ND_STR) {
+                    emit_no_operand(OP_PRINT);
+                } else {
+                    emit_one_operand(OP_PRINT_STRING, &node->lhs->address);
+                }
+                
                 break;
             }
             case ND_ADD: {
