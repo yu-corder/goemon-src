@@ -1,0 +1,9 @@
+str text = "hello world1";
+
+function test(str arg) {
+    print arg;
+    print text;
+}
+
+test("call func");
+

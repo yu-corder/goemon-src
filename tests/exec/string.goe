@@ -1,0 +1,4 @@
+str aiueo = "Hello";
+
+print aiueo;
+print "World";
