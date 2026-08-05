@@ -1756,10 +1756,10 @@ void generate(Node *node) {
             }
             case ND_PRINT: {
                 generate(node->lhs);
-                if (node->lhs->kind != ND_STR) {
+                if (node->lhs->kind != ND_STR && node->lhs->type != TY_STRING) {
                     emit_no_operand(OP_PRINT);
                 } else {
-                    emit_one_operand(OP_PRINT_STRING, &node->lhs->address);
+                    emit_no_operand(OP_PRINT_STRING);
                 }
                 
                 break;
