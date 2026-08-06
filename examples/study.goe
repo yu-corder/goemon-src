@@ -1,4 +1,6 @@
-str aiueo = "Hello";
-
-print aiueo;
-print "World";
+for (int i = 0; i < 10; i++) {
+    print i;
+    for (int j = 0; j < 5; j++) {
+        print j;
+    }
+}

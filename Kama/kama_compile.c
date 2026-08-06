@@ -1459,7 +1459,7 @@ void name_resolution(Node *node) {
             }
             case ND_ASSIGN: {
                 name_resolution(node->rhs);
-                resolution_variable(node->lhs, true, &node->type);
+                resolution_variable(node->lhs, true, &node->lhs->type);
                 break;
             }
             case ND_VAR: {
@@ -1623,6 +1623,16 @@ TypeKind type_check(Node* node) {
             TypeKind rhs = type_check(node->rhs);
             
             if (rhs != node->type) {
+                fprintf(stderr,
+                    "Expected: %s\n", type_name(node->type));
+                exit(1);
+            }
+
+            return TY_VOID;
+        }
+        case ND_ASSIGN: {
+            TypeKind rhs = type_check(node->rhs);
+            if (rhs != node->lhs->type) {
                 fprintf(stderr,
                     "Expected: %s\n", type_name(node->type));
                 exit(1);
