@@ -1,0 +1,2 @@
+str text = 500;
+print text;

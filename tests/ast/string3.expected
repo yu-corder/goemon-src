@@ -1,0 +1,20 @@
+  [DECL](STRING)
+    [VAR](STRING)(text)(address=1)
+    [STR] val=hello world1
+  [FUNCTION]
+    [NAME]
+      (test)
+    [PARAMS]
+      [DECL](STRING)
+        [VAR](STRING)(arg)(address=0)(depth=1)
+    [BODY]
+      [PRINT]
+        [VAR](STRING)(arg)(address=0)(depth=1)
+      [PRINT]
+        [VAR](STRING)(text)(address=1)
+  [CALL]
+    [NAME]
+      (test)
+    [PARAMS]
+      [STR] val=call func
+絶景かな！ Compiled study.goe to study.gb

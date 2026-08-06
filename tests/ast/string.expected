@@ -1,0 +1,8 @@
+  [DECL](STRING)
+    [VAR](STRING)(aiueo)(address=1)
+    [STR] val=Hello
+  [PRINT]
+    [VAR](STRING)(aiueo)(address=1)
+  [PRINT]
+    [STR] val=World
+絶景かな！ Compiled study.goe to study.gb

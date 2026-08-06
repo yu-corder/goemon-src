@@ -1,0 +1,22 @@
+  [IF]
+    [CONDITION]
+      [NUM] val=1
+    [THEN]
+      [PRINT]
+        [STR] val=Hello World1
+  [PRINT]
+    [STR] val=Hello World2
+  [DECL](INT)
+    [VAR](INT)(count)(address=1)
+    [NUM] val=0
+  [WHILE]
+    [CONDITION]
+      [LT]
+        [VAR](INT)(count)(address=1)
+        [NUM] val=10
+    [BODY]
+      [PRINT]
+        [STR] val=Hello World3
+      [INC]
+        [VAR](INT)(count)(address=1)
+絶景かな！ Compiled study.goe to study.gb
