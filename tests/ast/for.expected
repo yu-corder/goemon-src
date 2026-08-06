@@ -1,59 +1,59 @@
   [FOR]
     [INIT]
-      [ASSIGN]
-        [VAR](i)(address=0)(depth=1)
+      [DECL](INT)
+        [VAR](INT)(i)(address=0)(depth=1)
         [NUM] val=0
     [CONDITION]
       [LT]
-        [VAR](i)(address=0)(depth=1)
+        [VAR](INT)(i)(address=0)(depth=1)
         [NUM] val=10
     [UPDATE]
       [INC]
-        [VAR](i)(address=0)(depth=1)
+        [VAR](INT)(i)(address=0)(depth=1)
     [BODY]
       [BREAK]
   [FOR]
     [INIT]
-      [ASSIGN]
-        [VAR](i)(address=0)(depth=1)
+      [DECL](INT)
+        [VAR](INT)(i)(address=0)(depth=1)
         [NUM] val=0
     [CONDITION]
       [LT]
-        [VAR](i)(address=0)(depth=1)
+        [VAR](INT)(i)(address=0)(depth=1)
         [NUM] val=8
     [UPDATE]
       [INC]
-        [VAR](i)(address=0)(depth=1)
+        [VAR](INT)(i)(address=0)(depth=1)
     [BODY]
       [CONTINUE]
   [FOR]
     [INIT]
-      [ASSIGN]
-        [VAR](i)(address=0)(depth=1)
+      [DECL](INT)
+        [VAR](INT)(i)(address=0)(depth=1)
         [NUM] val=0
     [CONDITION]
       [LT]
-        [VAR](i)(address=0)(depth=1)
+        [VAR](INT)(i)(address=0)(depth=1)
         [NUM] val=5
     [UPDATE]
       [INC]
-        [VAR](i)(address=0)(depth=1)
+        [VAR](INT)(i)(address=0)(depth=1)
     [BODY]
       [FOR]
         [INIT]
-          [ASSIGN]
-            [VAR](j)(address=0)(depth=2)
+          [DECL](INT)
+            [VAR](INT)(j)(address=0)(depth=2)
             [NUM] val=0
         [CONDITION]
           [LT]
-            [VAR](j)(address=0)(depth=2)
+            [VAR](INT)(j)(address=0)(depth=2)
             [NUM] val=3
         [UPDATE]
           [INC]
-            [VAR](j)(address=0)(depth=2)
+            [VAR](INT)(j)(address=0)(depth=2)
         [BODY]
           [PRINT]
-            [VAR](j)(address=0)(depth=2)
+            [VAR](INT)(j)(address=0)(depth=2)
       [PRINT]
-        [VAR](i)(address=0)(depth=1)
+        [VAR](INT)(i)(address=0)(depth=1)
 絶景かな！ Compiled study.goe to study.gb

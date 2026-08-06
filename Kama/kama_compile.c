@@ -1204,7 +1204,7 @@ Node* parse_for() {
         expect(TK_SEMI);
         var = new_var_node(t->str);
     }
-    init = new_binary_node(ND_ASSIGN, var, init);
+    init = new_decl_node(ND_VAR_DECL, var, init, TY_INT);
 
     Node *condition = NULL;
     if (tokens[pos].kind != TK_SEMI) {
@@ -1459,7 +1459,7 @@ void name_resolution(Node *node) {
             }
             case ND_ASSIGN: {
                 name_resolution(node->rhs);
-                resolution_variable(node->lhs, true, &node->lhs->type);
+                resolution_variable(node->lhs, false, &node->lhs->type);
                 break;
             }
             case ND_VAR: {
