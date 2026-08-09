@@ -1594,11 +1594,11 @@ void type_check_program(Node *program) {
 }
 
 TypeKind type_check_expression(Node* node) {
-    TypeKind lhs = type_check(node->lhs);
-    TypeKind rhs = type_check(node->rhs);
+    TypeKind *lhs = type_check(node->lhs);
+    TypeKind *rhs = type_check(node->rhs);
 
     node->type = TY_INT;
-    if (lhs != TY_INT || rhs != TY_INT) {
+    if ((lhs != TY_INT || rhs != TY_INT) || (rhs == NULL && lhs != TY_INT)) {
         fprintf(stderr,
             "Expected: %s\n", type_name(node->type));
         exit(1);
@@ -1634,7 +1634,7 @@ TypeKind type_check(Node* node) {
             TypeKind rhs = type_check(node->rhs);
             if (rhs != node->lhs->type) {
                 fprintf(stderr,
-                    "Expected: %s\n", type_name(node->type));
+                    "Expected: %s\n", type_name(node->lhs->type));
                 exit(1);
             }
 
@@ -1679,6 +1679,16 @@ TypeKind type_check(Node* node) {
         }
         case ND_NE: {
             return type_check_expression(node);
+        }
+        case ND_IF: {
+            type_check_expression(node->condition);
+            type_check(node->body);
+            return TY_VOID;
+        }
+        case ND_WHILE: {
+            type_check_expression(node->condition);
+            type_check(node->body);
+            return TY_VOID;
         }
         case ND_FUNCTION: {
             type_check(node->body);
