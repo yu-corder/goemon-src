@@ -1,6 +1,9 @@
-for (int i = 0; i < 10; i++) {
-    print i;
-    for (int j = 0; j < 5; j++) {
-        print j;
-    }
+int a = 1500;
+
+str text = "aiueo";
+
+if (1) {
+    a = "nananna";
 }
+
+print a;
