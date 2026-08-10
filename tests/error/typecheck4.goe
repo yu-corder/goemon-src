@@ -1,0 +1,7 @@
+str text = "AAA";
+int cnt = 0;
+
+while (cnt < 10) {
+    text = 1500;
+    print cnt;
+}

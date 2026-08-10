@@ -1,0 +1,7 @@
+int num = 1500;
+int cnt = 0;
+
+while (cnt < 10) {
+    num = "AAA";
+    print cnt;
+}

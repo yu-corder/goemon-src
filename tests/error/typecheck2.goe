@@ -1,0 +1,9 @@
+int a = 1500;
+
+str text = "aiueo";
+
+if (1) {
+    text = 500;
+}
+
+print a;

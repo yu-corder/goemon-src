@@ -1,0 +1,5 @@
+int num = 1500;
+for (int i = 0; i < 3; i++) {
+    num = "aiueo";
+    print i;
+}
