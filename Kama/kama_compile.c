@@ -1682,19 +1682,19 @@ TypeKind type_check(Node* node) {
         }
         case ND_IF: {
             type_check(node->condition);
-            type_check(node->body);
+            type_check_program(node->body);
             return TY_VOID;
         }
         case ND_WHILE: {
             type_check(node->condition);
-            type_check(node->body);
+            type_check_program(node->body);
             return TY_VOID;
         }
         case ND_FOR: {
             type_check(node->init);
             type_check(node->condition);
             type_check(node->update);
-            type_check(node->body);
+            type_check_program(node->body);
             return TY_VOID;
         }
         case ND_FUNCTION: {

@@ -1,9 +1,7 @@
-int a = 1500;
-
 str text = "aiueo";
 
 if (1) {
-    a = "nananna";
+    text = "aiueo";
+    text = 500;
 }
-
-print a;
+print text;
