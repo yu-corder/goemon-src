@@ -816,6 +816,26 @@ LoopContext loop_stack[128];
 int loop_depth = 0;
 int count = 0;
 
+
+void emit_count_reset() {
+    count = 0;
+}
+
+void emit_count_up() {
+    count++;
+}
+
+void emit_count_two_up() {
+    count++;
+    count++;
+}
+
+void emit_count_three() {
+    count++;
+    count++;
+    count++;
+}
+
 void emit_no_operand(OpCode op_code) {
     bytecode[count++] = op_code;
 }
@@ -1310,6 +1330,7 @@ int main(int argc, char **argv) {
     tokenize(src);
     Node *program = parse_program();
 
+    emit_count_reset();
     name_resolution(program);
 
     if (g_debug_ast) {
@@ -1318,6 +1339,7 @@ int main(int argc, char **argv) {
 
     type_check_program(program);
     
+    emit_count_reset();
     generate(program);
 
     emit_no_operand(OP_HALT);
@@ -1422,6 +1444,7 @@ void resolution_variable(Node* node, bool allow_create, TypeKind* type) {
 void name_resolution_binary(Node *node) {
     name_resolution(node->lhs);
     name_resolution(node->rhs);
+    emit_count_up();
 }
 
 void param_name_resolution(Node *node, char* name, int address, int depth, TypeKind type) {
@@ -1441,12 +1464,15 @@ void name_resolution(Node *node) {
     while (node) {
         switch (node->kind) {
             case ND_NUM: {
+                emit_count_two_up();
                 break;
             }
             case ND_STR: {
+                emit_count_two_up();
                 break;
             }
             case ND_BOOL: {
+                emit_count_two_up();
                 break;
             }
             case ND_VAR_DECL: {
@@ -1455,19 +1481,38 @@ void name_resolution(Node *node) {
                 }
                 
                 resolution_variable(node->lhs, true, &node->type);
+
+                if (node->lhs->is_global) {
+                    emit_count_two_up();
+                } else {
+                    emit_count_three();
+                }
                 break;
             }
             case ND_ASSIGN: {
                 name_resolution(node->rhs);
                 resolution_variable(node->lhs, false, &node->lhs->type);
+
+                if (node->lhs->is_global) {
+                    emit_count_two_up();
+                } else {
+                    emit_count_three();
+                }
                 break;
             }
             case ND_VAR: {
                 resolution_variable(node, false, NULL);
+
+                if (node->is_global) {
+                    emit_count_two_up();
+                } else {
+                    emit_count_three();
+                }
                 break;
             }
             case ND_PRINT: {
                 name_resolution(node->lhs);
+                emit_count_up();
                 break;
             }
             case ND_ADD: {
@@ -1517,8 +1562,11 @@ void name_resolution(Node *node) {
             case ND_IF: {
                 enter_scope();
                 name_resolution(node->condition);
+
+                emit_count_two_up();
                 name_resolution(node->body);
                 if (node->else_stmt) {
+                    emit_count_two_up();
                     name_resolution(node->else_stmt);
                 }
                 leave_scope();
@@ -1527,26 +1575,42 @@ void name_resolution(Node *node) {
             case ND_WHILE: {
                 enter_scope();
                 name_resolution(node->condition);
+                emit_count_two_up();
+
                 name_resolution(node->body);
+                emit_count_two_up();
                 leave_scope();
                 break;
             }
             case ND_INC: {
                 resolution_variable(node->lhs, false, NULL);
+
+                if (node->lhs->is_global) {
+                    emit_count_two_up();
+                } else {
+                    emit_count_three();
+                }
                 break;
             }
             case ND_BREAK: {
+                emit_count_two_up();
                 break;
             }
             case ND_CONTINUE: {
+                emit_count_two_up();
                 break;
             }
             case ND_FOR: {
                 enter_scope();
                 name_resolution(node->init);
                 name_resolution(node->condition);
+
+                emit_count_two_up();
+                emit_count_two_up();
                 name_resolution(node->update);
+                emit_count_two_up();
                 name_resolution(node->body);
+                emit_count_two_up();
                 leave_scope();
                 break;
             }
