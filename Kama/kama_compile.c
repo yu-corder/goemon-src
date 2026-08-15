@@ -1447,6 +1447,11 @@ void name_resolution_binary(Node *node) {
     emit_count_up();
 }
 
+void name_resolution_func(Node *node, int address, int depth) {
+    node->address = address;
+    node->depth = depth;
+}
+
 void param_name_resolution(Node *node, char* name, int address, int depth, TypeKind type) {
     while (node) {
         if (strcmp(node->lhs->name, name) == 0) {
@@ -1616,6 +1621,11 @@ void name_resolution(Node *node) {
             }
             case ND_FUNCTION: {
                 enter_scope();
+                emit_count_two_up();
+
+                int func_start_address = count;
+                insert_function(node->func_name, func_start_address, block_depth);
+
                 insert_function_params(node->func_name, node->params, block_depth);
                 FuncionParamsInfo func_params = find_function_params(node->func_name, block_depth);
                 for (int i = 0; i < func_params.param_count; i++) {
@@ -1624,18 +1634,29 @@ void name_resolution(Node *node) {
                     if (!var.found) addr = insert_local_variable(func_params.params[i], block_depth, &func_params.type[i]);
                     var = find_local_variable(func_params.params[i], block_depth);
                     param_name_resolution(node->params, func_params.params[i], var.address, var.depth, var.type);
+                    emit_count_three();
                 }
 
                 name_resolution(node->body);
+
+                emit_count_up();
                 leave_scope();
                 break;
             }
             case ND_CALL: {
+                FuncionInfo func = find_function(node->func_name, block_depth);
+                if (!func.found) {
+                    fprintf(stderr, "Undefined function: %s\n", node->func_name);
+                    exit(1);
+                }
                 name_resolution(node->params);
+                name_resolution_func(node, func.address, func.depth);
+                emit_count_two_up();
                 break;
             }
             case ND_RET: {
                 name_resolution(node->lhs);
+                emit_count_up();
                 break;
             }
             default: 
@@ -2027,9 +2048,6 @@ void generate(Node *node) {
                 int zero = 0;
                 emit_one_operand(OP_JMP, &zero);
 
-                int func_start_address = count;
-                insert_function(node->func_name, func_start_address, block_depth);
-
                 Node *params = node->params;
                 ParamsTmp params_tmp_table[128];
                 int p_count = 0;
@@ -2054,13 +2072,8 @@ void generate(Node *node) {
                 break;
             }
             case ND_CALL: {
-                FuncionInfo func = find_function(node->func_name, block_depth);
-                if (!func.found) {
-                    fprintf(stderr, "Undefined function: %s\n", node->func_name);
-                    exit(1);
-                }
                 generate(node->params);
-                emit_one_operand(OP_CALL, &func.address);
+                emit_one_operand(OP_CALL, &node->address);
                 break;
             }
             case ND_RET: {
@@ -2318,6 +2331,10 @@ void debug_ast_node(Node *node, int depth) {
             if (!node->is_global) {
                 printf("(depth=%d)", node->depth);
             }
+        }
+
+        if (node->kind == ND_CALL) {
+            printf("(address=%d)", node->address);
         }
 
         if (node->kind == ND_NUM) {
