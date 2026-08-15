@@ -13,7 +13,7 @@
         [VAR](INT)(a)(address=1)(depth=1)
       [PRINT]
         [VAR](INT)(b)(address=0)(depth=1)
-  [CALL]
+  [CALL](address=5)
     [NAME]
       (add)
     [PARAMS]

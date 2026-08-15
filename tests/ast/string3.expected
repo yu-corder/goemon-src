@@ -12,7 +12,7 @@
         [VAR](STRING)(arg)(address=0)(depth=1)
       [PRINT]
         [VAR](STRING)(text)(address=1)
-  [CALL]
+  [CALL](address=6)
     [NAME]
       (test)
     [PARAMS]
