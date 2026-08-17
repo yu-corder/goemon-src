@@ -1,0 +1,7 @@
+str text = "aiueo";
+
+if (1) {
+    text = "kakikukeko";
+    text = 500;
+}
+print text;

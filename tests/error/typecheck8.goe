@@ -1,0 +1,7 @@
+int num = 500;
+
+if (1) {
+    num = 900;
+    num = "aiueo";
+}
+print num;
