@@ -1669,6 +1669,20 @@ void type_check_program(Node *program) {
 
 }
 
+void type_check_params(Node *params, char *name) {
+    Node *p = params;
+    FuncionParamsInfo func_params = find_function_params(name, block_depth);
+    for (int i = 0; i < func_params.param_count; i++) {
+        TypeKind param = type_check(p);
+        if (param != func_params.type[i]) {
+            fprintf(stderr,
+                "Expecte: %s\n", type_name(param));
+            exit(1);
+        }
+        p = p->next;
+    }
+}
+
 TypeKind type_check_expression(Node* node) {
     TypeKind lhs = type_check(node->lhs);
     TypeKind rhs = type_check(node->rhs);
@@ -1757,27 +1771,36 @@ TypeKind type_check(Node* node) {
             return type_check_expression(node);
         }
         case ND_IF: {
+            enter_scope();
             type_check(node->condition);
             type_check_program(node->body);
+            leave_scope();
             return TY_VOID;
         }
         case ND_WHILE: {
+            enter_scope();
             type_check(node->condition);
             type_check_program(node->body);
+            leave_scope();
             return TY_VOID;
         }
         case ND_FOR: {
+            enter_scope();
             type_check(node->init);
             type_check(node->condition);
             type_check(node->update);
             type_check_program(node->body);
+            leave_scope();
             return TY_VOID;
         }
         case ND_FUNCTION: {
+            enter_scope();
             type_check(node->body);
+            leave_scope();
             return TY_VOID;
         }
         case ND_CALL: {
+            type_check_params(node->params, node->func_name);
             return type_check(node->params);
         }
         case ND_RET: {

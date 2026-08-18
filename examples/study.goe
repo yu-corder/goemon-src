@@ -1,7 +1,7 @@
-str text = "aiueo";
-
-if (1) {
-    text = "aiueo";
-    text = 500;
+function test(int a, str b) {
+    print b;
+    return a + 500;
 }
-print text;
+
+int res = test("kakikukeko", "aiueo");
+print res;
