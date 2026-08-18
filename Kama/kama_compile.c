@@ -422,24 +422,15 @@ void insert_function_params(char *name, Node *params, int depth) {
     Node *p = params;
 
     int p_count = 0;
-    char params_tmp[16][32];
-    TypeKind type_tmp[16];
     while (p) {
         if (p->lhs == NULL) {
             fprintf(stderr, "Parameter '%s' requires an explicit type declaration.\n", p->name);
             exit(1);
         }
-        strcpy(params_tmp[p_count], p->lhs->name);
-        type_tmp[p_count] = p->type;
+        strcpy(function_params_table[depth].params[current_idx][p_count], p->lhs->name);
+        function_params_table[depth].type[current_idx][p_count] = p->type;
         p_count++;
         p = p->next;
-    }
-
-    int index = 0;
-    for (int i = p_count - 1; i >= 0; i--) {
-        strcpy(function_params_table[depth].params[current_idx][index], params_tmp[i]);
-        function_params_table[depth].type[current_idx][index] = type_tmp[i];
-        index++;
     }
     
     function_params_table[depth].param_count[current_idx] = p_count;

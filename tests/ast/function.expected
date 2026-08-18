@@ -5,14 +5,14 @@
       (add)
     [PARAMS]
       [DECL](INT)
-        [VAR](INT)(a)(address=1)(depth=1)
+        [VAR](INT)(a)(address=0)(depth=1)
       [DECL](INT)
-        [VAR](INT)(b)(address=0)(depth=1)
+        [VAR](INT)(b)(address=1)(depth=1)
     [BODY]
       [PRINT]
-        [VAR](INT)(a)(address=1)(depth=1)
+        [VAR](INT)(a)(address=0)(depth=1)
       [PRINT]
-        [VAR](INT)(b)(address=0)(depth=1)
+        [VAR](INT)(b)(address=1)(depth=1)
   [CALL](address=5)
     [NAME]
       (add)
