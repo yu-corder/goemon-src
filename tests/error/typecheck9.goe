@@ -1,0 +1,6 @@
+function test(int a, str b) {
+    print b;
+    return "aiueo";
+}
+
+int res = test("kakikukeko", "aiueo");

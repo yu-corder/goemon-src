@@ -1676,7 +1676,7 @@ void type_check_params(Node *params, char *name) {
         TypeKind param = type_check(p);
         if (param != func_params.type[i]) {
             fprintf(stderr,
-                "Expecte: %s\n", type_name(param));
+                "Expecte: %s\n", type_name(func_params.type[i]));
             exit(1);
         }
         p = p->next;
