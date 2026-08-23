@@ -15,5 +15,5 @@ function nani(str ai) {
     print ai;
 }
 
-int res = test("kakikukeko", "aiueo");
-print res;
+nani("aiueo");
+print 5;

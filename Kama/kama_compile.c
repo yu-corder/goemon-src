@@ -181,6 +181,7 @@ typedef struct {
     char name[64][64];
     int address[64];
     int function_count;
+    TypeKind type[64];
 } Funcion;
 
 Funcion function_table[128];
@@ -204,6 +205,7 @@ typedef struct {
 
     char (*params)[32];
 
+    TypeKind type;
     bool found;
 } FuncionInfo;
 
@@ -450,6 +452,7 @@ FuncionInfo find_function(char *name, int depth) {
                 var.found = true;
                 var.address = function_table[i].address[j];
                 var.depth = i;
+                var.type = function_table[i].type[j];
                 return var;
             }
         }
@@ -458,7 +461,7 @@ FuncionInfo find_function(char *name, int depth) {
     return var;
 }
 
-void insert_function(char *name, int address, int depth) {
+void insert_function(char *name, int address, int depth, TypeKind type) {
     int current_idx = function_table[depth].function_count;
     
 
@@ -471,6 +474,7 @@ void insert_function(char *name, int address, int depth) {
     strcpy(function_table[depth].name[current_idx], name);
     function_table[depth].address[current_idx] = address;
     function_table[depth].function_count++;
+    function_table[depth].type[current_idx] = type;
 }
 
 void enter_scope() {
@@ -1368,7 +1372,7 @@ int main(int argc, char **argv) {
         debug_ast_node(program, 1);
     }
 
-    // type_check_program(program);
+    type_check_program(program);
     
     emit_count_reset();
     generate(program);
@@ -1655,7 +1659,7 @@ void name_resolution(Node *node) {
                 emit_count_two_up();
 
                 int func_start_address = count;
-                insert_function(node->func_name, func_start_address, block_depth);
+                insert_function(node->func_name, func_start_address, block_depth, node->type);
 
                 insert_function_params(node->func_name, node->params, block_depth);
                 FuncionParamsInfo func_params = find_function_params(node->func_name, block_depth);
@@ -1841,7 +1845,8 @@ TypeKind type_check(Node* node) {
         }
         case ND_CALL: {
             type_check_params(node->params, node->func_name);
-            return type_check(node->params);
+            FuncionInfo func = find_function(node->func_name, block_depth);
+            return func.type;
         }
         case ND_RET: {
             return type_check(node->lhs);
