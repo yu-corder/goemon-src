@@ -1,6 +1,18 @@
-function test(int a, str b) {
+function int test(int a, str b) {
     print b;
     return a + 500;
+}
+
+function bool aiueo(int a) {
+    return true;
+}
+
+function str kaki(str b) {
+    return "hello";
+}
+
+function nani(str ai) {
+    print ai;
 }
 
 int res = test("kakikukeko", "aiueo");
