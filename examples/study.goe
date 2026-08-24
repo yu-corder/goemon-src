@@ -1,19 +1,21 @@
+bool naze = true;
+print naze;
+
 function int test(int a, str b) {
     print b;
     return a + 500;
 }
 
-function bool aiueo(int a) {
+function bool chk(str moji, int 5) {
     return true;
 }
 
 function str kaki(str b) {
-    return "hello";
+    return "aiueo";
 }
 
-function nani(str ai) {
-    print ai;
+function int nani(int ba) {
+    return "nannan";
 }
 
-nani("aiueo");
 print 5;

@@ -1741,6 +1741,46 @@ TypeKind type_check_expression(Node* node) {
     return TY_INT;
 }
 
+void type_check_return(Node* node, TypeKind kind) {
+    while (node) {
+        switch (node->kind) {
+            case ND_IF: {
+                type_check_return(node->body, kind);
+                break;
+            }
+            case ND_WHILE: {
+                type_check_return(node->body, kind);
+                break;
+            }
+            case ND_FOR: {
+                type_check_return(node->body, kind);
+                break;
+            }
+            case ND_RET: {
+                if (node->lhs == NULL) {
+                    if (kind != TY_VOID) {
+                        fprintf(stderr,
+                            "Expected: %s\n", type_name(kind));
+                        exit(1);
+                    }
+                    break;
+                }
+
+                TypeKind lhs = type_check(node->lhs);
+                if (lhs != kind) {
+                    fprintf(stderr,
+                        "Expected: %s\n", type_name(kind));
+                    exit(1);
+                }
+                break;
+            }
+            default:
+                break;
+        }
+        node = node->next;
+    }
+}
+
 TypeKind type_check(Node* node) {
     if (node == NULL) return TY_VOID;
     switch (node->kind) {
@@ -1839,9 +1879,9 @@ TypeKind type_check(Node* node) {
         }
         case ND_FUNCTION: {
             enter_scope();
-            type_check(node->body);
+            type_check_return(node->body, node->type);
             leave_scope();
-            return TY_VOID;
+            return node->type;
         }
         case ND_CALL: {
             type_check_params(node->params, node->func_name);
