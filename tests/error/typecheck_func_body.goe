@@ -1,0 +1,10 @@
+str text = "hello";
+
+function int add (int a, int b) {
+    print text;
+    text = 123;
+    return a + b;
+}
+
+int num = add(500, 1);
+print num;

@@ -1882,6 +1882,7 @@ TypeKind type_check(Node* node) {
         case ND_FUNCTION: {
             enter_scope();
             type_check_return(node->body, node->type);
+            type_check_program(node->body);
             leave_scope();
             return node->type;
         }

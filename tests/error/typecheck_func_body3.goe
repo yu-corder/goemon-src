@@ -1,0 +1,9 @@
+bool chk = true;
+
+function int add (int a, int b) {
+    chk = "aiueo";
+    return a + b;
+}
+
+int num = add(500, 1);
+print num;

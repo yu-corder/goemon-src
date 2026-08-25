@@ -1,0 +1,9 @@
+int nu = 5001;
+
+function int add (int a, int b) {
+    nu = "hello";
+    return a + b;
+}
+
+int num = add(500, 1);
+print num;
