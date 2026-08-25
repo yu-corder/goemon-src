@@ -1,0 +1,13 @@
+if (true) {
+    print true;
+}
+
+print false;
+
+
+int count = 0;
+
+while (count < 10) {
+    print true;
+    count++;
+}

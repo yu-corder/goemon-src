@@ -1,0 +1,3 @@
+bool chk = true;
+print chk;
+print false;

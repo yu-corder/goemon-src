@@ -622,7 +622,7 @@ void tokenize (char *p) {
             continue;
         }
 
-        if (strncmp(p, "true", 4) == 0 && (isspace(p[4]) || p[4] == '\0' || p[4] == ';')) {
+        if (strncmp(p, "true", 4) == 0 && (isspace(p[4]) || p[4] == '\0' || p[4] == ';' || p[4] == ')')) {
             tokens[i].kind = TK_BOOL;
             tokens[i].bool_val = true;
             i++;
@@ -630,7 +630,7 @@ void tokenize (char *p) {
             continue;
         }
 
-        if (strncmp(p, "false", 5) == 0 && (isspace(p[5]) || p[5] == '\0' || p[5] == ';')) {
+        if (strncmp(p, "false", 5) == 0 && (isspace(p[5]) || p[5] == '\0' || p[5] == ';' || p[5] == ')')) {
             tokens[i].kind = TK_BOOL;
             tokens[i].bool_val = false;
             i++;

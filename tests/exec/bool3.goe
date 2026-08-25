@@ -1,0 +1,8 @@
+bool chk = true;
+
+function test(bool arg) {
+    print arg;
+    print chk;
+}
+
+test(false);
