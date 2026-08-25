@@ -1,6 +1,6 @@
 print 8 + 500;
 
-function test(int a, int b) {
+function int test(int a, int b) {
     return a + b;
 }
 

@@ -1,7 +1,7 @@
-function test(str a, str b) {
+function str test(str a, str b) {
     print b;
     return "aiueo";
 }
 
-int res = test("kakikukeko", 1);
+str res = test("kakikukeko", 1);
 print res;
