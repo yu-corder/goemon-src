@@ -1,0 +1,4 @@
+function int test(int a, str b) {
+    print b;
+    return "aiueo";
+}

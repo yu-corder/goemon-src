@@ -1,0 +1,3 @@
+function bool chk(str moji, int 5) {
+    return "aiueo";
+}
