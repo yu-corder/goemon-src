@@ -1002,6 +1002,8 @@ Node* parse_primary() {
         }
     } else if (t->kind == TK_STRING) {
         node = new_str_node(t->str, &t->length);
+    } else if (t->kind == TK_BOOL) {
+        node = new_bool_node(t->bool_val);
     }
     return node;
 }

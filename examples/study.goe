@@ -15,7 +15,7 @@ function str kaki(str b) {
 }
 
 function int nani(int ba) {
-    return "nannan";
+    return 500;
 }
 
 print 5;
