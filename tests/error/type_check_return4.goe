@@ -1,0 +1,12 @@
+function int test(int a, int b) {
+
+    function int aiueo(int c, int d) {
+        return 10;
+    }
+
+    function str side(str e) {
+        return 500;
+    }
+    print b;
+    return 500;
+}
