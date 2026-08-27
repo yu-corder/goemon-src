@@ -477,6 +477,10 @@ void insert_function(char *name, int address, int depth, TypeKind type) {
     function_table[depth].type[current_idx] = type;
 }
 
+void function_count_up() {
+    function_table[block_depth].function_count++;
+}
+
 void enter_scope() {
     block_depth++;
     local_scopes[block_depth].variable_count = 0;
@@ -1106,9 +1110,7 @@ Node* parse_statement() {
             Node *lhs = new_var_node(ident->str);
 
             if (consume(TK_ASSIGN)) {
-                Token *bool_tk = expect_bool();
-                Node *rhs = new_bool_node(bool_tk->bool_val);
-                
+                Node *rhs = parse_evaluation();
                 expect(TK_SEMI);
                 return new_decl_node(ND_VAR_DECL, lhs, rhs, TY_BOOL);
             } else {
@@ -1881,6 +1883,7 @@ TypeKind type_check(Node* node) {
         }
         case ND_FUNCTION: {
             enter_scope();
+            function_count_up();
             type_check_return(node->body, node->type);
             type_check_program(node->body);
             leave_scope();
