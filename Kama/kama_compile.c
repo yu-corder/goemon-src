@@ -1801,6 +1801,10 @@ TypeKind type_check(Node* node) {
             return TY_BOOL;
         }
         case ND_VAR_DECL: {
+            if (node->rhs == NULL) {
+                return TY_VOID;
+            }
+
             TypeKind rhs = type_check(node->rhs);
             
             if (rhs != node->type) {
@@ -1954,12 +1958,12 @@ void generate(Node *node) {
             case ND_VAR_DECL: {
                 if (node->rhs != NULL) {
                     generate(node->rhs);
-                }
-
-                if (node->lhs->is_global) {
-                    emit_one_operand(OP_STORE, &node->lhs->address);
-                } else {
-                    emit_two_operand(OP_STORE_LOCAL, &node->lhs->address, &node->lhs->depth);
+                    
+                    if (node->lhs->is_global) {
+                        emit_one_operand(OP_STORE, &node->lhs->address);
+                    } else {
+                        emit_two_operand(OP_STORE_LOCAL, &node->lhs->address, &node->lhs->depth);
+                    }
                 }
                 break;
             }
