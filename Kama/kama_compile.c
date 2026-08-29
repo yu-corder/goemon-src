@@ -1745,7 +1745,8 @@ TypeKind type_check_expression(Node* node) {
     return TY_INT;
 }
 
-void type_check_return(Node* node, TypeKind kind) {
+bool type_check_return(Node* node, TypeKind kind) {
+    bool has_return = false;
     while (node) {
         switch (node->kind) {
             case ND_IF: {
@@ -1776,6 +1777,7 @@ void type_check_return(Node* node, TypeKind kind) {
                         "Expected: %s\n", type_name(kind));
                     exit(1);
                 }
+                has_return = true;
                 break;
             }
             default:
@@ -1783,6 +1785,7 @@ void type_check_return(Node* node, TypeKind kind) {
         }
         node = node->next;
     }
+    return has_return;
 }
 
 TypeKind type_check(Node* node) {
@@ -1884,7 +1887,13 @@ TypeKind type_check(Node* node) {
         case ND_FUNCTION: {
             enter_scope();
             function_count_up();
-            type_check_return(node->body, node->type);
+            bool has_return = type_check_return(node->body, node->type);
+            if (node->type != TY_VOID && !has_return) {
+                fprintf(stderr,
+                    "Expected return statement for function returning %s\n",
+                    type_name(node->type));
+                exit(1);
+            }
             type_check_program(node->body);
             leave_scope();
             return node->type;

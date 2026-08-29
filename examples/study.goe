@@ -1,19 +1,5 @@
-function int add(int a, int b) {
-
-    function str conv(str s) {
-        function bool chk(int ai) {
-            return true;
-        }
-        str flg = chk(1);
-        print flg;
-        print s;
-        return s;
-    }
-
-    str text = conv("hello");
-    return a + b;
+function int add (int a, int b) {
+    print a + b;
 }
 
-int num = add(1, 500);
-
-print num;
+print add(500, 5);
