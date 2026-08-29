@@ -1,0 +1,6 @@
+function str show (str a, str b) {
+    print a;
+    print b;
+}
+
+print show("hello", "world");

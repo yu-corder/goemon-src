@@ -1,0 +1,6 @@
+function bool chk (str a, str b) {
+    print a;
+    print b;
+}
+
+print chk("hello", "world");
