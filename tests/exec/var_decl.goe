@@ -1,0 +1,13 @@
+int num;
+num = 500;
+print num + 500;
+
+str text;
+text = "hello world";
+print text;
+
+bool chk;
+chk = true;
+if (chk) {
+    print "aiueo";
+}
