@@ -8,6 +8,8 @@
 extern int g_debug_token;
 extern void debug_token(int i);
 
+Token tokens[MAX_TOKENS];
+
 int line = 1;
 void tokenize (char *p) {
     int i = 0;

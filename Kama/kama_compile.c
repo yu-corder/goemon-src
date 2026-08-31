@@ -5,7 +5,6 @@
 #include <stdbool.h>
 #include "token.h"
 #include "scanner.h"
-#define MAX_TOKENS 4096
 
 typedef enum { 
     OP_PUSH,
@@ -441,8 +440,6 @@ void leave_scope() {
     local_scopes[block_depth].variable_count = 0;
     block_depth--;
 }
-
-Token tokens[MAX_TOKENS];
 
 int pos = 0;
 Token* next_token() {

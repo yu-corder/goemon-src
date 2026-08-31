@@ -4,8 +4,6 @@
 #include <stdbool.h>
 
 #define MAX_TOKENS 4096
-#include <stdbool.h>
-#define MAX_TOKENS 4096
 typedef enum {
     TK_INPUT,
     TK_STORE,
