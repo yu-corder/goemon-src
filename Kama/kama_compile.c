@@ -2239,6 +2239,7 @@ const char *token_kind_name[] = {
     "TK_STRING_TYPE",
     "TK_BOOL",
     "TK_BOOL_TYPE",
+    "TK_VOID",
     "TK_EOF"
 };
 
