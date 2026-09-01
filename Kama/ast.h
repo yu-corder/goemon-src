@@ -1,6 +1,7 @@
 #ifndef AST_H
 #define AST_H
 
+#include <stdbool.h>
 #include "type.h"
 
 typedef enum {
@@ -65,5 +66,22 @@ typedef struct Node {
     int depth;
     bool is_global;
 } Node;
+extern int node_depth;
+Node node_tree[128];
+
+Node* new_num_node (int *val);
+Node* new_bool_node ();
+Node* new_str_node (char *str, int *len);
+Node* new_var_node (char *str);
+Node* new_binary_node(NodeKind kind, Node* node1, Node* node2);
+Node* new_decl_no_assignment_node(NodeKind kind, Node* node1, TypeKind type);
+Node* new_decl_node(NodeKind kind, Node* node1, Node* node2, TypeKind type);
+Node* new_simple_node(NodeKind kind);
+Node* new_unary_node(NodeKind kind, Node* node);
+Node* new_if_node(NodeKind kind, Node* condition, Node* then, Node* else_stmt);
+Node* new_loop_node(NodeKind kind, Node* condition, Node* body);
+Node* new_for_node(NodeKind kind, Node* init, Node* condition, Node* update, Node* body);
+Node* new_func_node(NodeKind kind, char *str, Node* params, Node* body, TypeKind type);
+Node* new_call_node(NodeKind kind, char *str, Node* params);
 
 #endif
