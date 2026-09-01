@@ -8,8 +8,8 @@ all: ${TARGET_EXEC} ${TARGET_COMP}
 $(TARGET_EXEC): Kama/kama_execute.c
 		$(CC) $(CFLAGS) -o $(TARGET_EXEC) Kama/kama_execute.c
 
-$(TARGET_COMP): Kama/kama_compile.c Kama/scanner.c
-		$(CC) $(CFLAGS) -o $(TARGET_COMP) Kama/kama_compile.c Kama/scanner.c
+$(TARGET_COMP): Kama/kama_compile.c Kama/scanner.c Kama/debug.c
+		$(CC) $(CFLAGS) -o $(TARGET_COMP) Kama/kama_compile.c Kama/scanner.c Kama/debug.c
 
 run: all
 		./$(TARGET_COMP) --ast --token --binary examples/study.goe examples/study.gb
