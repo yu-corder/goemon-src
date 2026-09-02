@@ -7,15 +7,19 @@
 #include "token.h"
 extern int pos;
 
-Token* next_token() {
+static Node* parse_statement();
+static Node* parse_evaluation();
+static Node* parse_expression();
+
+static Token* next_token() {
     return &tokens[pos++];
 }
 
-Token* prev_token() {
+static Token* prev_token() {
     return &tokens[pos--];
 }
 
-TypeKind token_convert_type(TokenKind kind) {
+static TypeKind token_convert_type(TokenKind kind) {
     switch (kind) {
         case TK_INT:
             return TY_INT;
@@ -33,7 +37,7 @@ TypeKind token_convert_type(TokenKind kind) {
     }
 }
 
-TypeKind ret_type() {
+static TypeKind ret_type() {
     switch (tokens[pos].kind) {
         case TK_INT:
         case TK_STRING_TYPE:
@@ -52,7 +56,7 @@ TypeKind ret_type() {
     }
 }
 
-bool consume(TokenKind kind) {
+static bool consume(TokenKind kind) {
     if (tokens[pos].kind != kind) {
         return false;
     }
@@ -61,7 +65,7 @@ bool consume(TokenKind kind) {
     return true;
 }
 
-Token *expect_ident() {
+static Token *expect_ident() {
     if (tokens[pos].kind != TK_IDENT) {
         fprintf(stderr,
             "Expected TK_IDENT but got %s\n",
@@ -73,19 +77,7 @@ Token *expect_ident() {
     return tok;
 }
 
-Token *expect_bool() {
-    if (tokens[pos].kind != TK_BOOL) {
-        fprintf(stderr,
-            "Expected TK_BOOL but got %s\n",
-            token_name(tokens[pos].kind));
-        exit(1);
-    }
-
-    Token *tok = next_token();
-    return tok;
-}
-
-void expect(TokenKind kind) {
+static void expect(TokenKind kind) {
     if (!consume(kind)) {
         fprintf(stderr,
             "Expected %s but got %s\n",
@@ -95,7 +87,7 @@ void expect(TokenKind kind) {
     }
 }
 
-Node* parse_statement_list(TokenKind kind) {
+static Node* parse_statement_list(TokenKind kind) {
     Node *stmt = NULL;
     Node *head = NULL;
     Node *tail = NULL;
@@ -116,7 +108,7 @@ Node* parse_statement_list(TokenKind kind) {
     return head;
 }
 
-Node* parse_argument_list(TokenKind kind) {
+static Node* parse_argument_list(TokenKind kind) {
     Node *stmt = NULL;
     Node *head = NULL;
     Node *tail = NULL;
@@ -139,13 +131,13 @@ Node* parse_argument_list(TokenKind kind) {
 }
 
 
-Node* parse_binary(Node *lhs, NodeKind kind) {
+static Node* parse_binary(Node *lhs, NodeKind kind) {
     next_token();
     Node *rhs = parse_expression();
     return new_binary_node(kind, lhs, rhs);
 }
 
-Node* parse_primary() {
+static Node* parse_primary() {
     if (tokens[pos].kind == TK_PLUS) {
         next_token();
     }
@@ -181,7 +173,7 @@ Node* parse_primary() {
     return node;
 }
 
-Node* parse_term() {
+static Node* parse_term() {
     Node *node = parse_primary();
 
     while(tokens[pos].kind == TK_MUL || tokens[pos].kind == TK_DIV || tokens[pos].kind == TK_MOD) {
@@ -200,7 +192,7 @@ Node* parse_term() {
     return node;
 }
 
-Node* parse_evaluation() {
+static Node* parse_evaluation() {
     Node *node = parse_expression();
 
     if (tokens[pos].kind == TK_LT) {
@@ -220,7 +212,7 @@ Node* parse_evaluation() {
     return node;
 }
 
-Node* parse_expression() {
+static Node* parse_expression() {
     Node *node = parse_term();
     while (tokens[pos].kind == TK_PLUS || tokens[pos].kind == TK_MINUS) {
         TokenKind kind_type = tokens[pos].kind;
@@ -236,7 +228,7 @@ Node* parse_expression() {
     return node;
 }
 
-Node* parse_function() {
+static Node* parse_function() {
     TypeKind ret_kind = ret_type();
 
     Token *ident = expect_ident();
@@ -256,7 +248,7 @@ Node* parse_function() {
     return new_func_node(ND_FUNCTION, ident->str, param_head, body_head, ret_kind);
 }
 
-Node* parse_if () {
+static Node* parse_if () {
     consume(TK_LPAREN);
     Node *condition = parse_evaluation();
 
@@ -313,7 +305,7 @@ Node* parse_if () {
     return new_if_node(ND_IF, condition, then_head, else_head);
 }
 
-Node* parse_while() {
+static Node* parse_while() {
     consume(TK_LPAREN);
 
     Node *condition = parse_evaluation();
@@ -328,7 +320,7 @@ Node* parse_while() {
     return new_loop_node(ND_WHILE, condition, body_head);
 }
 
-Node* parse_for() {
+static Node* parse_for() {
     consume(TK_LPAREN);
 
     Node *init = NULL;
@@ -382,7 +374,7 @@ Node* parse_for() {
     return new_for_node(ND_FOR, init, condition, update, body_head);
 }
 
-Node* parse_statement() {
+static Node* parse_statement() {
     Token *t = next_token();
     switch(t->kind) {
         case TK_PRINT: {

@@ -94,7 +94,7 @@ const char* type_name(TypeKind kind) {
     }
 }
 
-void print_indent(int depth) {
+static void print_indent(int depth) {
     for (int i = 0; i < depth; i++) {
         printf("  ");
     }
