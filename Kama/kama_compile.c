@@ -62,10 +62,7 @@ int string_count = 0;
 
 GoemonHeader header();
 
-void debug_ast_node();
 void generate(Node* node);
-
-void name_resolution();
 
 TypeKind type_check();
 void type_check_program();
@@ -77,7 +74,6 @@ bool g_debug_ast = false;
 bool g_debug_token = false;
 bool g_debug_binary = false;
 
-void debug_token(int count);
 void debug_bynary();
 
 int pos = 0;
@@ -419,8 +415,6 @@ void generate_binary(Node *node, OpCode op) {
     generate(node->rhs);
     emit_no_operand(op);
 }
-
-int local_scope = 0;
 
 typedef struct {
     char name[32];
