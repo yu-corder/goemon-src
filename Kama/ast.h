@@ -67,7 +67,6 @@ typedef struct Node {
     bool is_global;
 } Node;
 extern int node_depth;
-Node node_tree[128];
 
 Node* new_num_node (int *val);
 Node* new_bool_node ();
