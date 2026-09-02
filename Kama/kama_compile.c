@@ -64,9 +64,6 @@ GoemonHeader header();
 
 void generate(Node* node);
 
-const char* type_name(TypeKind type);
-const char* token_name(TokenKind kind);
-
 bool g_debug_ast = false;
 bool g_debug_token = false;
 bool g_debug_binary = false;
