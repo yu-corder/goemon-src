@@ -3,7 +3,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "parser.h"
 #include "symbol.h"
 
 Label symbol_table[128];

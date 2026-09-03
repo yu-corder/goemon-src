@@ -242,7 +242,7 @@ void debug_ast_node(Node *node, int depth) {
     }
 }
 
-void debug_bynary() {
+void debug_binary() {
     printf("\n===== BINARY DUMP =====\n");
     for (int i = 0; i < count; i++) {
         printf("%d\n", bytecode[i]);

@@ -74,7 +74,7 @@ int main(int argc, char **argv) {
     emit_no_operand(OP_HALT);
 
     if (g_debug_binary) {
-        debug_bynary();
+        debug_binary();
     }
 
     GoemonHeader hed = header();

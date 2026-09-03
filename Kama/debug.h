@@ -16,5 +16,5 @@ const char* token_name(TokenKind kind);
 void debug_token(int count);
 const char* type_name(TypeKind kind);
 void debug_ast_node(Node *node, int depth);
-void debug_bynary();
+void debug_binary();
 #endif
