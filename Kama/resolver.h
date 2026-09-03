@@ -1,9 +1,7 @@
 #ifndef RESOLVER_H
 #define RESOLVER_H
-#include <stdbool.h>
+
 #include "ast.h"
-#include "type.h"
-#include "token.h"
 
 extern int block_depth;
 void emit_count_reset();

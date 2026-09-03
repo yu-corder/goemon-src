@@ -66,7 +66,6 @@ typedef struct Node {
     int depth;
     bool is_global;
 } Node;
-extern int node_depth;
 
 Node* new_num_node (int *val);
 Node* new_bool_node ();

@@ -1,10 +1,7 @@
 #ifndef CODEGEN_H
 #define CODEGEN_H
 
-#include <stdbool.h>
-#include "token.h"
 #include "ast.h"
-#include "type.h"
 #include "opcode.h"
 #include "string.h"
 

@@ -5,6 +5,7 @@
 
 #include "parser.h"
 #include "token.h"
+#include "debug.h"
 int pos = 0;
 
 static Node* parse_statement();

@@ -10,8 +10,6 @@ extern bool g_debug_ast;
 extern bool g_debug_token;
 extern bool g_debug_binary;
 
-extern const char *token_kind_name[];
-
 const char* token_name(TokenKind kind);
 void debug_token(int count);
 const char* type_name(TypeKind kind);

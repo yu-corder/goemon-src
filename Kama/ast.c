@@ -5,7 +5,7 @@
 
 #include "ast.h"
 #include "token.h"
-int node_depth = 0;
+static int node_depth = 0;
 Node node_tree[128];
 
 Node* new_num_node (int *val) {
