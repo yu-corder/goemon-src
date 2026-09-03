@@ -6,11 +6,7 @@
 #include "ast.h"
 #include "type.h"
 #include "opcode.h"
-
-typedef struct {
-    char str[32];
-    int length;
-} String;
+#include "string.h"
 
 extern String string_table[128];
 

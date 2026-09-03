@@ -2,18 +2,8 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "opcode.h"
-
-typedef struct {
-    uint32_t magic;
-    uint32_t version;
-    uint32_t bytecode_size;
-    uint32_t string_count;
-} GoemonHeader;
-
-typedef struct {
-    char str[32];
-    int length;
-} String;
+#include "header.h"
+#include "string.h"
 
 String *string_table;
 
