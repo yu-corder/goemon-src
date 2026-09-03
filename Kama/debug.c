@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "codegen.h"
 #include "debug.h"
 
 bool g_debug_ast = false;
@@ -241,3 +242,10 @@ void debug_ast_node(Node *node, int depth) {
     }
 }
 
+void debug_bynary() {
+    printf("\n===== BINARY DUMP =====\n");
+    for (int i = 0; i < count; i++) {
+        printf("%d\n", bytecode[i]);
+    }
+    printf("==========================\n");
+}
