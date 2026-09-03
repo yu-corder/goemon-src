@@ -15,8 +15,6 @@
 #include "header.h"
 #include "codegen.h"
 
-int pos = 0;
-
 char *read_file(const char *path) {
     FILE *fp = fopen(path, "r");
     if (!fp) { perror(path); exit(1); }

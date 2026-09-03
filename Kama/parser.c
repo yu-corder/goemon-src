@@ -5,7 +5,7 @@
 
 #include "parser.h"
 #include "token.h"
-extern int pos;
+int pos = 0;
 
 static Node* parse_statement();
 static Node* parse_evaluation();
