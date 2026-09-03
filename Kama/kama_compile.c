@@ -64,10 +64,6 @@ GoemonHeader header();
 
 void generate(Node* node);
 
-bool g_debug_ast = false;
-bool g_debug_token = false;
-bool g_debug_binary = false;
-
 void debug_bynary();
 
 int pos = 0;

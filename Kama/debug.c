@@ -5,6 +5,10 @@
 
 #include "debug.h"
 
+bool g_debug_ast = false;
+bool g_debug_token = false;
+bool g_debug_binary = false;
+
 const char *token_kind_name[] = {
     "TK_INPUT",
     "TK_STORE",

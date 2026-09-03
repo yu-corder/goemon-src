@@ -6,8 +6,6 @@
 #include "scanner.h"
 #include "debug.h"
 
-extern int g_debug_token;
-
 Token tokens[MAX_TOKENS];
 
 int line = 1;
