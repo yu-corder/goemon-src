@@ -19,16 +19,16 @@ void emit_count_reset() {
     program_count = 0;
 }
 
-void emit_count_up() {
+static void emit_count_up() {
     program_count++;
 }
 
-void emit_count_two_up() {
+static void emit_count_two_up() {
     program_count++;
     program_count++;
 }
 
-void emit_count_three() {
+static void emit_count_three() {
     program_count++;
     program_count++;
     program_count++;
@@ -52,7 +52,7 @@ void leave_scope() {
     block_depth--;
 }
 
-void resolution_variable(Node* node, bool allow_create, TypeKind* type) {
+static void resolution_variable(Node* node, bool allow_create, TypeKind* type) {
     int addr = -1;
     if (block_depth >= 1) {
         LocalVariablesInfo var = find_local_variable(node->name, block_depth);
@@ -114,18 +114,18 @@ void resolution_variable(Node* node, bool allow_create, TypeKind* type) {
     }
 }
 
-void name_resolution_binary(Node *node) {
+static void name_resolution_binary(Node *node) {
     name_resolution(node->lhs);
     name_resolution(node->rhs);
     emit_count_up();
 }
 
-void name_resolution_func(Node *node, int address, int depth) {
+static void name_resolution_func(Node *node, int address, int depth) {
     node->address = address;
     node->depth = depth;
 }
 
-void param_name_resolution(Node *node, char* name, int address, int depth, TypeKind type) {
+static void param_name_resolution(Node *node, char* name, int address, int depth, TypeKind type) {
     while (node) {
         if (strcmp(node->lhs->name, name) == 0) {
             node->lhs->address = address;

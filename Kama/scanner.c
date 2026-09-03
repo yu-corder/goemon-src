@@ -4,9 +4,9 @@
 #include <string.h>
 
 #include "scanner.h"
+#include "debug.h"
 
 extern int g_debug_token;
-extern void debug_token(int i);
 
 Token tokens[MAX_TOKENS];
 

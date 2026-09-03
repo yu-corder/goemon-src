@@ -9,7 +9,7 @@
 #include "debug.h"
 #include "ast.h"
 
-TypeKind type_check();
+static TypeKind type_check();
 
 void type_check_program(Node *program) {
     while(program) {
@@ -19,7 +19,7 @@ void type_check_program(Node *program) {
 
 }
 
-void type_check_params(Node *params, char *name) {
+static void type_check_params(Node *params, char *name) {
     Node *p = params;
     FuncionParamsInfo func_params = find_function_params(name, block_depth);
     for (int i = 0; i < func_params.param_count; i++) {
@@ -33,7 +33,7 @@ void type_check_params(Node *params, char *name) {
     }
 }
 
-TypeKind type_check_expression(Node* node) {
+static TypeKind type_check_expression(Node* node) {
     TypeKind lhs = type_check(node->lhs);
     TypeKind rhs = type_check(node->rhs);
 
@@ -47,7 +47,7 @@ TypeKind type_check_expression(Node* node) {
     return TY_INT;
 }
 
-bool type_check_return(Node* node, TypeKind kind) {
+static bool type_check_return(Node* node, TypeKind kind) {
     bool has_return = false;
     while (node) {
         switch (node->kind) {
@@ -90,7 +90,7 @@ bool type_check_return(Node* node, TypeKind kind) {
     return has_return;
 }
 
-TypeKind type_check(Node* node) {
+static TypeKind type_check(Node* node) {
     if (node == NULL) return TY_VOID;
     switch (node->kind) {
         case ND_NUM: {
