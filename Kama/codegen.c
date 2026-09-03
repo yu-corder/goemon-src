@@ -24,21 +24,21 @@ void emit_no_operand(OpCode op_code) {
     bytecode[count++] = op_code;
 }
 
-void emit_one_operand (OpCode op_code, int *val) {
+static void emit_one_operand (OpCode op_code, int *val) {
     bytecode[count++] = op_code;
     if (val != NULL) {
         bytecode[count++] = *val;
     }
 }
 
-void emit_two_operand(OpCode op_code, int *val1, int *val2) {
+static void emit_two_operand(OpCode op_code, int *val1, int *val2) {
     bytecode[count++] = op_code;
     bytecode[count++] = *val1;
     bytecode[count++] = *val2;
 }
 
 
-void generate_binary(Node *node, OpCode op) {
+static void generate_binary(Node *node, OpCode op) {
     generate(node->lhs);
     generate(node->rhs);
     emit_no_operand(op);

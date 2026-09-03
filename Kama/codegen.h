@@ -19,6 +19,5 @@ extern int count;
 extern int bytecode[1024];
 
 void emit_no_operand(OpCode op_code);
-void generate_binary(Node *node, OpCode op);
 void generate(Node *node);
 #endif
