@@ -57,6 +57,7 @@ typedef struct {
     char str[256];
     bool bool_val;
     int length;
+    int line;
 } Token;
 extern Token tokens[MAX_TOKENS];
 #endif

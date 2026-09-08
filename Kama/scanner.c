@@ -23,66 +23,87 @@ void tokenize (char *p) {
         if (isdigit(*p)) {
             tokens[i].kind = TK_NUMBER;
             tokens[i].val = strtol(p, &p, 10);
+            tokens[i].line = line;
             i++;
             continue;
         }
 
         if (strncmp(p, "halt", 4) == 0 && (isspace(p[4]) || p[4] == '\0')) {
-            tokens[i++].kind = TK_HALT;
+            tokens[i].kind = TK_HALT;
+            tokens[i].line = line;
+            i++;
             p += 4;
             continue;
         }
 
         if (strncmp(p, "print", 5) == 0 && (isspace(p[5]) || p[5] == '\0')) {
-            tokens[i++].kind = TK_PRINT;
+            tokens[i].kind = TK_PRINT;
+            tokens[i].line = line;
+            i++;
             p += 5;
             continue;
         }
 
         if (strncmp(p, "if", 2) == 0 && (isspace(p[2]) || p[2] == '\0')) {
-            tokens[i++].kind = TK_IF;
+            tokens[i].kind = TK_IF;
+            tokens[i].line = line;
+            i++;
             p += 2;
             continue;
         }
 
         if (strncmp(p, "else", 4) == 0 && (isspace(p[4]) || p[4] == '\0')) {
-            tokens[i++].kind = TK_ELSE;
+            tokens[i].kind = TK_ELSE;
+            tokens[i].line = line;
+            i++;
             p += 4;
             continue;
         }
 
         if (strncmp(p, "while", 5) == 0 && (isspace(p[5]) || p[5] == '\0')) {
-            tokens[i++].kind = TK_WHILE;
+            tokens[i].kind = TK_WHILE;
+            tokens[i].line = line;
+            i++;
             p += 5;
             continue;
         }
 
         if (strncmp(p, "break", 5) == 0 && (isspace(p[5]) || p[5] == '\0' || p[5] == ';')) {
-            tokens[i++].kind = TK_BREAK;
+            tokens[i].kind = TK_BREAK;
+            tokens[i].line = line;
+            i++;
             p += 5;
             continue;
         }
 
         if (strncmp(p, "continue", 8) == 0 && (isspace(p[8]) || p[8] == '\0' || p[8] == ';')) {
-            tokens[i++].kind = TK_CONTINUE;
+            tokens[i].kind = TK_CONTINUE;
+            tokens[i].line = line;
+            i++;
             p += 8;
             continue;
         }
 
         if (strncmp(p, "for", 3) == 0 && (isspace(p[3]) || p[3] == '\0')) {
-            tokens[i++].kind = TK_FOR;
+            tokens[i].kind = TK_FOR;
+            tokens[i].line = line;
+            i++;
             p += 3;
             continue;
         }
 
         if (strncmp(p, "function", 8) == 0 && (isspace(p[8]) || p[8] == '\0')) {
-            tokens[i++].kind = TK_FUNCTION;
+            tokens[i].kind = TK_FUNCTION;
+            tokens[i].line = line;
+            i++;
             p += 8;
             continue;
         }
 
         if (strncmp(p, "return", 6) == 0 && (isspace(p[6]) || p[6] == '\0')) {
-            tokens[i++].kind = TK_RET;
+            tokens[i].kind = TK_RET;
+            tokens[i].line = line;
+            i++;
             p += 6;
             continue;
         }
@@ -90,6 +111,7 @@ void tokenize (char *p) {
         if (strncmp(p, "int", 3) == 0 && (isspace(p[3]) || p[3] == '\0')) {
             p += 3;
             int len = 0;
+            tokens[i].line = line;
             tokens[i++].kind = TK_INT;
 
             while (isspace(*p)) {
@@ -100,6 +122,7 @@ void tokenize (char *p) {
                 tokens[i].str[len++] = *p++;
             }
             tokens[i].str[len] = '\0';
+            tokens[i].line = line;
             tokens[i++].kind = TK_IDENT;
             continue;
         }
@@ -107,6 +130,7 @@ void tokenize (char *p) {
         if (strncmp(p, "str", 3) == 0 && (isspace(p[3]) || p[3] == '\0')) {
             p += 3;
             int len = 0;
+            tokens[i].line = line;
             tokens[i++].kind = TK_STRING_TYPE;
 
             while (isspace(*p)) {
@@ -117,6 +141,7 @@ void tokenize (char *p) {
                 tokens[i].str[len++] = *p++;
             }
             tokens[i].str[len] = '\0';
+            tokens[i].line = line;
             tokens[i++].kind = TK_IDENT;
             continue;
         }
@@ -124,6 +149,7 @@ void tokenize (char *p) {
         if (strncmp(p, "bool", 4) == 0 && (isspace(p[4]) || p[4] == '\0')) {
             p += 4;
             int len = 0;
+            tokens[i].line = line;
             tokens[i++].kind = TK_BOOL_TYPE;
 
             while (isspace(*p)) {
@@ -134,6 +160,7 @@ void tokenize (char *p) {
                 tokens[i].str[len++] = *p++;
             }
             tokens[i].str[len] = '\0';
+            tokens[i].line = line;
             tokens[i++].kind = TK_IDENT;
             continue;
         }
@@ -141,6 +168,7 @@ void tokenize (char *p) {
         if (strncmp(p, "true", 4) == 0 && (isspace(p[4]) || p[4] == '\0' || p[4] == ';' || p[4] == ')')) {
             tokens[i].kind = TK_BOOL;
             tokens[i].bool_val = true;
+            tokens[i].line = line;
             i++;
             p += 4;
             continue;
@@ -149,30 +177,35 @@ void tokenize (char *p) {
         if (strncmp(p, "false", 5) == 0 && (isspace(p[5]) || p[5] == '\0' || p[5] == ';' || p[5] == ')')) {
             tokens[i].kind = TK_BOOL;
             tokens[i].bool_val = false;
+            tokens[i].line = line;
             i++;
             p += 5;
             continue;
         }
 
         if (*p == '(') {
+            tokens[i].line = line;
             tokens[i++].kind = TK_LPAREN;
             p++;
             continue;
         }
 
         if (*p == ')') {
+            tokens[i].line = line;
             tokens[i++].kind = TK_RPAREN;
             p++;
             continue;
         }
 
         if (*p == '{') {
+            tokens[i].line = line;
             tokens[i++].kind = TK_LBRACE;
             p++;
             continue;
         }
 
         if (*p == '}') {
+            tokens[i].line = line;
             tokens[i++].kind = TK_RBRACE;
             p++;
             continue;
@@ -181,39 +214,46 @@ void tokenize (char *p) {
         if (*p == '+') {
             p++;
             if (*p == '+') {
+                tokens[i].line = line;
                 tokens[i++].kind = TK_INC;
                 p++;
             } else {
+                tokens[i].line = line;
                 tokens[i++].kind = TK_PLUS;
             }
             continue;
         }
 
         if (*p == '-') {
+            tokens[i].line = line;
             tokens[i++].kind = TK_MINUS;
             p++;
             continue;
         }
 
         if (*p == '*') {
+            tokens[i].line = line;
             tokens[i++].kind = TK_MUL;
             p++;
             continue;
         }
 
         if (*p == '/') {
+            tokens[i].line = line;
             tokens[i++].kind = TK_DIV;
             p++;
             continue;
         }
 
         if (*p == '%') {
+            tokens[i].line = line;
             tokens[i++].kind = TK_MOD;
             p++;
             continue;
         }
 
         if (*p == ';') {
+            tokens[i].line = line;
             tokens[i++].kind = TK_SEMI;
             p++;
             continue;
@@ -222,9 +262,11 @@ void tokenize (char *p) {
         if (*p == '<') {
             p++;
             if (*p == '=') {
+                tokens[i].line = line;
                 tokens[i++].kind = TK_LE;
                 p++;
             } else {
+                tokens[i].line = line;
                 tokens[i++].kind = TK_LT;
             }
             continue;
@@ -233,9 +275,11 @@ void tokenize (char *p) {
         if (*p == '>') {
             p++;
             if (*p == '=') {
+                tokens[i].line = line;
                 tokens[i++].kind = TK_GE;
                 p++;
             } else {
+                tokens[i].line = line;
                 tokens[i++].kind = TK_GT;
             }
             continue;
@@ -250,6 +294,7 @@ void tokenize (char *p) {
             tokens[i].str[len] = '\0';
             tokens[i].kind = TK_STRING;
             tokens[i].length = len;
+            tokens[i].line = line;
             p++;
             i++;
             continue;
@@ -261,13 +306,17 @@ void tokenize (char *p) {
                 tokens[i].str[len++] = *p++;
             }
             tokens[i].str[len] = '\0';
+            tokens[i].line = line;
 
             if (*p == ':') {
                 tokens[i].kind = TK_IDENT;
+                tokens[i].line = line;
                 i++;
+                tokens[i].line = line;
                 tokens[i++].kind = TK_COLON;
                 p++;
             } else {
+                tokens[i].line = line;
                 tokens[i++].kind = TK_IDENT;
             }
             continue;
@@ -276,6 +325,7 @@ void tokenize (char *p) {
         if (*p == '!') {
             p++;
             if (*p == '=') {
+                tokens[i].line = line;
                 tokens[i++].kind = TK_NE;
                 p++;
             }
@@ -290,9 +340,11 @@ void tokenize (char *p) {
         if (*p == '=') {
             p++;
             if (*p == '=') {
+                tokens[i].line = line;
                 tokens[i++].kind = TK_EQ;
                 p++;
             } else {
+                tokens[i].line = line;
                 tokens[i++].kind = TK_ASSIGN;
             }
             continue;
@@ -302,6 +354,7 @@ void tokenize (char *p) {
         exit(1);
     }
     tokens[i].kind = TK_EOF;
+    tokens[i].line = line;
 
     if (g_debug_token) debug_token(i);
 }

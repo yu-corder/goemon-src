@@ -65,9 +65,10 @@ void debug_token(int count) {
     printf("\n===== TOKEN DUMP =====\n");
     for (int i = 0; i <= count; i++) {
 
-        printf("[%03d] %-12s",
+        printf("[%03d] %-12s [LN: %03d]",
             i,
-            token_kind_name[tokens[i].kind]
+            token_kind_name[tokens[i].kind],
+            tokens[i].line
         );
 
         if (tokens[i].kind == TK_NUMBER) {
