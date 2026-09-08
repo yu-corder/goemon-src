@@ -51,7 +51,8 @@ static TypeKind ret_type() {
             return TY_VOID;
         default:
             fprintf(stderr,
-                "Expected TK_IDENT but got %s\n",
+                "Error at line %d: Expected TK_IDENT but got %s\n",
+                tokens[pos].line,
                 token_name(tokens[pos].kind));
             exit(1);
     }
@@ -69,7 +70,8 @@ static bool consume(TokenKind kind) {
 static Token *expect_ident() {
     if (tokens[pos].kind != TK_IDENT) {
         fprintf(stderr,
-            "Expected TK_IDENT but got %s\n",
+            "Error at line %d: Expected TK_IDENT but got %s\n",
+            tokens[pos].line,
             token_name(tokens[pos].kind));
         exit(1);
     }
@@ -81,7 +83,8 @@ static Token *expect_ident() {
 static void expect(TokenKind kind) {
     if (!consume(kind)) {
         fprintf(stderr,
-            "Expected %s but got %s\n",
+            "Error at line %d: Expected %s but got %s\n",
+            tokens[pos].line,
             token_name(kind),
             token_name(tokens[pos].kind));
         exit(1);
