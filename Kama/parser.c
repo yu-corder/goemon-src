@@ -237,28 +237,26 @@ static Node* parse_function() {
 
     Token *ident = expect_ident();
 
-    consume(TK_LPAREN);
+    expect(TK_LPAREN);
 
     Node *param_head = parse_statement_list(TK_RPAREN);
-
-    consume(TK_RPAREN);
-
-    consume(TK_LBRACE);
+    expect(TK_RPAREN);
+    expect(TK_LBRACE);
 
     Node *body_head = parse_statement_list(TK_RBRACE);
 
-    consume(TK_RBRACE);
+    expect(TK_RBRACE);
 
     return new_func_node(ND_FUNCTION, ident->str, param_head, body_head, ret_kind);
 }
 
 static Node* parse_if () {
-    consume(TK_LPAREN);
+    expect(TK_LPAREN);
     Node *condition = parse_evaluation();
 
-    consume(TK_RPAREN);
+    expect(TK_RPAREN);
 
-    consume(TK_LBRACE);
+    expect(TK_LBRACE);
 
     Node *then_stmt = NULL;
     Node *then_head = NULL;
@@ -277,7 +275,7 @@ static Node* parse_if () {
         }
     }
 
-    consume(TK_RBRACE);
+    expect(TK_RBRACE);
 
     Node *else_head = NULL;
     Node *else_tail = NULL;
@@ -286,7 +284,7 @@ static Node* parse_if () {
         if (consume(TK_IF)) {
             else_head = parse_if();
         } else {
-            consume(TK_LBRACE);
+            expect(TK_LBRACE);
             while (tokens[pos].kind != TK_RBRACE && tokens[pos].kind != TK_EOF) {
                 else_stmt = parse_statement();
 
@@ -301,7 +299,7 @@ static Node* parse_if () {
                 }
             }
 
-            consume(TK_RBRACE);
+            expect(TK_RBRACE);
         }
 
     }
@@ -310,27 +308,27 @@ static Node* parse_if () {
 }
 
 static Node* parse_while() {
-    consume(TK_LPAREN);
+    expect(TK_LPAREN);
 
     Node *condition = parse_evaluation();
 
-    consume(TK_RPAREN);
+    expect(TK_RPAREN);
 
-    consume(TK_LBRACE);
+    expect(TK_LBRACE);
     Node *body_head = parse_statement_list(TK_RBRACE);
 
-    consume(TK_RBRACE);
+    expect(TK_RBRACE);
 
     return new_loop_node(ND_WHILE, condition, body_head);
 }
 
 static Node* parse_for() {
-    consume(TK_LPAREN);
+    expect(TK_LPAREN);
 
     Node *init = NULL;
     Node *var = NULL;
 
-    consume(TK_INT);
+    expect(TK_INT);
     
     Token *t = expect_ident();
     if (consume(TK_ASSIGN)) {
@@ -344,7 +342,7 @@ static Node* parse_for() {
     if (tokens[pos].kind != TK_SEMI) {
         condition = parse_evaluation();
     }
-    consume(TK_SEMI);
+    expect(TK_SEMI);
 
     Node *update = NULL;
     Token *upd_t = expect_ident();
@@ -353,9 +351,9 @@ static Node* parse_for() {
         update = new_unary_node(ND_INC, var);
     }
 
-    consume(TK_RPAREN);
+    expect(TK_RPAREN);
 
-    consume(TK_LBRACE);
+    expect(TK_LBRACE);
 
     Node *body_head = NULL;
     Node *body_tail = NULL;
@@ -374,7 +372,7 @@ static Node* parse_for() {
         }
     }
 
-    consume(TK_RBRACE);
+    expect(TK_RBRACE);
     return new_for_node(ND_FOR, init, condition, update, body_head);
 }
 
