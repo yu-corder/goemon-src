@@ -200,7 +200,7 @@ void run(int* program) {
                 if (sp < 0) {
                     printf("エラー：スタックが空なのに print しようとしましたぞ！\n");
                 } else {
-                    printf("VM Output: %d\n", stack[sp]);
+                    printf("VM Output: %d\n", stack[sp--]);
                 }
                 break;
             }

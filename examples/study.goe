@@ -1,3 +1,6 @@
-function int add(int a, int b{
-    return a + b;
+function int echo(int a) {
+    print a;
+    return a;
 }
+
+print echo(echo(1) + echo(2)) + echo(echo(4) + echo(5));
