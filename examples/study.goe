@@ -1,10 +1,1 @@
-function int fib(int n) { 
-    if (n <= 1) { 
-        return n; 
-    } 
-    return fib(n - 2) + fib(n - 1); 
-}
- 
-for (int i = 0; i < 20; i++) { 
-    print fib(i); 
-}
+int[5] numbers;

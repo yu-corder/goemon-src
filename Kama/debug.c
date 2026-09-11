@@ -53,6 +53,7 @@ static const char *token_kind_name[] = {
     "TK_STRING_TYPE",
     "TK_BOOL",
     "TK_BOOL_TYPE",
+    "TK_INT_ARRAY",
     "TK_VOID",
     "TK_EOF"
 };
@@ -84,6 +85,10 @@ void debug_token(int count) {
             tokens[i].kind == TK_STRING
         ) {
             printf(" text=\"%s\"", tokens[i].str);
+        }
+
+        if (tokens[i].kind == TK_INT_ARRAY) {
+            printf(" length=%d", tokens[i].length);
         }
 
         printf("\n");

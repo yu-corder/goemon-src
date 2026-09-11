@@ -395,6 +395,11 @@ static Node* parse_statement() {
                 return new_decl_no_assignment_node(ND_VAR_DECL, lhs, TY_INT);
             }
         }
+        case TK_INT_ARRAY: { 
+            Token *ident = expect_ident();
+            Node *lhs = new_var_node(ident->str);
+            return new_array_node(ND_ARRAY, lhs, TY_INT);
+        }
         case TK_STRING_TYPE: {
             Token *ident = expect_ident();
             Node *lhs = new_var_node(ident->str);

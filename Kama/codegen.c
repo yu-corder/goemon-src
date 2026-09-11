@@ -71,6 +71,9 @@ void generate(Node *node) {
                 emit_one_operand(OP_PUSH, &node->val);
                 break;
             }
+            case ND_ARRAY: {
+                break;
+            }
             case ND_VAR_DECL: {
                 if (node->rhs != NULL) {
                     generate(node->rhs);
