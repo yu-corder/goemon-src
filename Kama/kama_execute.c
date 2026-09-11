@@ -11,10 +11,11 @@ void run(int* program) {
     int stack[1024];
     int call_stack[128];
     int memory[2048];
-    int frames[128][128];
+    int frames[128][128][128];
     int sp = -1;
     int call_sp = -1;
     int pc = 0;
+    int call_frame = 0;
 
     for(int i = 0; i < 2048; i++) memory[i] = 0;
     while (true) {
@@ -127,7 +128,7 @@ void run(int* program) {
                 int address = program[pc++];
                 int depth = program[pc++];
                 int value = stack[sp--];
-                frames[depth][address] = value;
+                frames[call_frame][depth][address] = value;
                 break;
             }
             case OP_LOAD: {
@@ -139,7 +140,7 @@ void run(int* program) {
             case OP_LOAD_LOCAL: {
                 int address = program[pc++];
                 int depth = program[pc++];
-                int value = frames[depth][address];
+                int value = frames[call_frame][depth][address];
                 stack[++sp] = value;
                 break;
             }
@@ -163,7 +164,7 @@ void run(int* program) {
             case OP_INC_LOCAL: {
                 int address = program[pc++];
                 int depth = program[pc++];
-                frames[depth][address]++;
+                frames[call_frame][depth][address]++;
                 break;
             }
             case OP_INPUT: {
@@ -187,6 +188,7 @@ void run(int* program) {
                 break;
             }
             case OP_CALL: {
+                call_frame++;
                 call_stack[++call_sp] = pc + 1;
                 int target =  program[pc++];
                 pc = target;
@@ -194,6 +196,7 @@ void run(int* program) {
             }
             case OP_RET: {
                 pc = call_stack[call_sp--];
+                call_frame--;
                 break;
             }
             case OP_PRINT: {
