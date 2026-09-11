@@ -2,40 +2,42 @@
 
 Goemon is a stack-machine-based programming language, compiler, and virtual machine implemented in C.
 
-This project was created to explore compiler construction, virtual machine design, parsing techniques, and low-level system architecture through hands-on implementation. Rather than using parser generators or existing compiler frameworks, every component is implemented from scratch.
+This project is a hands-on exploration of compiler construction, programming language design, virtual machine implementation, and low-level system architecture.
 
----
+Rather than relying on parser generators or existing compiler frameworks, the core components are implemented from scratch in C, including lexical analysis, parsing, AST construction, name resolution, type checking, bytecode generation, and virtual machine execution.
 
-# ✨ Hello, World
+## Hello, World
 
 ```go
 print 1;
 
-function hello() {
-    for (i = 0; i < 3; i++) {
-        print i;
+function int hello(int n) {
+    if (n <= 0) {
+        return 0;
     }
+
+    print n;
+    return hello(n - 1);
 }
 
-hello();
+hello(3);
 ```
 
 Output:
 
 ```text
 VM Output: 1
-VM Output: 0
-VM Output: 1
+VM Output: 3
 VM Output: 2
+VM Output: 1
 ```
 
----
+## Features
 
-# 🌟 Features
-
-## Language Features
+### Language Features
 
 * Integer variables and assignment
+* String values and output
 * Arithmetic expressions
 
   * `+`
@@ -54,33 +56,40 @@ VM Output: 2
 * Conditional branching
 
   * `if`
-  * `else`
   * `else if`
+  * `else`
 * Loop statements
 
   * `while`
   * `for`
 * Functions
+* Function parameters
+* Return statements and return values
+* Recursive function calls
+* Local variables
+* Lexical scope resolution
 * Increment operator (`++`)
 * Nested control flow
 
----
+### Compiler
 
-## Compiler Features
-
-* Recursive Descent Parser
+* Hand-written lexer
+* Recursive descent parser
 * Abstract Syntax Tree (AST)
-* Single-pass parsing
+* Name resolution
+* Static type checking
 * Bytecode generation
-* Backpatching for jump resolution
-* Automatic test suite
+* Jump backpatching
+* Function call compilation
+* Automated execution tests
 
----
-
-## Virtual Machine Features
+### Virtual Machine
 
 * Stack-based execution model
-* Variable storage and memory management
+* Bytecode instruction dispatch
+* Global memory
+* Local variable storage
+* Function call frames
 * Function calls (`OP_CALL`)
 * Function returns (`OP_RET`)
 * Conditional jumps (`OP_JZ`)
@@ -88,30 +97,67 @@ VM Output: 2
 * Arithmetic instructions
 * Comparison instructions
 
----
+## Architecture
 
-# 🛠️ Technical Stack
+Goemon currently follows this pipeline:
 
-* **Language:** C
-* **Architecture:** Stack Machine
-* **Parsing Strategy:** Recursive Descent Parsing
-* **Intermediate Representation:** AST (Abstract Syntax Tree)
-* **Execution Model:** Bytecode Virtual Machine
+```text
+Goemon Source
+     |
+     v
+   Lexer
+     |
+     v
+   Parser
+     |
+     v
+    AST
+     |
+     v
+Name Resolution
+     |
+     v
+ Type Checking
+     |
+     v
+Bytecode Compiler
+     |
+     v
+ Bytecode
+     |
+     v
+Virtual Machine
+```
 
----
+The compiler and VM are separated into two executables:
 
-# 🚀 Example Programs
+```text
+.goemon
+   |
+   v
+kama-c
+   |
+   v
+.gb
+   |
+   v
+kama-e
+   |
+   v
+ VM
+```
 
-## Conditional Branching
+## Example Programs
+
+### Conditional Branching
 
 ```go
-a = 10;
-b = 20;
+int a = 10;
+int b = 20;
 
 if (a < b) {
     print 100;
-}
-else {
+} else {
     print 200;
 }
 ```
@@ -122,12 +168,10 @@ Output:
 VM Output: 100
 ```
 
----
-
-## For Loop
+### For Loop
 
 ```go
-for (i = 0; i < 5; i++) {
+for (int i = 0; i < 5; i++) {
     print i;
 }
 ```
@@ -142,66 +186,57 @@ VM Output: 3
 VM Output: 4
 ```
 
----
-
-## Functions
+### Functions
 
 ```go
-function add(a, b) {
-    print a;
-    print b;
+function int add(int a, int b) {
+    return a + b;
 }
 
-add(10, 20);
+print add(10, 20);
 ```
 
 Output:
 
 ```text
-VM Output: 10
-VM Output: 20
+VM Output: 30
 ```
 
----
-
-## Fibonacci Sequence
+### Recursive Functions
 
 ```go
-a = 0;
-b = 1;
-i = 0;
+function int fib(int n) {
+    if (n <= 1) {
+        return n;
+    }
 
-while (i < 10) {
-    print a;
-
-    temp = a + b;
-    a = b;
-    b = temp;
-
-    i++;
+    return fib(n - 1) + fib(n - 2);
 }
+
+print fib(10);
 ```
 
 Output:
 
 ```text
-VM Output: 0
-VM Output: 1
-VM Output: 1
-VM Output: 2
-VM Output: 3
-VM Output: 5
-VM Output: 8
-VM Output: 13
-VM Output: 21
-VM Output: 34
+VM Output: 55
 ```
 
----
+This also demonstrates recursive function calls and per-invocation local storage in the virtual machine.
 
-# 🔧 Build
+## Technical Stack
 
-Compile the compiler and virtual machine:
+* **Language:** C
+* **Architecture:** Stack Machine
+* **Parsing:** Recursive Descent Parser
+* **Intermediate Representation:** Abstract Syntax Tree (AST)
+* **Compiler Output:** Custom Bytecode
+* **Execution Model:** Stack-based Virtual Machine
+* **Memory Model:** Global memory and function-local frames
+
+## Build
+
+Build the compiler and virtual machine:
 
 ```bash
 make
@@ -219,60 +254,74 @@ Execute generated bytecode:
 ./kama-e examples/study.gb
 ```
 
-Run all tests:
+Run the test suite:
 
 ```bash
 make test
 ```
 
----
+## Current Status
 
-# 📈 Current Status
+### Implemented
 
-## Implemented
-
-* Variables
+* Lexer / Tokenizer
+* Recursive descent parser
+* Abstract Syntax Tree
+* Name resolution
+* Static type checking
+* Integer variables
+* String values and output
+* Local variables
+* Lexical scopes
 * Arithmetic expressions
 * Comparison operators
 * `if / else if / else`
 * `while`
 * `for`
 * Functions
-* Abstract Syntax Tree (AST)
-* Stack-based virtual machine
-* Automatic tests
-
----
-
-## Planned
-
-* `return` statement
+* Function parameters
+* Return statements
 * Return values
 * Recursive function calls
-* Local variables
+* Bytecode generation
+* Jump backpatching
+* Stack-based virtual machine
+* Function call frames
+* Automated execution tests
+
+### Planned
+
 * Arrays
-* Strings
+* Dynamic memory management
 * User input
 * Standard library
 * File operations
+* More advanced data types
+* Improved runtime and memory architecture
 
----
+## Learning Goals
 
-# 📚 Learning Goals
+Goemon is primarily a learning project.
 
-This project is intended as a practical study of:
+The main goals are to gain practical experience with:
 
 * Compiler construction
-* Virtual machine implementation
-* Recursive descent parsing
-* Abstract Syntax Trees (AST)
+* Lexical analysis
+* Parsing
+* Abstract Syntax Trees
+* Name resolution
+* Static type checking
 * Bytecode generation
+* Virtual machine implementation
+* Stack machines
+* Function call frames
 * Memory management
 * Programming language design
+* Low-level programming in C
 
----
+The project is developed incrementally, with each language feature implemented and tested from the compiler through to the virtual machine.
 
-# 📖 Technical Blog
+## Technical Blog
 
 The development process of Goemon is documented on my technical blog.
 
@@ -280,8 +329,18 @@ The development process of Goemon is documented on my technical blog.
 
 https://yu-syumilog.com/
 
-Series:
+### How to Build a Programming Language
 
-**How to Build a Programming Language**
+The series documents the implementation process step by step, including:
 
-The blog explains the implementation process step by step, including tokenization, parsing, AST construction, bytecode generation, virtual machine implementation, and language feature development.
+* Tokenization
+* Parsing
+* AST construction
+* Name resolution
+* Type checking
+* Bytecode generation
+* Virtual machine implementation
+* Function calls and recursion
+* Language feature development
+
+The blog is intended to document not only the final implementation, but also the design decisions, debugging process, and problems encountered during development.
