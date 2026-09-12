@@ -6,6 +6,7 @@ typedef enum {
     TY_INT,
     TY_STRING,
     TY_BOOL,
+    TY_INT_ARRAY,
 } TypeKind;
 
 typedef struct Node Node;

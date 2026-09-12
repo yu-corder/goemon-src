@@ -8,6 +8,7 @@ typedef enum {
     ND_NUM,
     ND_STR,
     ND_BOOL,
+    ND_ARRAY_DECL,
     ND_ARRAY,
     ND_ADD,
     ND_MINUS,

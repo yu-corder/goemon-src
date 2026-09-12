@@ -146,6 +146,7 @@ void debug_ast_node(Node *node, int depth) {
             node->kind == ND_CALL ? "CALL" :
             node->kind == ND_RET ? "RET" :
             node->kind == ND_BOOL ? "BOOL" :
+            node->kind == ND_ARRAY_DECL ? "ARRAY_DECL" :
             node->kind == ND_ARRAY ? "ARRAY" :
             "UNKNOWN"
         );
@@ -178,7 +179,7 @@ void debug_ast_node(Node *node, int depth) {
             printf(" val=%s", node->str);
         }
 
-        if (node->kind == ND_ARRAY) {
+        if (node->kind == ND_ARRAY_DECL) {
             printf(" len=%d", node->len);
         }
 

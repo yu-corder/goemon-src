@@ -71,7 +71,9 @@ void generate(Node *node) {
                 emit_one_operand(OP_PUSH, &node->val);
                 break;
             }
-            case ND_ARRAY: {
+            case ND_ARRAY_DECL: {
+                if (node->lhs->is_global) {
+                }
                 break;
             }
             case ND_VAR_DECL: {
