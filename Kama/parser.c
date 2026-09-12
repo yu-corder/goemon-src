@@ -398,7 +398,7 @@ static Node* parse_statement() {
         case TK_INT_ARRAY: { 
             Token *ident = expect_ident();
             Node *lhs = new_var_node(ident->str);
-            return new_array_node(ND_ARRAY, lhs, TY_INT);
+            return new_array_node(ND_ARRAY, lhs, &t->length, TY_INT);
         }
         case TK_STRING_TYPE: {
             Token *ident = expect_ident();

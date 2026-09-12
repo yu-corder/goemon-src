@@ -31,6 +31,7 @@ typedef enum {
     OP_CALL,
     OP_RET,
     OP_PRINT_STRING,
+    OP_MAKE_ARRAY,
     OP_HALT 
 } OpCode;
 
