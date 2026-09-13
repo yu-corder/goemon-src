@@ -4,6 +4,7 @@
 #include "opcode.h"
 #include "header.h"
 #include "string.h"
+#include "array.h"
 
 String *string_table;
 
@@ -210,6 +211,11 @@ void run(int* program) {
             case OP_PRINT_STRING: {
                 int address =  stack[sp--];
                 printf("VM Output: %s\n", string_table[address].str);
+                break;
+            }
+            case OP_MAKE_ARRAY: {
+                int len = program[pc++];
+                //printf("%d\n", len);
                 break;
             }
             case OP_HALT:

@@ -72,8 +72,7 @@ void generate(Node *node) {
                 break;
             }
             case ND_ARRAY_DECL: {
-                if (node->lhs->is_global) {
-                }
+                emit_one_operand(OP_MAKE_ARRAY, &node->len);
                 break;
             }
             case ND_VAR_DECL: {

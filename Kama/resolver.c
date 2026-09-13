@@ -154,7 +154,12 @@ void name_resolution(Node *node) {
                 break;
             }
             case ND_ARRAY_DECL: {
+                if (node->rhs != NULL) {
+                    name_resolution(node->rhs);
+                }
                 
+                resolution_variable(node->lhs, true, &node->type);
+
                 emit_count_two_up();
                 break;
             }
