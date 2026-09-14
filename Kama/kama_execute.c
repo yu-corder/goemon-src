@@ -215,6 +215,9 @@ void run(int* program) {
             }
             case OP_MAKE_ARRAY: {
                 int len = program[pc++];
+                int addr = make_array(len);
+                int data = get_data(addr, 1);
+                // printf("data = %d\n", data);
                 //printf("%d\n", len);
                 break;
             }

@@ -7,4 +7,6 @@ typedef struct {
     int *elements;
 } Array;
 
+int make_array(int size);
+int get_data(int index, int addr);
 #endif

@@ -5,8 +5,8 @@ TARGET_COMP = kama-c
 
 all: ${TARGET_EXEC} ${TARGET_COMP}
 
-$(TARGET_EXEC): Kama/kama_execute.c
-		$(CC) $(CFLAGS) -o $(TARGET_EXEC) Kama/kama_execute.c
+$(TARGET_EXEC): Kama/kama_execute.c Kama/array.c
+		$(CC) $(CFLAGS) -o $(TARGET_EXEC) Kama/kama_execute.c Kama/array.c
 
 $(TARGET_COMP): Kama/kama_compile.c Kama/scanner.c Kama/debug.c Kama/parser.c Kama/ast.c Kama/symbol.c Kama/resolver.c Kama/type.c Kama/header.c Kama/codegen.c Kama/array.c
 		$(CC) $(CFLAGS) -o $(TARGET_COMP) Kama/kama_compile.c Kama/scanner.c Kama/debug.c Kama/parser.c Kama/ast.c Kama/symbol.c Kama/resolver.c Kama/type.c Kama/header.c Kama/codegen.c Kama/array.c
