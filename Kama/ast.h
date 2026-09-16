@@ -23,6 +23,7 @@ typedef enum {
     ND_NE,
     ND_VAR_DECL,
     ND_ASSIGN,
+    ND_ASSIGN_ARRAY,
     ND_VAR,
     ND_PRINT,
     ND_IF,

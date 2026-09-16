@@ -99,6 +99,15 @@ void generate(Node *node) {
                 }
                 break;
             }
+            case ND_ASSIGN_ARRAY: {
+                // generate(node->rhs);
+                // if (node->lhs->is_global) {
+                //     emit_one_operand(OP_STORE, &node->lhs->address);
+                // } else {
+                //     emit_two_operand(OP_STORE_LOCAL, &node->lhs->address, &node->lhs->depth);
+                // }
+                break;
+            }
             case ND_VAR: {
                 if (node->is_global) {
                     emit_one_operand(OP_LOAD, &node->address);

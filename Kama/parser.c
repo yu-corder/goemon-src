@@ -448,7 +448,7 @@ static Node* parse_statement() {
                 Node *rhs = parse_evaluation();
                 
                 // Node *
-                return new_binary_node(ND_ASSIGN, lhs, rhs);
+                return new_binary_node(ND_ASSIGN_ARRAY, lhs, rhs);
             } else {
                 prev_token();
                 return parse_evaluation();

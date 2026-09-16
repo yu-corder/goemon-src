@@ -192,6 +192,17 @@ void name_resolution(Node *node) {
                 }
                 break;
             }
+            case ND_ASSIGN_ARRAY: {
+                name_resolution(node->rhs);
+                resolution_variable(node->lhs, false, &node->lhs->type);
+
+                if (node->lhs->is_global) {
+                    emit_count_two_up();
+                } else {
+                    emit_count_three();
+                }
+                break;
+            }
             case ND_VAR: {
                 resolution_variable(node, false, NULL);
 
