@@ -171,8 +171,7 @@ static Node* parse_primary() {
             int index = tokens[pos].val;
             expect(TK_NUMBER);
             expect(TK_RBRACKET);
-            Node *index_node = new_num_node(&index);
-            node = new_array_node(ND_ARRAY, t->str, index_node);
+            node = new_array_node(ND_ARRAY, t->str, index);
         } else {
             node = new_var_node(t->str);
         }
@@ -404,6 +403,7 @@ static Node* parse_statement() {
         }
         case TK_INT_ARRAY: { 
             Token *ident = expect_ident();
+            // Node *lhs = new_array_node(ND_ARRAY, ident->str, index);
             Node *lhs = new_var_node(ident->str);
             return new_array_decl_node(ND_ARRAY_DECL, lhs, &t->length, TY_INT);
         }
@@ -434,10 +434,20 @@ static Node* parse_statement() {
         case TK_IDENT: {
             consume(TK_COLON);
 
-            Node *lhs = new_var_node(t->str);
             if (consume(TK_ASSIGN)) {
+                Node *lhs = new_var_node(t->str);
                 Node *rhs = parse_evaluation();
                 expect(TK_SEMI);
+                return new_binary_node(ND_ASSIGN, lhs, rhs);
+            } else if (consume(TK_LBRACKET)) {
+                int index = tokens[pos].val;
+                expect(TK_NUMBER);
+                expect(TK_RBRACKET);
+                expect(TK_ASSIGN);
+                Node *lhs = new_array_node(ND_ARRAY, t->str, index);
+                Node *rhs = parse_evaluation();
+                
+                // Node *
                 return new_binary_node(ND_ASSIGN, lhs, rhs);
             } else {
                 prev_token();

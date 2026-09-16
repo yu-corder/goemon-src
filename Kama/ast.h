@@ -55,6 +55,7 @@ typedef struct Node {
 
     struct Node *next;
 
+    int index;
     int val;
     bool bool_val;
     char str[128];
@@ -76,7 +77,7 @@ Node* new_var_node (char *str);
 Node* new_binary_node(NodeKind kind, Node* node1, Node* node2);
 Node* new_decl_no_assignment_node(NodeKind kind, Node* node1, TypeKind type);
 Node* new_array_decl_node(NodeKind kind, Node* node1, int *len, TypeKind type);
-Node* new_array_node(NodeKind kind, char *str, Node* node1);
+Node* new_array_node(NodeKind kind, char *str, int idx);
 Node* new_decl_node(NodeKind kind, Node* node1, Node* node2, TypeKind type);
 Node* new_simple_node(NodeKind kind);
 Node* new_unary_node(NodeKind kind, Node* node);

@@ -185,6 +185,10 @@ void debug_ast_node(Node *node, int depth) {
             printf(" len=%d", node->len);
         }
 
+        if (node->kind == ND_ARRAY) {
+            printf(" index=%d", node->index);
+        }
+
         printf("\n");
 
         if (node->kind == ND_IF) {
