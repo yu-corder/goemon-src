@@ -298,6 +298,20 @@ void tokenize (char *p) {
             continue;
         }
 
+        if (*p == '[') {
+            tokens[i].line = line;
+            tokens[i++].kind = TK_LBRACKET;
+            p++;
+            continue;
+        }
+
+        if (*p == ']') {
+            tokens[i].line = line;
+            tokens[i++].kind = TK_RBRACKET;
+            p++;
+            continue;
+        }
+
         if (*p == '"') {
             p++;
             int len = 0;

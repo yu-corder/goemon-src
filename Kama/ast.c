@@ -81,7 +81,7 @@ Node* new_decl_no_assignment_node(NodeKind kind, Node* node1, TypeKind type) {
     return &node_tree[current_idx];
 }
 
-Node* new_array_node(NodeKind kind, Node* node1, int *len, TypeKind type) {
+Node* new_array_decl_node(NodeKind kind, Node* node1, int *len, TypeKind type) {
     int current_idx = node_depth;
     node_depth++;
 
@@ -90,6 +90,18 @@ Node* new_array_node(NodeKind kind, Node* node1, int *len, TypeKind type) {
     node_tree[current_idx].len = *len;
     node_tree[current_idx].type = type;
 
+    return &node_tree[current_idx];
+}
+
+Node* new_array_node(NodeKind kind, char *str, Node* node1) {
+    int current_idx = node_depth;
+    node_depth++;
+
+    node_tree[current_idx].kind = kind;
+    node_tree[current_idx].lhs = node1;
+
+    strcpy(node_tree[current_idx].name, str);
+    
     return &node_tree[current_idx];
 }
 

@@ -166,6 +166,13 @@ static Node* parse_primary() {
             next_token();
             Node *var = new_var_node(t->str);
             node = new_unary_node(ND_INC, var);
+        } else if (tokens[pos].kind == TK_LBRACKET) {
+            next_token();
+            int index = tokens[pos].val;
+            expect(TK_NUMBER);
+            expect(TK_RBRACKET);
+            Node *index_node = new_num_node(&index);
+            node = new_array_node(ND_ARRAY, t->str, index_node);
         } else {
             node = new_var_node(t->str);
         }
@@ -398,7 +405,7 @@ static Node* parse_statement() {
         case TK_INT_ARRAY: { 
             Token *ident = expect_ident();
             Node *lhs = new_var_node(ident->str);
-            return new_array_node(ND_ARRAY_DECL, lhs, &t->length, TY_INT);
+            return new_array_decl_node(ND_ARRAY_DECL, lhs, &t->length, TY_INT);
         }
         case TK_STRING_TYPE: {
             Token *ident = expect_ident();

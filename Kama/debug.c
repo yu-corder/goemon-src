@@ -41,6 +41,8 @@ static const char *token_kind_name[] = {
     "TK_RPAREN",
     "TK_LBRACE",
     "TK_RBRACE",
+    "TK_LBRACKET",
+    "TK_RBRACKET",
     "TK_INC",
     "TK_WHILE",
     "TK_BREAK",
