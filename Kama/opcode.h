@@ -32,6 +32,7 @@ typedef enum {
     OP_RET,
     OP_PRINT_STRING,
     OP_MAKE_ARRAY,
+    OP_ARRAY_STORE,
     OP_HALT 
 } OpCode;
 

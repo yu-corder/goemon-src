@@ -16,6 +16,10 @@ int make_array(int size) {
     return index;
 }
 
+void store_array(int heap_index, int index, int value) {
+    array_table[heap_index].elements[index] = value;
+}
+
 int get_data(int index, int addr) {
     return array_table[index].elements[addr];
 }

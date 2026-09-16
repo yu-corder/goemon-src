@@ -9,4 +9,5 @@ typedef struct {
 
 int make_array(int size);
 int get_data(int index, int addr);
+void store_array(int heap_index, int index, int value);
 #endif

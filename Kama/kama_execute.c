@@ -216,9 +216,17 @@ void run(int* program) {
             case OP_MAKE_ARRAY: {
                 int len = program[pc++];
                 int addr = make_array(len);
-                int data = get_data(addr, 1);
-                // printf("data = %d\n", data);
-                //printf("%d\n", len);
+                stack[++sp] = addr;
+                break;
+            }
+            case OP_ARRAY_STORE: {
+                int var_addr = program[pc++];
+                int index = program[pc++];
+                int heap_idx = memory[var_addr];
+                int value = stack[sp--];
+                store_array(heap_idx, index, value);
+                // int data = get_data(heap_idx, index);
+                // printf("data == %d\n", data);
                 break;
             }
             case OP_HALT:
