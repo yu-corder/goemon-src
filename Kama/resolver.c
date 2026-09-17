@@ -163,10 +163,6 @@ void name_resolution(Node *node) {
                 emit_count_two_up();
                 break;
             }
-            case ND_ARRAY: {
-                emit_count_two_up();
-                break;
-            }
             case ND_VAR_DECL: {
                 if (node->rhs != NULL) {
                     name_resolution(node->rhs);
@@ -204,6 +200,16 @@ void name_resolution(Node *node) {
                 break;
             }
             case ND_VAR: {
+                resolution_variable(node, false, NULL);
+
+                if (node->is_global) {
+                    emit_count_two_up();
+                } else {
+                    emit_count_three();
+                }
+                break;
+            }
+            case ND_ARRAY: {
                 resolution_variable(node, false, NULL);
 
                 if (node->is_global) {

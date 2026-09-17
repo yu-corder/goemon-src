@@ -81,6 +81,12 @@ void generate(Node *node) {
                 break;
             }
             case ND_ARRAY: {
+                if (node->is_global) {
+                    emit_one_operand(OP_LOAD, &node->address);
+                } else {
+                    emit_two_operand(OP_LOAD_LOCAL, &node->address, &node->depth);
+                }
+                emit_two_operand(OP_ARRAY_LOAD, &node->address, &node->index);
                 break;
             }
             case ND_VAR_DECL: {

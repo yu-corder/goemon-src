@@ -225,8 +225,14 @@ void run(int* program) {
                 int heap_idx = memory[var_addr];
                 int value = stack[sp--];
                 store_array(heap_idx, index, value);
-                // int data = get_data(heap_idx, index);
-                // printf("data == %d\n", data);
+                break;
+            }
+            case OP_ARRAY_LOAD: {
+                int var_addr = program[pc++];
+                int index = program[pc++];
+                int heap_idx = stack[sp--];
+                int value = load_array(heap_idx, index);
+                stack[++sp] = value;
                 break;
             }
             case OP_HALT:
