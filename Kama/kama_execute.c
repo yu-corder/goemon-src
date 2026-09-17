@@ -228,7 +228,6 @@ void run(int* program) {
                 break;
             }
             case OP_ARRAY_LOAD: {
-                int var_addr = program[pc++];
                 int index = program[pc++];
                 int heap_idx = stack[sp--];
                 int value = load_array(heap_idx, index);
