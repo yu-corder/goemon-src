@@ -1,0 +1,30 @@
+  [ARRAY_DECL](INT) len=5
+    [VAR](INT)(numbers)(address=1)
+  [ASSIGN_ARRAY]
+    [ARRAY](INT)(index=0)(numbers)(address=1)
+    [NUM] val=1
+  [ASSIGN_ARRAY]
+    [ARRAY](INT)(index=1)(numbers)(address=1)
+    [NUM] val=2
+  [ASSIGN_ARRAY]
+    [ARRAY](INT)(index=2)(numbers)(address=1)
+    [NUM] val=3
+  [ASSIGN_ARRAY]
+    [ARRAY](INT)(index=3)(numbers)(address=1)
+    [NUM] val=4
+  [ASSIGN_ARRAY]
+    [ARRAY](INT)(index=4)(numbers)(address=1)
+    [NUM] val=5
+  [PRINT]
+    [ADD]
+      [ARRAY](INT)(index=0)(numbers)(address=1)
+      [NUM] val=3
+  [PRINT]
+    [ARRAY](INT)(index=1)(numbers)(address=1)
+  [PRINT]
+    [ARRAY](INT)(index=2)(numbers)(address=1)
+  [PRINT]
+    [ARRAY](INT)(index=3)(numbers)(address=1)
+  [PRINT]
+    [ARRAY](INT)(index=4)(numbers)(address=1)
+絶景かな！ Compiled study.goe to study.gb
