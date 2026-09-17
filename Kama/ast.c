@@ -93,12 +93,12 @@ Node* new_array_decl_node(NodeKind kind, Node* node1, int *len, TypeKind type) {
     return &node_tree[current_idx];
 }
 
-Node* new_array_node(NodeKind kind, char *str, int idx) {
+Node* new_array_node(NodeKind kind, Node* node1, char *str) {
     int current_idx = node_depth;
     node_depth++;
 
+    node_tree[current_idx].rhs = node1;
     node_tree[current_idx].kind = kind;
-    node_tree[current_idx].index = idx;
     strcpy(node_tree[current_idx].name, str);
     
     return &node_tree[current_idx];

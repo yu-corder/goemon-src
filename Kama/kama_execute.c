@@ -221,15 +221,15 @@ void run(int* program) {
             }
             case OP_ARRAY_STORE: {
                 int var_addr = program[pc++];
-                int index = program[pc++];
                 int heap_idx = memory[var_addr];
+                int index = stack[sp--];
                 int value = stack[sp--];
                 store_array(heap_idx, index, value);
                 break;
             }
             case OP_ARRAY_LOAD: {
-                int index = program[pc++];
                 int heap_idx = stack[sp--];
+                int index = stack[sp--];
                 int value = load_array(heap_idx, index);
                 stack[++sp] = value;
                 break;

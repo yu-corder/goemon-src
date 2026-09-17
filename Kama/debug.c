@@ -137,6 +137,7 @@ void debug_ast_node(Node *node, int depth) {
             node->kind == ND_VAR_DECL ? "DECL" :
             node->kind == ND_ASSIGN ? "ASSIGN" :
             node->kind == ND_ASSIGN_ARRAY ? "ASSIGN_ARRAY" :
+            node->kind == ND_ARRAY_STORE ? "ARRAY_STORE" :
             node->kind == ND_VAR ? "VAR" :
             node->kind == ND_PRINT ? "PRINT" :
             node->kind == ND_IF ? "IF" :
@@ -187,7 +188,6 @@ void debug_ast_node(Node *node, int depth) {
         }
 
         if (node->kind == ND_ARRAY) {
-            printf("(index=%d)", node->index);
             printf("(%s)", node->name);
             printf("(address=%d)", node->address);
             if (!node->is_global) {

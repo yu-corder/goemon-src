@@ -81,12 +81,13 @@ void generate(Node *node) {
                 break;
             }
             case ND_ARRAY: {
+                generate(node->rhs);
                 if (node->is_global) {
                     emit_one_operand(OP_LOAD, &node->address);
                 } else {
                     emit_two_operand(OP_LOAD_LOCAL, &node->address, &node->depth);
                 }
-                emit_one_operand(OP_ARRAY_LOAD, &node->index);
+                emit_no_operand(OP_ARRAY_LOAD);
                 break;
             }
             case ND_VAR_DECL: {
@@ -112,12 +113,17 @@ void generate(Node *node) {
             }
             case ND_ASSIGN_ARRAY: {
                 generate(node->rhs);
+                generate(node->lhs);
                 // if (node->lhs->is_global) {
                 //     emit_one_operand(OP_STORE, &node->lhs->address);
                 // } else {
                 //     emit_two_operand(OP_STORE_LOCAL, &node->lhs->address, &node->lhs->depth);
                 // }
-                emit_two_operand(OP_ARRAY_STORE, &node->lhs->address, &node->lhs->index);
+                emit_one_operand(OP_ARRAY_STORE, &node->lhs->address);
+                break;
+            }
+            case ND_ARRAY_STORE: {
+                generate(node->rhs);
                 break;
             }
             case ND_VAR: {

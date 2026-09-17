@@ -168,10 +168,10 @@ static Node* parse_primary() {
             node = new_unary_node(ND_INC, var);
         } else if (tokens[pos].kind == TK_LBRACKET) {
             next_token();
-            int index = tokens[pos].val;
-            expect(TK_NUMBER);
+            Node *index = parse_evaluation();
+
             expect(TK_RBRACKET);
-            node = new_array_node(ND_ARRAY, t->str, index);
+            node = new_array_node(ND_ARRAY, index, t->str);
         } else {
             node = new_var_node(t->str);
         }
@@ -440,11 +440,10 @@ static Node* parse_statement() {
                 expect(TK_SEMI);
                 return new_binary_node(ND_ASSIGN, lhs, rhs);
             } else if (consume(TK_LBRACKET)) {
-                int index = tokens[pos].val;
-                expect(TK_NUMBER);
+                Node *index = parse_evaluation();
                 expect(TK_RBRACKET);
                 expect(TK_ASSIGN);
-                Node *lhs = new_array_node(ND_ARRAY, t->str, index);
+                Node *lhs = new_array_node(ND_ARRAY_STORE, index, t->str);
                 Node *rhs = parse_evaluation();
                 
                 // Node *

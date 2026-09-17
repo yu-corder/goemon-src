@@ -24,6 +24,7 @@ typedef enum {
     ND_VAR_DECL,
     ND_ASSIGN,
     ND_ASSIGN_ARRAY,
+    ND_ARRAY_STORE,
     ND_VAR,
     ND_PRINT,
     ND_IF,
@@ -78,7 +79,7 @@ Node* new_var_node (char *str);
 Node* new_binary_node(NodeKind kind, Node* node1, Node* node2);
 Node* new_decl_no_assignment_node(NodeKind kind, Node* node1, TypeKind type);
 Node* new_array_decl_node(NodeKind kind, Node* node1, int *len, TypeKind type);
-Node* new_array_node(NodeKind kind, char *str, int idx);
+Node* new_array_node(NodeKind kind, Node* node1, char *str);
 Node* new_decl_node(NodeKind kind, Node* node1, Node* node2, TypeKind type);
 Node* new_simple_node(NodeKind kind);
 Node* new_unary_node(NodeKind kind, Node* node);
