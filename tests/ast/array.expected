@@ -1,23 +1,23 @@
   [ARRAY_DECL](INT) len=5
     [VAR](INT)(numbers)(address=1)
   [ASSIGN_ARRAY]
-    [ARRAY_STORE](INT)
+    [ARRAY_STORE](INT)(numbers)(address=1)
       [NUM] val=0
     [NUM] val=1
   [ASSIGN_ARRAY]
-    [ARRAY_STORE](INT)
+    [ARRAY_STORE](INT)(numbers)(address=1)
       [NUM] val=1
     [NUM] val=2
   [ASSIGN_ARRAY]
-    [ARRAY_STORE](INT)
+    [ARRAY_STORE](INT)(numbers)(address=1)
       [NUM] val=2
     [NUM] val=3
   [ASSIGN_ARRAY]
-    [ARRAY_STORE](INT)
+    [ARRAY_STORE](INT)(numbers)(address=1)
       [NUM] val=3
     [NUM] val=4
   [ASSIGN_ARRAY]
-    [ARRAY_STORE](INT)
+    [ARRAY_STORE](INT)(numbers)(address=1)
       [NUM] val=4
     [NUM] val=5
   [PRINT]

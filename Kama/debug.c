@@ -187,7 +187,7 @@ void debug_ast_node(Node *node, int depth) {
             printf(" len=%d", node->len);
         }
 
-        if (node->kind == ND_ARRAY) {
+        if (node->kind == ND_ARRAY || node->kind == ND_ARRAY_STORE) {
             printf("(%s)", node->name);
             printf("(address=%d)", node->address);
             if (!node->is_global) {
