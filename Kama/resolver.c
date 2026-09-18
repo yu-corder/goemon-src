@@ -210,6 +210,7 @@ void name_resolution(Node *node) {
                 break;
             }
             case ND_ARRAY: {
+                name_resolution(node->rhs);
                 resolution_variable(node, false, NULL);
 
                 if (node->is_global) {
