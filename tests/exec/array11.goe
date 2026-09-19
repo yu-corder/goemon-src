@@ -1,0 +1,9 @@
+function int add(int a, int b) {
+    return a + b;
+}
+
+int[5] numbers;
+numbers[0] = 10;
+numbers[1] = 20;
+
+print add(numbers[0] + 1, numbers[1] + 2);

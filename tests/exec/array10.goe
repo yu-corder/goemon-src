@@ -1,0 +1,11 @@
+function int getValue() {
+    int[5] numbers;
+
+    for (int i = 0; i < 5; i++) {
+        numbers[i] = i;
+    }
+
+    return numbers[3];
+}
+
+print getValue();

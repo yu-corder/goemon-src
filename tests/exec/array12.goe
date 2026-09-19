@@ -1,0 +1,14 @@
+int count = 0;
+
+while (count < 2) {
+    int[3] numbers;
+
+    if (true) {
+        numbers[0] = 10;
+        numbers[1] = 20;
+        numbers[2] = 30;
+    }
+
+    print numbers[0];
+    count++;
+}

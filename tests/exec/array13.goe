@@ -1,0 +1,7 @@
+int[5] numbers;
+
+for (int i = 0; i < 5; i++) {
+    numbers[i * 2 - i] = i;
+}
+
+print numbers[2];

@@ -1,0 +1,14 @@
+function int fib(int n) {
+    int[2] values;
+
+    if (n <= 1) {
+        return n;
+    }
+
+    values[0] = fib(n - 1);
+    values[1] = fib(n - 2);
+
+    return values[0] + values[1];
+}
+
+print fib(6);
