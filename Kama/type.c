@@ -127,6 +127,9 @@ static TypeKind type_check(Node* node) {
 
             return TY_VOID;
         }
+        case ND_ARRAY_DECL: {
+            return node->type;
+        }
         case ND_ARRAY: {
             return node->type;
         }

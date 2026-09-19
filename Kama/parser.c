@@ -405,6 +405,11 @@ static Node* parse_statement() {
             Token *ident = expect_ident();
             // Node *lhs = new_array_node(ND_ARRAY, ident->str, index);
             Node *lhs = new_var_node(ident->str);
+            if (t->length <= 0) {
+                fprintf(stderr,
+                    "[Line: %d]Array size must be greater than 0\n", t->line);
+                exit(1);
+            }
             return new_array_decl_node(ND_ARRAY_DECL, lhs, &t->length, TY_INT);
         }
         case TK_STRING_TYPE: {
