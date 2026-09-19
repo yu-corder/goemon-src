@@ -196,7 +196,7 @@ void name_resolution(Node *node) {
             }
             case ND_ASSIGN_ARRAY: {
                 name_resolution(node->rhs);
-                resolution_variable(node->lhs, false, &node->lhs->type);
+                name_resolution(node->lhs);
 
                 emit_count_two_up();
                 // if (node->lhs->is_global) {
@@ -230,6 +230,7 @@ void name_resolution(Node *node) {
                 break;
             }
             case ND_ARRAY_STORE: {
+                resolution_variable(node, false, &node->type);
                 name_resolution(node->rhs);
                 break;
             }
