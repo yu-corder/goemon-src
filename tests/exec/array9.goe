@@ -1,0 +1,13 @@
+function showArray(int a) {
+    int[5] numbers;
+
+    for (int i = 0; i < 5; i++) {
+        numbers[i] = i + a;
+    }
+
+    for (int i = 0; i < 5; i++) {
+        print numbers[i];
+    }
+}
+
+showArray(5);
