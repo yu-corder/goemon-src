@@ -227,6 +227,15 @@ void run(int* program) {
                 store_array(heap_idx, index, value);
                 break;
             }
+            case OP_ARRAY_STORE_LOCAL: {
+                int address = program[pc++];
+                int depth = program[pc++];
+                int heap_idx = frames[call_frame][depth][address];
+                int index = stack[sp--];
+                int value = stack[sp--];
+                store_array(heap_idx, index, value);
+                break;
+            }
             case OP_ARRAY_LOAD: {
                 int heap_idx = stack[sp--];
                 int index = stack[sp--];

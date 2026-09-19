@@ -114,12 +114,11 @@ void generate(Node *node) {
             case ND_ASSIGN_ARRAY: {
                 generate(node->rhs);
                 generate(node->lhs);
-                // if (node->lhs->is_global) {
-                //     emit_one_operand(OP_STORE, &node->lhs->address);
-                // } else {
-                //     emit_two_operand(OP_STORE_LOCAL, &node->lhs->address, &node->lhs->depth);
-                // }
-                emit_one_operand(OP_ARRAY_STORE, &node->lhs->address);
+                if (node->lhs->is_global) {
+                    emit_one_operand(OP_ARRAY_STORE, &node->lhs->address);
+                } else {
+                    emit_two_operand(OP_ARRAY_STORE_LOCAL, &node->lhs->address, &node->lhs->depth);
+                }
                 break;
             }
             case ND_ARRAY_STORE: {
