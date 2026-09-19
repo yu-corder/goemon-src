@@ -1,9 +1,7 @@
-int[2] numbers;
-numbers[0] = 1;
-numbers[1] = 2;
+int[5] numbers;
 
-int count = 0;
-print numbers[count];
+function int add(int a, int b) {
+    return a + b;
+}
 
-count = count + 1;
-print numbers[count];
+print add(1, 100);

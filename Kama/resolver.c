@@ -161,6 +161,12 @@ void name_resolution(Node *node) {
                 resolution_variable(node->lhs, true, &node->type);
 
                 emit_count_two_up();
+
+                if (node->lhs->is_global) {
+                    emit_count_two_up();
+                } else {
+                    emit_count_three();
+                }
                 break;
             }
             case ND_VAR_DECL: {
@@ -192,11 +198,12 @@ void name_resolution(Node *node) {
                 name_resolution(node->rhs);
                 resolution_variable(node->lhs, false, &node->lhs->type);
 
-                if (node->lhs->is_global) {
-                    emit_count_two_up();
-                } else {
-                    emit_count_three();
-                }
+                emit_count_two_up();
+                // if (node->lhs->is_global) {
+                //     emit_count_two_up();
+                // } else {
+                //     emit_count_three();
+                // }
                 break;
             }
             case ND_VAR: {
@@ -218,6 +225,12 @@ void name_resolution(Node *node) {
                 } else {
                     emit_count_three();
                 }
+
+                emit_count_up();
+                break;
+            }
+            case ND_ARRAY_STORE: {
+                name_resolution(node->rhs);
                 break;
             }
             case ND_PRINT: {
