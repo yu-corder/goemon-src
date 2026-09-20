@@ -1,0 +1,4 @@
+int[5] numbers;
+
+str text = "hello";
+numbers[text] = 5;
