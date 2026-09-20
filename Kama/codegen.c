@@ -5,6 +5,7 @@
 
 #include "resolver.h"
 #include "codegen.h"
+#include "type.h"
 
 String string_table[128];
 int string_count = 0;
@@ -31,10 +32,21 @@ static void emit_one_operand (OpCode op_code, int *val) {
     }
 }
 
+static void emit_one_operand_type(OpCode op_code, TypeKind type) {
+    bytecode[count++] = op_code;
+    bytecode[count++] = type;
+}
+
 static void emit_two_operand(OpCode op_code, int *val1, int *val2) {
     bytecode[count++] = op_code;
     bytecode[count++] = *val1;
     bytecode[count++] = *val2;
+}
+
+static void emit_two_operand_type(OpCode op_code, int *val1, TypeKind type) {
+    bytecode[count++] = op_code;
+    bytecode[count++] = *val1;
+    bytecode[count++] = type;
 }
 
 
@@ -72,7 +84,7 @@ void generate(Node *node) {
                 break;
             }
             case ND_ARRAY_DECL: {
-                emit_one_operand(OP_MAKE_ARRAY, &node->len);
+                emit_two_operand_type(OP_MAKE_ARRAY, &node->len, node->type);
                 if (node->lhs->is_global) {
                     emit_one_operand(OP_STORE, &node->lhs->address);
                 } else {

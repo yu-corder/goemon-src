@@ -4,12 +4,15 @@
 int array_count = 0;
 Array array_table[128];
 
-int make_array(int size) {
+int make_array(int size, TypeKind type) {
     int *array;
     int index = array_count;
+
     array = malloc(sizeof(int) * size);
+    
 
     array_table[index].length = size;
+    array_table[index].type = type;
     array_table[index].elements = array;
     
     array_count++;

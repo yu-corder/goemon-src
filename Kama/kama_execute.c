@@ -215,7 +215,8 @@ void run(int* program) {
             }
             case OP_MAKE_ARRAY: {
                 int len = program[pc++];
-                int addr = make_array(len);
+                int type = program[pc++];
+                int addr = make_array(len, type);
                 stack[++sp] = addr;
                 break;
             }
