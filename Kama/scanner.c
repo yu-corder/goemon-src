@@ -141,11 +141,27 @@ void tokenize (char *p) {
             continue;
         }
 
-        if (strncmp(p, "str", 3) == 0 && (isspace(p[3]) || p[3] == '\0')) {
+        if (strncmp(p, "str", 3) == 0 && (isspace(p[3]) || p[3] == '\0' || p[3] == '[')) {
             p += 3;
             int len = 0;
             tokens[i].line = line;
-            tokens[i++].kind = TK_STRING_TYPE;
+            
+
+            while (isspace(*p)) {
+                p++;
+            }
+
+            if (*p == '[') {
+                p++;
+                if (isdigit(*p)) {
+                    tokens[i].length = strtol(p, &p, 10);
+                }
+                if (*p == ']') p++;
+                tokens[i].type = TY_STRING;
+                tokens[i++].kind = TK_ARRAY;
+            } else {
+                tokens[i++].kind = TK_STRING_TYPE;
+            }
 
             while (isspace(*p)) {
                 p++;
