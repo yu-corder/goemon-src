@@ -130,6 +130,25 @@ static TypeKind type_check(Node* node) {
         case ND_ARRAY_DECL: {
             return node->type;
         }
+        case ND_ASSIGN_ARRAY: {
+            TypeKind lhs = type_check(node->lhs);
+            TypeKind rhs = type_check(node->rhs);
+
+            if (lhs != rhs) {
+                fprintf(stderr,
+                    "Expected: %s\n", type_name(lhs));
+                exit(1);
+            }
+            return TY_VOID;
+        }
+        case ND_ARRAY_STORE: {
+            if (type_check(node->rhs) != TY_INT) {
+                fprintf(stderr,
+                    "Expecte: INT\n");
+                exit(1);
+            }
+            return node->type;   
+        }
         case ND_ARRAY: {
             return node->type;
         }
