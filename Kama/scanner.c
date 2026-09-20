@@ -122,7 +122,8 @@ void tokenize (char *p) {
                     tokens[i].length = strtol(p, &p, 10);
                 }
                 if (*p == ']') p++;
-                tokens[i++].kind = TK_INT_ARRAY;
+                tokens[i].type = TY_INT;
+                tokens[i++].kind = TK_ARRAY;
             } else {
                 tokens[i++].kind = TK_INT;
             }

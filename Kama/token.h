@@ -2,6 +2,7 @@
 #define TOKEN_H
 
 #include <stdbool.h>
+#include "type.h"
 
 #define MAX_TOKENS 4096
 typedef enum {
@@ -49,7 +50,7 @@ typedef enum {
     TK_STRING_TYPE,
     TK_BOOL,
     TK_BOOL_TYPE,
-    TK_INT_ARRAY,
+    TK_ARRAY,
     TK_VOID,
     TK_EOF,
 } TokenKind;
@@ -61,6 +62,7 @@ typedef struct {
     bool bool_val;
     int length;
     int line;
+    TypeKind type;
 } Token;
 extern Token tokens[MAX_TOKENS];
 #endif

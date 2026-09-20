@@ -401,7 +401,7 @@ static Node* parse_statement() {
                 return new_decl_no_assignment_node(ND_VAR_DECL, lhs, TY_INT);
             }
         }
-        case TK_INT_ARRAY: { 
+        case TK_ARRAY: { 
             Token *ident = expect_ident();
             // Node *lhs = new_array_node(ND_ARRAY, ident->str, index);
             Node *lhs = new_var_node(ident->str);
@@ -410,7 +410,7 @@ static Node* parse_statement() {
                     "[Line: %d]Array size must be greater than 0\n", t->line);
                 exit(1);
             }
-            return new_array_decl_node(ND_ARRAY_DECL, lhs, &t->length, TY_INT);
+            return new_array_decl_node(ND_ARRAY_DECL, lhs, &t->length, t->type);
         }
         case TK_STRING_TYPE: {
             Token *ident = expect_ident();
