@@ -12,7 +12,7 @@ void run(int* program) {
     int stack[1024];
     int call_stack[128];
     int memory[2048];
-    int frames[128][128][128];
+    static int frames[128][128][128];
     int sp = -1;
     int call_sp = -1;
     int pc = 0;
