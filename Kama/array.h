@@ -2,6 +2,7 @@
 #define ARRAY_H
 
 #include "type.h"
+#include <stdbool.h>
 
 typedef struct {
     int length;
@@ -13,4 +14,5 @@ int make_array(int size, TypeKind type);
 int get_data(int index, int addr);
 void store_array(int heap_index, int index, int value);
 int load_array(int heap_index, int index);
+bool free_array_table();
 #endif

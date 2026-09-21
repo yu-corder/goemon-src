@@ -30,3 +30,12 @@ int load_array(int heap_index, int index) {
 int get_data(int index, int addr) {
     return array_table[index].elements[addr];
 }
+
+bool free_array_table() {
+    for (int i = 0; i < array_count; i++) {
+        free(array_table[i].elements);
+        array_table[i].elements = NULL;
+    }
+    array_count = 0;
+    return true;
+}
