@@ -1,0 +1,14 @@
+int count = 0;
+
+while (count < 2) {
+    str[3] texts;
+
+    if (true) {
+        texts[0] = "hello";
+        texts[1] = "majika";
+        texts[2] = "test";
+    }
+
+    print texts[0];
+    count++;
+}

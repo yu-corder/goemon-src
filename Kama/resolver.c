@@ -120,9 +120,10 @@ static void name_resolution_binary(Node *node) {
     emit_count_up();
 }
 
-static void name_resolution_func(Node *node, int address, int depth) {
+static void name_resolution_func(Node *node, int address, int depth, TypeKind type) {
     node->address = address;
     node->depth = depth;
+    node->type = type;
 }
 
 static void param_name_resolution(Node *node, char* name, int address, int depth, TypeKind type) {
@@ -369,7 +370,7 @@ void name_resolution(Node *node) {
                     exit(1);
                 }
                 name_resolution(node->params);
-                name_resolution_func(node, func.address, func.depth);
+                name_resolution_func(node, func.address, func.depth, func.type);
                 emit_count_two_up();
                 break;
             }
