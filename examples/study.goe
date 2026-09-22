@@ -1,2 +1,7 @@
-int[5] numbers;
-str[5] texts;
+bool[5] flgs;
+
+flgs[0] = true;
+flgs[1] = false;
+
+print flgs[0];
+print flgs[1];

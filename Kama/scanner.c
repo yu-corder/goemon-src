@@ -176,11 +176,26 @@ void tokenize (char *p) {
             continue;
         }
 
-        if (strncmp(p, "bool", 4) == 0 && (isspace(p[4]) || p[4] == '\0')) {
+        if (strncmp(p, "bool", 4) == 0 && (isspace(p[4]) || p[4] == '\0' || p[4] == '[')) {
             p += 4;
             int len = 0;
             tokens[i].line = line;
-            tokens[i++].kind = TK_BOOL_TYPE;
+
+            while (isspace(*p)) {
+                p++;
+            }
+
+            if (*p == '[') {
+                p++;
+                if (isdigit(*p)) {
+                    tokens[i].length = strtol(p, &p, 10);
+                }
+                if (*p == ']') p++;
+                tokens[i].type = TY_BOOL;
+                tokens[i++].kind = TK_ARRAY;
+            } else {
+                tokens[i++].kind = TK_BOOL_TYPE;
+            }
 
             while (isspace(*p)) {
                 p++;
