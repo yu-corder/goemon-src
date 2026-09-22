@@ -7,4 +7,6 @@ function bool getValue() {
     return flags[3];
 }
 
-print getValue();
+if (getValue()) {
+    print "Hello Wordl!";
+}
