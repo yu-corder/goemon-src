@@ -1,0 +1,20 @@
+int count = 0;
+bool[5] flags;
+
+for (int i = 0; i < 5; i++) {
+    if (i == 0) {
+        flags[i] = false
+    } else if (i == 1) {
+        flags[i] = true
+    } else if (i == 2) {
+        flags[i] = true
+    } else if (i == 3) {
+        flags[i] = false
+    } else if (i == 4) {
+        flags[i] = false
+    }
+}
+
+for (int i = 0; i < 5; i++) {
+    print flags[i];
+}

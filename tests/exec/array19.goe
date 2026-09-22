@@ -1,0 +1,10 @@
+function bool getValue() {
+    bool[5] flags;
+
+    for (int i = 0; i < 5; i++) {
+        flags[i] = true;
+    }
+    return flags[3];
+}
+
+print getValue();
