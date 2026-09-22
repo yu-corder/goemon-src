@@ -31,6 +31,7 @@ typedef enum {
     OP_CALL,
     OP_RET,
     OP_PRINT_STRING,
+    OP_PRINT_BOOL,
     OP_MAKE_ARRAY,
     OP_ARRAY_STORE,
     OP_ARRAY_STORE_LOCAL,

@@ -147,12 +147,13 @@ void generate(Node *node) {
             }
             case ND_PRINT: {
                 generate(node->lhs);
-                if (node->lhs->kind != ND_STR && node->lhs->type != TY_STRING) {
-                    emit_no_operand(OP_PRINT);
-                } else {
+                if (node->lhs->type == TY_STRING || node->lhs->kind == ND_STR) {
                     emit_no_operand(OP_PRINT_STRING);
+                } else if (node->lhs->type == TY_BOOL || node->lhs->kind == ND_BOOL) {
+                    emit_no_operand(OP_PRINT_BOOL);
+                } else {
+                    emit_no_operand(OP_PRINT);
                 }
-                
                 break;
             }
             case ND_ADD: {

@@ -213,6 +213,15 @@ void run(int* program) {
                 printf("VM Output: %s\n", string_table[address].str);
                 break;
             }
+            case OP_PRINT_BOOL: {
+                int value =  stack[sp--];
+                if (value) {
+                    printf("VM Output: true\n");
+                } else {
+                    printf("VM Output: false\n");
+                }
+                break;
+            }
             case OP_MAKE_ARRAY: {
                 int len = program[pc++];
                 int type = program[pc++];

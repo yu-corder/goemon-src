@@ -1,7 +1,3 @@
-bool[5] flgs;
-
-flgs[0] = true;
-flgs[1] = false;
-
-print flgs[0];
-print flgs[1];
+bool chk = true;
+print chk;
+print false;
