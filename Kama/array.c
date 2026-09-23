@@ -19,12 +19,12 @@ int make_array(int size, TypeKind type) {
     return index;
 }
 
-void store_array(int heap_index, int index, int value) {
-    array_table[heap_index].elements[index] = value;
+void store_array(int array_index, int index, int value) {
+    array_table[array_index].elements[index] = value;
 }
 
-int load_array(int heap_index, int index) {
-    return array_table[heap_index].elements[index];
+int load_array(int array_index, int index) {
+    return array_table[array_index].elements[index];
 }
 
 void free_all_arrays(void) {

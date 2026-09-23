@@ -231,25 +231,25 @@ void run(int* program) {
             }
             case OP_ARRAY_STORE: {
                 int var_addr = program[pc++];
-                int heap_idx = memory[var_addr];
+                int array_index = memory[var_addr];
                 int index = stack[sp--];
                 int value = stack[sp--];
-                store_array(heap_idx, index, value);
+                store_array(array_index, index, value);
                 break;
             }
             case OP_ARRAY_STORE_LOCAL: {
                 int address = program[pc++];
                 int depth = program[pc++];
-                int heap_idx = frames[call_frame][depth][address];
+                int array_index = frames[call_frame][depth][address];
                 int index = stack[sp--];
                 int value = stack[sp--];
-                store_array(heap_idx, index, value);
+                store_array(array_index, index, value);
                 break;
             }
             case OP_ARRAY_LOAD: {
-                int heap_idx = stack[sp--];
+                int array_index = stack[sp--];
                 int index = stack[sp--];
-                int value = load_array(heap_idx, index);
+                int value = load_array(array_index, index);
                 stack[++sp] = value;
                 break;
             }
