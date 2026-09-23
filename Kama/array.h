@@ -13,5 +13,5 @@ typedef struct {
 int make_array(int size, TypeKind type);
 void store_array(int heap_index, int index, int value);
 int load_array(int heap_index, int index);
-bool free_array_table();
+void free_all_arrays(void);
 #endif

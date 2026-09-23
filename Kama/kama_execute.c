@@ -283,7 +283,7 @@ void load_and_run(const char* filename) {
 
     run(code);
 
-    free_array_table();
+    free_all_arrays();
     free(code);
 }
 

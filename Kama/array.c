@@ -27,11 +27,10 @@ int load_array(int heap_index, int index) {
     return array_table[heap_index].elements[index];
 }
 
-bool free_array_table() {
+void free_all_arrays(void) {
     for (int i = 0; i < array_count; i++) {
         free(array_table[i].elements);
         array_table[i].elements = NULL;
     }
     array_count = 0;
-    return true;
 }
