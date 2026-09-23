@@ -32,11 +32,6 @@ static void emit_one_operand (OpCode op_code, int *val) {
     }
 }
 
-static void emit_one_operand_type(OpCode op_code, TypeKind type) {
-    bytecode[count++] = op_code;
-    bytecode[count++] = type;
-}
-
 static void emit_two_operand(OpCode op_code, int *val1, int *val2) {
     bytecode[count++] = op_code;
     bytecode[count++] = *val1;
