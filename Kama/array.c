@@ -27,10 +27,6 @@ int load_array(int heap_index, int index) {
     return array_table[heap_index].elements[index];
 }
 
-int get_data(int index, int addr) {
-    return array_table[index].elements[addr];
-}
-
 bool free_array_table() {
     for (int i = 0; i < array_count; i++) {
         free(array_table[i].elements);
