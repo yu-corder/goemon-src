@@ -2,7 +2,11 @@
 #include <stdlib.h>
 
 int array_count = 0;
-Array array_table[128];
+Array *array_table;
+
+void init_array_table(void) {
+    array_table = malloc(sizeof(Array) * 128);
+}
 
 int make_array(int size, TypeKind type) {
     int *array;
@@ -32,5 +36,8 @@ void free_all_arrays(void) {
         free(array_table[i].elements);
         array_table[i].elements = NULL;
     }
+
+    free(array_table);
+    array_table = NULL;
     array_count = 0;
 }

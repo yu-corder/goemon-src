@@ -10,6 +10,7 @@ typedef struct {
     int *elements;
 } Array;
 
+void init_array_table(void);
 int make_array(int size, TypeKind type);
 void store_array(int heap_index, int index, int value);
 int load_array(int heap_index, int index);

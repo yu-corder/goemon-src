@@ -281,10 +281,12 @@ void load_and_run(const char* filename) {
 
     fclose(f);
 
+    init_array_table();
     run(code);
 
     free_all_arrays();
     free(code);
+    free(string_table);
 }
 
 int main (int argc, char** argv) {

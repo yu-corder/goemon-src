@@ -1,3 +1,15 @@
-bool chk = true;
-print chk;
-print false;
+int[5] numbers;
+str[5] texts;
+bool[5] flags;
+
+for (int i = 0; i < 5; i++) {
+    numbers[i] = i;
+    texts[i] = "hello";
+    flags[i] = true;
+}
+
+for (int i = 0; i < 5; i++) {
+    print numbers[i];
+    print texts[i];
+    print flags[i];
+}
