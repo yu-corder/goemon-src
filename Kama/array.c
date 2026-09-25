@@ -1,19 +1,39 @@
 #include "array.h"
 #include <stdlib.h>
+#include <stdio.h>
 
 int array_count = 0;
+int array_capacity = 128;
 Array *array_table;
 
 void init_array_table(void) {
     array_table = malloc(sizeof(Array) * 128);
 }
 
+static void make_bigger(void) {
+    int new_capacity = array_capacity * 2;
+    Array *new_array_table = realloc(array_table, sizeof(Array) * new_capacity);
+
+    if (new_array_table ==  NULL) {
+        fprintf(stderr,
+            "Runtime Error: Failed to resize array table\n");
+        exit(1);
+    }
+
+    array_capacity = new_capacity;
+    array_table = new_array_table;
+}
+
 int make_array(int size, TypeKind type) {
     int *array;
+
+    if (array_count == array_capacity) {
+        make_bigger();
+    }
+
     int index = array_count;
 
     array = malloc(sizeof(int) * size);
-    
 
     array_table[index].length = size;
     array_table[index].type = type;
