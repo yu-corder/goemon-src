@@ -4,7 +4,7 @@
 #include <stdbool.h>
 #include "type.h"
 
-#define MAX_TOKENS 4096
+#define INITIAL_TOKEN_CAPACITY 8
 typedef enum {
     TK_INPUT,
     TK_STORE,

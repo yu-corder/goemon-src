@@ -10,8 +10,8 @@ Token *tokens;
 int token_capacity;
 
 static void init_tokens(void) {
-    token_capacity = MAX_TOKENS;
-    tokens = malloc(sizeof(Token) * MAX_TOKENS);
+    token_capacity = INITIAL_TOKEN_CAPACITY;
+    tokens = malloc(sizeof(Token) * INITIAL_TOKEN_CAPACITY);
 }
 
 static void make_bigger(void) {
