@@ -64,5 +64,5 @@ typedef struct {
     int line;
     TypeKind type;
 } Token;
-extern Token tokens[MAX_TOKENS];
+extern Token *tokens;
 #endif

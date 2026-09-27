@@ -504,5 +504,7 @@ Node* parse_program () {
         }
     }
 
+    free(tokens);
+
     return head;
 }

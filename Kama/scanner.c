@@ -6,12 +6,34 @@
 #include "scanner.h"
 #include "debug.h"
 
-Token tokens[MAX_TOKENS];
+Token *tokens;
+int token_capacity;
+
+static void init_tokens(void) {
+    token_capacity = MAX_TOKENS;
+    tokens = malloc(sizeof(Token) * MAX_TOKENS);
+}
+
+static void make_bigger(void) {
+    int new_capacity = token_capacity * 2;
+    Token *new_tokens = realloc(tokens, sizeof(Token) * new_capacity);
+
+    if (new_tokens ==  NULL) {
+        fprintf(stderr,
+            "Runtime Error: Failed to resize tokens\n");
+        exit(1);
+    }
+
+    token_capacity = new_capacity;
+    tokens = new_tokens;
+}
 
 int line = 1;
 void tokenize (char *p) {
+    init_tokens();
     int i = 0;
     while(*p) {
+        if (i == token_capacity) make_bigger();
         if (*p == '\n') {
             p++;
             line++;
