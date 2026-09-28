@@ -1,0 +1,21 @@
+str[20] texts;
+
+texts[0] = "aiueo";
+texts[1] = "kakikukeko";
+texts[2] = "saissueso";
+texts[3] = "tatitiuteto";
+texts[4] = "naninuneo";
+texts[5] = "a";
+texts[6] = "b";
+texts[7] = "c";
+texts[8] = "d";
+texts[9] = "e";
+texts[10] = "f";
+texts[11] = "nfnfn";
+
+print "hello";
+print "ma";
+print "kyou";
+print "jfjfi";
+print "saza";
+print "sss";
