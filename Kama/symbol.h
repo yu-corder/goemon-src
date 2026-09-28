@@ -19,7 +19,7 @@ typedef struct {
     TypeKind type;
 } Variable;
 
-extern Variable global_variable_table[128];
+extern Variable *global_variable_table;
 
 typedef struct {
     int variable_count;
@@ -95,7 +95,7 @@ typedef struct {
 } GlobalVariablesInfo;
 
 int find_label(char *name);
-
+void init_global_variable(void);
 GlobalVariablesInfo find_global_variable(char *name);
 LocalVariablesInfo find_local_variable(char *name, int depth);
 int insert_global_variable(char *name, TypeKind* type);

@@ -6,13 +6,34 @@
 #include "symbol.h"
 
 Label symbol_table[128];
-Variable global_variable_table[128];
+Variable *global_variable_table;
 LocalVariables local_scopes[128];
 Funcion function_table[128];
 FuncionParams function_params_table[128];
 
 int label_count_internal = 0;
 int global_variable_count = 0;
+int global_variable_capacity;
+
+void init_global_variable(void) {
+    global_variable_count = 0;
+    global_variable_capacity = 8;
+    global_variable_table = malloc(sizeof(Variable) * 8);
+}
+
+static void make_bigger(void) {
+    int new_capacity = global_variable_capacity * 2;
+    Variable *new_global_variable_table = realloc(global_variable_table, sizeof(Variable) * new_capacity);
+
+    if (new_global_variable_table ==  NULL) {
+        fprintf(stderr,
+            "Runtime Error: Failed to resize variable table\n");
+        exit(1);
+    }
+
+    global_variable_capacity = new_capacity;
+    global_variable_table = new_global_variable_table;
+}
 
 int find_label(char *name) {
     for (int i = 0; i < label_count_internal; i++) {
@@ -69,6 +90,8 @@ int insert_global_variable(char *name, TypeKind* type) {
     } else {
         global_variable_table[current_idx].memory_index = global_variable_count;
     }
+
+    if (global_variable_count == global_variable_capacity) make_bigger();
     return global_variable_table[current_idx].memory_index;
 }
 

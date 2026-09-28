@@ -12,6 +12,7 @@
 #include "opcode.h"
 #include "header.h"
 #include "codegen.h"
+#include "symbol.h"
 
 char *read_file(const char *path) {
     FILE *fp = fopen(path, "r");
@@ -58,11 +59,13 @@ int main(int argc, char **argv) {
     Node *program = parse_program();
 
     emit_count_reset();
+    init_global_variable();
     name_resolution(program);
 
     if (g_debug_ast) {
         debug_ast_node(program, 1);
     }
+    free(global_variable_table);
 
     type_check_program(program);
     
