@@ -67,6 +67,7 @@ int main(int argc, char **argv) {
     type_check_program(program);
     
     emit_count_reset();
+    init_strings();
     generate(program);
 
     emit_no_operand(OP_HALT);
@@ -82,6 +83,7 @@ int main(int argc, char **argv) {
     fwrite(bytecode, sizeof(int), count, dest);
     fwrite(string_table, sizeof(String), string_count, dest);
     fclose(dest);
+    free(string_table);
 
     printf("絶景かな！ Compiled study.goe to study.gb\n");
     return 0;
