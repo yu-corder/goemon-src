@@ -38,7 +38,7 @@ typedef struct {
     TypeKind type[64];
 } Funcion;
 
-extern Funcion function_table[128];
+extern Funcion *function_table;
 
 typedef struct {
     char name[64][64];
@@ -97,6 +97,7 @@ typedef struct {
 int find_label(char *name);
 void init_global_variable(void);
 void init_local_variable(void);
+void init_function_table(void);
 GlobalVariablesInfo find_global_variable(char *name);
 LocalVariablesInfo find_local_variable(char *name, int depth);
 int insert_global_variable(char *name, TypeKind* type);

@@ -61,6 +61,7 @@ int main(int argc, char **argv) {
     emit_count_reset();
     init_global_variable();
     init_local_variable();
+    init_function_table();
     name_resolution(program);
 
     if (g_debug_ast) {
@@ -68,6 +69,7 @@ int main(int argc, char **argv) {
     }
     free(global_variable_table);
     free(local_scopes);
+    free(function_table);
 
     type_check_program(program);
     
