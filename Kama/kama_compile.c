@@ -60,12 +60,14 @@ int main(int argc, char **argv) {
 
     emit_count_reset();
     init_global_variable();
+    init_local_variable();
     name_resolution(program);
 
     if (g_debug_ast) {
         debug_ast_node(program, 1);
     }
     free(global_variable_table);
+    free(local_scopes);
 
     type_check_program(program);
     

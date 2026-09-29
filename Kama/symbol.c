@@ -7,13 +7,15 @@
 
 Label symbol_table[128];
 Variable *global_variable_table;
-LocalVariables local_scopes[128];
+LocalVariables *local_scopes;
 Funcion function_table[128];
 FuncionParams function_params_table[128];
 
 int label_count_internal = 0;
 int global_variable_count = 0;
 int global_variable_capacity;
+
+int local_variable_capacity;
 
 void init_global_variable(void) {
     global_variable_count = 0;
@@ -33,6 +35,25 @@ static void make_bigger(void) {
 
     global_variable_capacity = new_capacity;
     global_variable_table = new_global_variable_table;
+}
+
+void init_local_variable(void) {
+    local_variable_capacity = 8;
+    local_scopes = malloc(sizeof(LocalVariables) * 8);
+}
+
+static void make_local_bigger(void) {
+    int new_capacity = local_variable_capacity * 2;
+    LocalVariables *new_local_variable_table = realloc(local_scopes, sizeof(LocalVariables) * new_capacity);
+
+    if (new_local_variable_table ==  NULL) {
+        fprintf(stderr,
+            "Runtime Error: Failed to resize variable table\n");
+        exit(1);
+    }
+
+    local_variable_capacity = new_capacity;
+    local_scopes = new_local_variable_table;
 }
 
 int find_label(char *name) {
@@ -96,6 +117,8 @@ int insert_global_variable(char *name, TypeKind* type) {
 }
 
 int insert_local_variable(char *name, int depth, TypeKind* type) {
+    if (depth == local_variable_capacity) make_local_bigger();
+
     int current_idx = local_scopes[depth].variable_count;
     local_scopes[depth].variable_count++;
     strcpy(local_scopes[depth].name[current_idx], name);
