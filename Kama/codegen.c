@@ -44,6 +44,8 @@ int loop_stack_capacity;
 
 int count = 0;
 
+static void generate(Node *node);
+
 void init_loop_stack(void) {
     loop_stack_capacity = 8;
     loop_stack = malloc(sizeof(LoopContext) * 8);
@@ -100,7 +102,7 @@ typedef struct {
     int depth;
 } ParamsTmp;
 
-void generate(Node *node) {
+static void generate(Node *node) {
     if (node == NULL) return;
     while (node) {
 
