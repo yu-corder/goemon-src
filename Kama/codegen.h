@@ -9,7 +9,7 @@ extern String *string_table;
 
 extern int string_count;
 extern int count;
-extern int bytecode[1024];
+extern int *bytecode;
 
 void generate_entry(Node *node);
 #endif

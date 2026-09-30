@@ -83,6 +83,7 @@ int main(int argc, char **argv) {
     fwrite(string_table, sizeof(String), string_count, dest);
     fclose(dest);
     free(string_table);
+    free(bytecode);
 
     printf("絶景かな！ Compiled study.goe to study.gb\n");
     return 0;
