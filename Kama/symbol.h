@@ -50,7 +50,7 @@ typedef struct {
     TypeKind type[16][16];
 } FuncionParams;
 
-extern FuncionParams function_params_table[128];
+extern FuncionParams *function_params_table;
 
 
 typedef struct {
@@ -98,6 +98,7 @@ int find_label(char *name);
 void init_global_variable(void);
 void init_local_variable(void);
 void init_function_table(void);
+void init_function_params_table(void);
 GlobalVariablesInfo find_global_variable(char *name);
 LocalVariablesInfo find_local_variable(char *name, int depth);
 int insert_global_variable(char *name, TypeKind* type);

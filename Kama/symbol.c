@@ -9,7 +9,7 @@ Label symbol_table[128];
 Variable *global_variable_table;
 LocalVariables *local_scopes;
 Funcion *function_table;
-FuncionParams function_params_table[128];
+FuncionParams *function_params_table;
 
 int label_count_internal = 0;
 int global_variable_count = 0;
@@ -18,6 +18,8 @@ int global_variable_capacity;
 int local_variable_capacity;
 
 int function_table_capacity;
+
+int function_params_table_capacity;
 
 void init_global_variable(void) {
     global_variable_count = 0;
@@ -75,6 +77,25 @@ static void make_function_bigger(void) {
 
     function_table_capacity = new_capacity;
     function_table = new_function_table;
+}
+
+void init_function_params_table(void) {
+    function_params_table_capacity = 8;
+    function_params_table = malloc(sizeof(FuncionParams) * 8);
+}
+
+static void make_function_params_bigger(void) {
+    int new_capacity = function_params_table_capacity * 2;
+    FuncionParams *new_function_params_table = realloc(function_params_table, sizeof(FuncionParams) * new_capacity);
+
+    if (new_function_params_table ==  NULL) {
+        fprintf(stderr,
+            "Runtime Error: Failed to resize function table\n");
+        exit(1);
+    }
+
+    function_params_table_capacity = new_capacity;
+    function_params_table = new_function_params_table;
 }
 
 int find_label(char *name) {
@@ -175,6 +196,7 @@ FuncionParamsInfo find_function_params(char *name, int depth) {
 }
 
 void insert_function_params(char *name, Node *params, int depth) {
+    if (depth == function_params_table_capacity) make_function_params_bigger();
     int current_idx = function_params_table[depth].function_count;
     
 
