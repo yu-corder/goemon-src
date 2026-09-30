@@ -418,5 +418,6 @@ void generate_entry(Node *node) {
     init_strings();
     init_loop_stack();
     generate(node);
+    emit_no_operand(OP_HALT);
     free(loop_stack);
 }

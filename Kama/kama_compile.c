@@ -70,7 +70,6 @@ int main(int argc, char **argv) {
     free(function_params_table);
     
     generate_entry(program);
-    emit_no_operand(OP_HALT);
 
     if (g_debug_binary) {
         debug_binary();

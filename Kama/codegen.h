@@ -11,6 +11,5 @@ extern int string_count;
 extern int count;
 extern int bytecode[1024];
 
-void emit_no_operand(OpCode op_code);
 void generate_entry(Node *node);
 #endif
