@@ -6,14 +6,13 @@
 #include "symbol.h"
 
 Label symbol_table[128];
-Variable *global_variable_table;
+
 LocalVariables *local_scopes;
 Funcion *function_table;
 FuncionParams *function_params_table;
 
 int label_count_internal = 0;
-int global_variable_count = 0;
-int global_variable_capacity;
+
 
 int local_variable_capacity;
 
@@ -21,25 +20,6 @@ int function_table_capacity;
 
 int function_params_table_capacity;
 
-void init_global_variable(void) {
-    global_variable_count = 0;
-    global_variable_capacity = 8;
-    global_variable_table = malloc(sizeof(Variable) * 8);
-}
-
-static void make_bigger(void) {
-    int new_capacity = global_variable_capacity * 2;
-    Variable *new_global_variable_table = realloc(global_variable_table, sizeof(Variable) * new_capacity);
-
-    if (new_global_variable_table ==  NULL) {
-        fprintf(stderr,
-            "Runtime Error: Failed to resize variable table\n");
-        exit(1);
-    }
-
-    global_variable_capacity = new_capacity;
-    global_variable_table = new_global_variable_table;
-}
 
 void init_local_variable(void) {
     local_variable_capacity = 8;
@@ -107,21 +87,6 @@ int find_label(char *name) {
     return -1;
 }
 
-GlobalVariablesInfo find_global_variable(char *name) {
-    GlobalVariablesInfo var;
-    var.found = false;
-    var.address = -1;
-    for (int i = 0; i < global_variable_count; i++) {
-        if (strcmp(global_variable_table[i].name, name) == 0) {
-            var.address = global_variable_table[i].memory_index;
-            var.type = global_variable_table[i].type;
-            var.found = true;
-            return var;
-        }
-    }
-    
-    return var;
-}
 
 LocalVariablesInfo find_local_variable(char *name, int depth) {
     LocalVariablesInfo var;
@@ -139,23 +104,6 @@ LocalVariablesInfo find_local_variable(char *name, int depth) {
         }
     }
     return var;
-}
-
-int insert_global_variable(char *name, TypeKind* type) {
-    int current_idx = global_variable_count;
-    global_variable_count++;
-
-    strcpy(global_variable_table[current_idx].name, name);
-    global_variable_table[current_idx].type = *type;
-    
-    if (strncmp(name, "__s", 3) == 0) {
-        global_variable_table[current_idx].memory_index = 1000 + (global_variable_count * 100);
-    } else {
-        global_variable_table[current_idx].memory_index = global_variable_count;
-    }
-
-    if (global_variable_count == global_variable_capacity) make_bigger();
-    return global_variable_table[current_idx].memory_index;
 }
 
 int insert_local_variable(char *name, int depth, TypeKind* type) {

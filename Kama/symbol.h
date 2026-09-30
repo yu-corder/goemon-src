@@ -13,15 +13,6 @@ typedef struct {
 extern Label symbol_table[128];
 
 typedef struct {
-    char name[32];
-    int memory_index;
-
-    TypeKind type;
-} Variable;
-
-extern Variable *global_variable_table;
-
-typedef struct {
     int variable_count;
     char name[32][32];
     int address[32];
@@ -85,24 +76,15 @@ typedef struct {
     TypeKind type;
 } LocalVariablesInfo;
 
-typedef struct {
-    int address;
-    int depth;
-
-    bool found;
-
-    TypeKind type;
-} GlobalVariablesInfo;
-
 int find_label(char *name);
-void init_global_variable(void);
+
 void init_local_variable(void);
 void init_function_table(void);
 void init_function_params_table(void);
-GlobalVariablesInfo find_global_variable(char *name);
+
 LocalVariablesInfo find_local_variable(char *name, int depth);
-int insert_global_variable(char *name, TypeKind* type);
 int insert_local_variable(char *name, int depth, TypeKind* type);
+
 FuncionParamsInfo find_function_params(char *name, int depth);
 void insert_function_params(char *name, Node *params, int depth);
 FuncionInfo find_function(char *name, int depth);

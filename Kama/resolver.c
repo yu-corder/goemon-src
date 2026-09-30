@@ -8,6 +8,7 @@
 #include "ast.h"
 #include "type.h"
 #include "symbol.h"
+#include "global_variable.h"
 
 // =========================
 // NAME RESOLUTION
