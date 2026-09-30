@@ -38,9 +38,31 @@ typedef struct {
 } LoopContext;
 
 int bytecode[1024];
-LoopContext loop_stack[128];
+LoopContext *loop_stack;
 int loop_depth = 0;
+int loop_stack_capacity;
+
 int count = 0;
+
+void init_loop_stack(void) {
+    loop_stack_capacity = 8;
+    loop_stack = malloc(sizeof(LoopContext) * 8);
+}
+
+static void make_loop_stack_bigger(void) {
+    int new_capacity = loop_stack_capacity * 2;
+    LoopContext *new_loop_stack = realloc(loop_stack, sizeof(LoopContext) * new_capacity);
+
+    if (new_loop_stack ==  NULL) {
+        fprintf(stderr,
+            "Runtime Error: Failed to resize function table\n");
+        exit(1);
+    }
+
+    loop_stack_capacity = new_capacity;
+    loop_stack = new_loop_stack;
+}
+
 
 void emit_no_operand(OpCode op_code) {
     bytecode[count++] = op_code;
@@ -245,6 +267,7 @@ void generate(Node *node) {
                 enter_scope();
 
                 loop_depth++;
+                if (loop_stack_capacity == loop_depth) make_loop_stack_bigger();
                 loop_stack[loop_depth].break_count = 0;
 
                 int my_jmp_idx = count;
@@ -300,6 +323,7 @@ void generate(Node *node) {
                 enter_scope();
 
                 loop_depth++;
+                if (loop_stack_capacity == loop_depth) make_loop_stack_bigger();
                 loop_stack[loop_depth].break_count = 0;
 
                 generate(node->init);
@@ -385,4 +409,12 @@ void generate(Node *node) {
 
         node = node->next;
     }
+}
+
+void generate_entry(Node *node) {
+    emit_count_reset();
+    init_strings();
+    init_loop_stack();
+    generate(node);
+    free(loop_stack);
 }

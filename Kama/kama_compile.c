@@ -69,10 +69,7 @@ int main(int argc, char **argv) {
     type_check_program(program);
     free(function_params_table);
     
-    emit_count_reset();
-    init_strings();
-    generate(program);
-
+    generate_entry(program);
     emit_no_operand(OP_HALT);
 
     if (g_debug_binary) {
