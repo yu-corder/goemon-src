@@ -4,15 +4,6 @@
 #include "ast.h"
 #include "type.h"
 
-
-typedef struct {
-    char name[32];
-    int address;
-} Label;
-
-extern Label symbol_table[128];
-
-
 typedef struct {
     char name[64][64];
     int address[64];
@@ -57,10 +48,6 @@ typedef struct {
 
     TypeKind *type;
 } FuncionParamsInfo;
-
-
-int find_label(char *name);
-
 
 void init_function_table(void);
 void init_function_params_table(void);

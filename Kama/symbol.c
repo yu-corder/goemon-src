@@ -5,13 +5,8 @@
 
 #include "symbol.h"
 
-Label symbol_table[128];
-
-
 Funcion *function_table;
 FuncionParams *function_params_table;
-
-int label_count_internal = 0;
 
 int function_table_capacity;
 
@@ -53,15 +48,6 @@ static void make_function_params_bigger(void) {
 
     function_params_table_capacity = new_capacity;
     function_params_table = new_function_params_table;
-}
-
-int find_label(char *name) {
-    for (int i = 0; i < label_count_internal; i++) {
-        if (strncmp(symbol_table[i].name, name, strlen(symbol_table[i].name)) == 0) {
-            return symbol_table[i].address;
-        }
-    }
-    return -1;
 }
 
 FuncionParamsInfo find_function_params(char *name, int depth) {
