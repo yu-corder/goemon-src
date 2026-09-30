@@ -9,6 +9,7 @@
 #include "type.h"
 #include "symbol.h"
 #include "global_variable.h"
+#include "local_variable.h"
 
 // =========================
 // NAME RESOLUTION

@@ -14,6 +14,7 @@
 #include "codegen.h"
 #include "symbol.h"
 #include "global_variable.h"
+#include "local_variable.h"
 
 char *read_file(const char *path) {
     FILE *fp = fopen(path, "r");
