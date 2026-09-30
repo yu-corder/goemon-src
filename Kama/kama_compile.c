@@ -15,6 +15,7 @@
 #include "symbol.h"
 #include "global_variable.h"
 #include "local_variable.h"
+#include "kama_string.h"
 
 char *read_file(const char *path) {
     FILE *fp = fopen(path, "r");

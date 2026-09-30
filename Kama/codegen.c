@@ -6,6 +6,7 @@
 #include "resolver.h"
 #include "codegen.h"
 #include "type.h"
+#include "kama_string.h"
 
 String *string_table;
 int string_count = 0;

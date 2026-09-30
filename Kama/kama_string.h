@@ -1,5 +1,5 @@
-#ifndef STRING_H
-#define STRING_H
+#ifndef KAMA_STRING_H
+#define KAMA_STRING_H
 
 typedef struct {
     char str[32];

@@ -3,7 +3,7 @@
 
 #include "ast.h"
 #include "opcode.h"
-#include "string.h"
+#include "kama_string.h"
 
 extern String *string_table;
 

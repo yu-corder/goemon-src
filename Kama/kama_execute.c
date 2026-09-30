@@ -3,8 +3,8 @@
 #include <stdbool.h>
 #include "opcode.h"
 #include "header.h"
-#include "string.h"
 #include "array.h"
+#include "kama_string.h"
 
 String *string_table;
 
