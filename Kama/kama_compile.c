@@ -65,9 +65,6 @@ int main(int argc, char **argv) {
     if (g_debug_ast) {
         debug_ast_node(program, 1);
     }
-    free(global_variable_table);
-    free(local_scopes);
-    free(function_table);
 
     type_check_program(program);
     free(function_params_table);

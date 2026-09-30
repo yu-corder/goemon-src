@@ -400,4 +400,8 @@ void name_resolution_entry(Node *node) {
     init_function_params_table();
 
     name_resolution(node);
+
+    free(global_variable_table);
+    free(local_scopes);
+    free(function_table);
 }
