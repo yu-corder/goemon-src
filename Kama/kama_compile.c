@@ -59,14 +59,8 @@ int main(int argc, char **argv) {
     char *src = read_file(argv[arg]);
     tokenize(src);
     Node *program = parse_program();
-
-    emit_count_reset();
-    init_global_variable();
-    init_local_variable();
-    init_function_table();
-    init_function_params_table();
     
-    name_resolution(program);
+    name_resolution_entry(program);
 
     if (g_debug_ast) {
         debug_ast_node(program, 1);

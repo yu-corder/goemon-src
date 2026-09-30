@@ -17,6 +17,9 @@
 
 int block_depth = 0;
 int program_count = 0;
+
+static void name_resolution(Node *node);
+
 void emit_count_reset() {
     program_count = 0;
 }
@@ -140,7 +143,7 @@ static void param_name_resolution(Node *node, char* name, int address, int depth
     }
 }
 
-void name_resolution(Node *node) {
+static void name_resolution(Node *node) {
     if (node == NULL) return;
     while (node) {
         switch (node->kind) {
@@ -387,4 +390,14 @@ void name_resolution(Node *node) {
         }
         node = node->next;
     }
+}
+
+void name_resolution_entry(Node *node) {
+    emit_count_reset();
+    init_global_variable();
+    init_local_variable();
+    init_function_table();
+    init_function_params_table();
+
+    name_resolution(node);
 }
