@@ -9,6 +9,9 @@
 Token *tokens;
 int token_capacity;
 
+int line = 1;
+int i = 0;
+
 static void init_tokens(void) {
     token_capacity = INITIAL_TOKEN_CAPACITY;
     tokens = malloc(sizeof(Token) * INITIAL_TOKEN_CAPACITY);
@@ -28,12 +31,16 @@ static void make_bigger(void) {
     tokens = new_tokens;
 }
 
-int line = 1;
+static void ensure_token_capacity(void) {
+    i++;
+    if (i == token_capacity) {
+        make_bigger();
+    } 
+}
+
 void tokenize (char *p) {
     init_tokens();
-    int i = 0;
     while(*p) {
-        if (i == token_capacity) make_bigger();
         if (*p == '\n') {
             p++;
             line++;
@@ -46,14 +53,14 @@ void tokenize (char *p) {
             tokens[i].kind = TK_NUMBER;
             tokens[i].val = strtol(p, &p, 10);
             tokens[i].line = line;
-            i++;
+            ensure_token_capacity();
             continue;
         }
 
         if (strncmp(p, "halt", 4) == 0 && (isspace(p[4]) || p[4] == '\0')) {
             tokens[i].kind = TK_HALT;
             tokens[i].line = line;
-            i++;
+            ensure_token_capacity();
             p += 4;
             continue;
         }
@@ -61,7 +68,7 @@ void tokenize (char *p) {
         if (strncmp(p, "print", 5) == 0 && (isspace(p[5]) || p[5] == '\0')) {
             tokens[i].kind = TK_PRINT;
             tokens[i].line = line;
-            i++;
+            ensure_token_capacity();
             p += 5;
             continue;
         }
@@ -69,7 +76,7 @@ void tokenize (char *p) {
         if (strncmp(p, "if", 2) == 0 && (isspace(p[2]) || p[2] == '\0')) {
             tokens[i].kind = TK_IF;
             tokens[i].line = line;
-            i++;
+            ensure_token_capacity();
             p += 2;
             continue;
         }
@@ -77,7 +84,7 @@ void tokenize (char *p) {
         if (strncmp(p, "else", 4) == 0 && (isspace(p[4]) || p[4] == '\0')) {
             tokens[i].kind = TK_ELSE;
             tokens[i].line = line;
-            i++;
+            ensure_token_capacity();
             p += 4;
             continue;
         }
@@ -85,7 +92,7 @@ void tokenize (char *p) {
         if (strncmp(p, "while", 5) == 0 && (isspace(p[5]) || p[5] == '\0')) {
             tokens[i].kind = TK_WHILE;
             tokens[i].line = line;
-            i++;
+            ensure_token_capacity();
             p += 5;
             continue;
         }
@@ -93,7 +100,7 @@ void tokenize (char *p) {
         if (strncmp(p, "break", 5) == 0 && (isspace(p[5]) || p[5] == '\0' || p[5] == ';')) {
             tokens[i].kind = TK_BREAK;
             tokens[i].line = line;
-            i++;
+            ensure_token_capacity();
             p += 5;
             continue;
         }
@@ -101,7 +108,7 @@ void tokenize (char *p) {
         if (strncmp(p, "continue", 8) == 0 && (isspace(p[8]) || p[8] == '\0' || p[8] == ';')) {
             tokens[i].kind = TK_CONTINUE;
             tokens[i].line = line;
-            i++;
+            ensure_token_capacity();
             p += 8;
             continue;
         }
@@ -109,7 +116,7 @@ void tokenize (char *p) {
         if (strncmp(p, "for", 3) == 0 && (isspace(p[3]) || p[3] == '\0')) {
             tokens[i].kind = TK_FOR;
             tokens[i].line = line;
-            i++;
+            ensure_token_capacity();
             p += 3;
             continue;
         }
@@ -117,7 +124,7 @@ void tokenize (char *p) {
         if (strncmp(p, "function", 8) == 0 && (isspace(p[8]) || p[8] == '\0')) {
             tokens[i].kind = TK_FUNCTION;
             tokens[i].line = line;
-            i++;
+            ensure_token_capacity();
             p += 8;
             continue;
         }
@@ -125,7 +132,7 @@ void tokenize (char *p) {
         if (strncmp(p, "return", 6) == 0 && (isspace(p[6]) || p[6] == '\0')) {
             tokens[i].kind = TK_RET;
             tokens[i].line = line;
-            i++;
+            ensure_token_capacity();
             p += 6;
             continue;
         }
@@ -145,10 +152,11 @@ void tokenize (char *p) {
                 }
                 if (*p == ']') p++;
                 tokens[i].type = TY_INT;
-                tokens[i++].kind = TK_ARRAY;
+                tokens[i].kind = TK_ARRAY;
             } else {
-                tokens[i++].kind = TK_INT;
+                tokens[i].kind = TK_INT;
             }
+            ensure_token_capacity();
 
             while (isspace(*p)) {
                 p++;
@@ -159,7 +167,8 @@ void tokenize (char *p) {
             }
             tokens[i].str[len] = '\0';
             tokens[i].line = line;
-            tokens[i++].kind = TK_IDENT;
+            tokens[i].kind = TK_IDENT;
+            ensure_token_capacity();
             continue;
         }
 
@@ -180,10 +189,11 @@ void tokenize (char *p) {
                 }
                 if (*p == ']') p++;
                 tokens[i].type = TY_STRING;
-                tokens[i++].kind = TK_ARRAY;
+                tokens[i].kind = TK_ARRAY;
             } else {
-                tokens[i++].kind = TK_STRING_TYPE;
+                tokens[i].kind = TK_STRING_TYPE;
             }
+            ensure_token_capacity();
 
             while (isspace(*p)) {
                 p++;
@@ -194,7 +204,8 @@ void tokenize (char *p) {
             }
             tokens[i].str[len] = '\0';
             tokens[i].line = line;
-            tokens[i++].kind = TK_IDENT;
+            tokens[i].kind = TK_IDENT;
+            ensure_token_capacity();
             continue;
         }
 
@@ -214,10 +225,11 @@ void tokenize (char *p) {
                 }
                 if (*p == ']') p++;
                 tokens[i].type = TY_BOOL;
-                tokens[i++].kind = TK_ARRAY;
+                tokens[i].kind = TK_ARRAY;
             } else {
-                tokens[i++].kind = TK_BOOL_TYPE;
+                tokens[i].kind = TK_BOOL_TYPE;
             }
+            ensure_token_capacity();
 
             while (isspace(*p)) {
                 p++;
@@ -228,7 +240,8 @@ void tokenize (char *p) {
             }
             tokens[i].str[len] = '\0';
             tokens[i].line = line;
-            tokens[i++].kind = TK_IDENT;
+            tokens[i].kind = TK_IDENT;
+            ensure_token_capacity();
             continue;
         }
 
@@ -236,7 +249,7 @@ void tokenize (char *p) {
             tokens[i].kind = TK_BOOL;
             tokens[i].bool_val = true;
             tokens[i].line = line;
-            i++;
+            ensure_token_capacity();
             p += 4;
             continue;
         }
@@ -245,35 +258,39 @@ void tokenize (char *p) {
             tokens[i].kind = TK_BOOL;
             tokens[i].bool_val = false;
             tokens[i].line = line;
-            i++;
+            ensure_token_capacity();
             p += 5;
             continue;
         }
 
         if (*p == '(') {
             tokens[i].line = line;
-            tokens[i++].kind = TK_LPAREN;
+            tokens[i].kind = TK_LPAREN;
+            ensure_token_capacity();
             p++;
             continue;
         }
 
         if (*p == ')') {
             tokens[i].line = line;
-            tokens[i++].kind = TK_RPAREN;
+            tokens[i].kind = TK_RPAREN;
+            ensure_token_capacity();
             p++;
             continue;
         }
 
         if (*p == '{') {
             tokens[i].line = line;
-            tokens[i++].kind = TK_LBRACE;
+            tokens[i].kind = TK_LBRACE;
+            ensure_token_capacity();
             p++;
             continue;
         }
 
         if (*p == '}') {
             tokens[i].line = line;
-            tokens[i++].kind = TK_RBRACE;
+            tokens[i].kind = TK_RBRACE;
+            ensure_token_capacity();
             p++;
             continue;
         }
@@ -282,46 +299,52 @@ void tokenize (char *p) {
             p++;
             if (*p == '+') {
                 tokens[i].line = line;
-                tokens[i++].kind = TK_INC;
+                tokens[i].kind = TK_INC;
                 p++;
             } else {
                 tokens[i].line = line;
-                tokens[i++].kind = TK_PLUS;
+                tokens[i].kind = TK_PLUS;
             }
+            ensure_token_capacity();
             continue;
         }
 
         if (*p == '-') {
             tokens[i].line = line;
-            tokens[i++].kind = TK_MINUS;
+            tokens[i].kind = TK_MINUS;
+            ensure_token_capacity();
             p++;
             continue;
         }
 
         if (*p == '*') {
             tokens[i].line = line;
-            tokens[i++].kind = TK_MUL;
+            tokens[i].kind = TK_MUL;
+            ensure_token_capacity();
             p++;
             continue;
         }
 
         if (*p == '/') {
             tokens[i].line = line;
-            tokens[i++].kind = TK_DIV;
+            tokens[i].kind = TK_DIV;
+            ensure_token_capacity();
             p++;
             continue;
         }
 
         if (*p == '%') {
             tokens[i].line = line;
-            tokens[i++].kind = TK_MOD;
+            tokens[i].kind = TK_MOD;
+            ensure_token_capacity();
             p++;
             continue;
         }
 
         if (*p == ';') {
             tokens[i].line = line;
-            tokens[i++].kind = TK_SEMI;
+            tokens[i].kind = TK_SEMI;
+            ensure_token_capacity();
             p++;
             continue;
         }
@@ -330,12 +353,13 @@ void tokenize (char *p) {
             p++;
             if (*p == '=') {
                 tokens[i].line = line;
-                tokens[i++].kind = TK_LE;
+                tokens[i].kind = TK_LE;
                 p++;
             } else {
                 tokens[i].line = line;
-                tokens[i++].kind = TK_LT;
+                tokens[i].kind = TK_LT;
             }
+            ensure_token_capacity();
             continue;
         }
 
@@ -343,25 +367,28 @@ void tokenize (char *p) {
             p++;
             if (*p == '=') {
                 tokens[i].line = line;
-                tokens[i++].kind = TK_GE;
+                tokens[i].kind = TK_GE;
                 p++;
             } else {
                 tokens[i].line = line;
-                tokens[i++].kind = TK_GT;
+                tokens[i].kind = TK_GT;
             }
+            ensure_token_capacity();
             continue;
         }
 
         if (*p == '[') {
             tokens[i].line = line;
-            tokens[i++].kind = TK_LBRACKET;
+            tokens[i].kind = TK_LBRACKET;
+            ensure_token_capacity();
             p++;
             continue;
         }
 
         if (*p == ']') {
             tokens[i].line = line;
-            tokens[i++].kind = TK_RBRACKET;
+            tokens[i].kind = TK_RBRACKET;
+            ensure_token_capacity();
             p++;
             continue;
         }
@@ -377,7 +404,7 @@ void tokenize (char *p) {
             tokens[i].length = len;
             tokens[i].line = line;
             p++;
-            i++;
+            ensure_token_capacity();
             continue;
         }
 
@@ -392,13 +419,15 @@ void tokenize (char *p) {
             if (*p == ':') {
                 tokens[i].kind = TK_IDENT;
                 tokens[i].line = line;
-                i++;
+                ensure_token_capacity();
                 tokens[i].line = line;
-                tokens[i++].kind = TK_COLON;
+                tokens[i].kind = TK_COLON;
+                ensure_token_capacity();
                 p++;
             } else {
                 tokens[i].line = line;
-                tokens[i++].kind = TK_IDENT;
+                tokens[i].kind = TK_IDENT;
+                ensure_token_capacity();
             }
             continue;
         }
@@ -407,7 +436,8 @@ void tokenize (char *p) {
             p++;
             if (*p == '=') {
                 tokens[i].line = line;
-                tokens[i++].kind = TK_NE;
+                tokens[i].kind = TK_NE;
+                ensure_token_capacity();
                 p++;
             }
             continue;
@@ -422,12 +452,13 @@ void tokenize (char *p) {
             p++;
             if (*p == '=') {
                 tokens[i].line = line;
-                tokens[i++].kind = TK_EQ;
+                tokens[i].kind = TK_EQ;
                 p++;
             } else {
                 tokens[i].line = line;
-                tokens[i++].kind = TK_ASSIGN;
+                tokens[i].kind = TK_ASSIGN;
             }
+            ensure_token_capacity();
             continue;
         }
 
