@@ -7,6 +7,7 @@
 #include "codegen.h"
 #include "type.h"
 #include "kama_string.h"
+#include "bytecode.h"
 
 typedef struct {
     int breaks[128];
@@ -14,33 +15,9 @@ typedef struct {
     int continue_target;
 } LoopContext;
 
-int *bytecode;
 LoopContext *loop_stack;
 int loop_depth = 0;
 int loop_stack_capacity;
-
-int count = 0;
-int bytecode_capacity;
-
-void init_bytecode(void) {
-    bytecode_capacity = 8;
-    bytecode = malloc(sizeof(int) * 8);
-}
-
-static void make_bytecode_bigger(void) {
-    int new_capacity = bytecode_capacity * 2;
-    int *new_bytecode = realloc(bytecode, sizeof(int) * new_capacity);
-
-    if (new_bytecode ==  NULL) {
-        fprintf(stderr,
-            "Runtime Error: Failed to resize function table\n");
-        exit(1);
-    }
-
-    bytecode_capacity = new_capacity;
-    bytecode = new_bytecode;
-}
-
 
 static void generate(Node *node);
 
@@ -62,39 +39,6 @@ static void make_loop_stack_bigger(void) {
     loop_stack_capacity = new_capacity;
     loop_stack = new_loop_stack;
 }
-
-static void emit(int value) {
-    if (count == bytecode_capacity) {
-        make_bytecode_bigger();
-    }
-
-    bytecode[count++] = value;
-}
-
-void emit_no_operand(OpCode op_code) {
-    emit(op_code);
-}
-
-static void emit_one_operand (OpCode op_code, int *val) {
-    emit(op_code);
-
-    if (val != NULL) {
-        emit(*val);
-    }
-}
-
-static void emit_two_operand(OpCode op_code, int *val1, int *val2) {
-    emit(op_code);
-    emit(*val1);
-    emit(*val2);
-}
-
-static void emit_two_operand_type(OpCode op_code, int *val1, TypeKind type) {
-    emit(op_code);
-    emit(*val1);
-    emit(type);
-}
-
 
 static void generate_binary(Node *node, OpCode op) {
     generate(node->lhs);

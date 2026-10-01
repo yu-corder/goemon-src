@@ -8,8 +8,8 @@ all: ${TARGET_EXEC} ${TARGET_COMP}
 $(TARGET_EXEC): Kama/kama_execute.c Kama/array.c Kama/kama_string.c
 		$(CC) $(CFLAGS) -o $(TARGET_EXEC) Kama/kama_execute.c Kama/array.c Kama/kama_string.c
 
-$(TARGET_COMP): Kama/kama_compile.c Kama/scanner.c Kama/debug.c Kama/parser.c Kama/ast.c Kama/symbol.c Kama/resolver.c Kama/type.c Kama/header.c Kama/codegen.c Kama/global_variable.c Kama/local_variable.c Kama/kama_string.c
-		$(CC) $(CFLAGS) -o $(TARGET_COMP) Kama/kama_compile.c Kama/scanner.c Kama/debug.c Kama/parser.c Kama/ast.c Kama/symbol.c Kama/resolver.c Kama/type.c Kama/header.c Kama/codegen.c Kama/global_variable.c Kama/local_variable.c Kama/kama_string.c
+$(TARGET_COMP): Kama/kama_compile.c Kama/scanner.c Kama/debug.c Kama/parser.c Kama/ast.c Kama/symbol.c Kama/resolver.c Kama/type.c Kama/header.c Kama/codegen.c Kama/global_variable.c Kama/local_variable.c Kama/kama_string.c Kama/bytecode.c
+		$(CC) $(CFLAGS) -o $(TARGET_COMP) Kama/kama_compile.c Kama/scanner.c Kama/debug.c Kama/parser.c Kama/ast.c Kama/symbol.c Kama/resolver.c Kama/type.c Kama/header.c Kama/codegen.c Kama/global_variable.c Kama/local_variable.c Kama/kama_string.c kama/bytecode.c
 
 run: all
 		./$(TARGET_COMP) --ast --token --binary examples/study.goe examples/study.gb
