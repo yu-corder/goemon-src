@@ -293,11 +293,8 @@ void tokenize (char *p) {
                 tokens[i].str[len++] = *p++;
             }
             tokens[i].str[len] = '\0';
-            tokens[i].kind = TK_STRING;
             tokens[i].length = len;
-            tokens[i].line = line;
-            p++;
-            ensure_token_capacity();
+            p = scan_token(p, TK_STRING, 1);
             continue;
         }
 
@@ -307,7 +304,6 @@ void tokenize (char *p) {
                 tokens[i].str[len++] = *p++;
             }
             tokens[i].str[len] = '\0';
-            tokens[i].line = line;
 
             if (*p == ':') {
                 p = scan_token(p, TK_IDENT, 0);
