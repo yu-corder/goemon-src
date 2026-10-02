@@ -38,7 +38,7 @@ static void ensure_token_capacity(void) {
     } 
 }
 
-static char *scan_keyword(char *p, TokenKind kind, int length) {
+static char *scan_token(char *p, TokenKind kind, int length) {
     tokens[i].kind = kind;
     tokens[i].line = line;
     ensure_token_capacity();
@@ -65,52 +65,52 @@ void tokenize (char *p) {
         }
 
         if (strncmp(p, "halt", 4) == 0 && (isspace(p[4]) || p[4] == '\0')) {
-            p = scan_keyword(p, TK_HALT, 4);
+            p = scan_token(p, TK_HALT, 4);
             continue;
         }
 
         if (strncmp(p, "print", 5) == 0 && (isspace(p[5]) || p[5] == '\0')) {
-            p = scan_keyword(p, TK_PRINT, 5);
+            p = scan_token(p, TK_PRINT, 5);
             continue;
         }
 
         if (strncmp(p, "if", 2) == 0 && (isspace(p[2]) || p[2] == '\0')) {
-            p = scan_keyword(p, TK_IF, 2);
+            p = scan_token(p, TK_IF, 2);
             continue;
         }
 
         if (strncmp(p, "else", 4) == 0 && (isspace(p[4]) || p[4] == '\0')) {
-            p = scan_keyword(p, TK_ELSE, 4);
+            p = scan_token(p, TK_ELSE, 4);
             continue;
         }
 
         if (strncmp(p, "while", 5) == 0 && (isspace(p[5]) || p[5] == '\0')) {
-            p = scan_keyword(p, TK_WHILE, 5);
+            p = scan_token(p, TK_WHILE, 5);
             continue;
         }
 
         if (strncmp(p, "break", 5) == 0 && (isspace(p[5]) || p[5] == '\0' || p[5] == ';')) {
-            p = scan_keyword(p, TK_BREAK, 5);
+            p = scan_token(p, TK_BREAK, 5);
             continue;
         }
 
         if (strncmp(p, "continue", 8) == 0 && (isspace(p[8]) || p[8] == '\0' || p[8] == ';')) {
-            p = scan_keyword(p, TK_CONTINUE, 8);
+            p = scan_token(p, TK_CONTINUE, 8);
             continue;
         }
 
         if (strncmp(p, "for", 3) == 0 && (isspace(p[3]) || p[3] == '\0')) {
-            p = scan_keyword(p, TK_FOR, 3);
+            p = scan_token(p, TK_FOR, 3);
             continue;
         }
 
         if (strncmp(p, "function", 8) == 0 && (isspace(p[8]) || p[8] == '\0')) {
-            p = scan_keyword(p, TK_FUNCTION, 8);
+            p = scan_token(p, TK_FUNCTION, 8);
             continue;
         }
 
         if (strncmp(p, "return", 6) == 0 && (isspace(p[6]) || p[6] == '\0')) {
-            p = scan_keyword(p, TK_RET, 6);
+            p = scan_token(p, TK_RET, 6);
             continue;
         }
 
@@ -241,66 +241,66 @@ void tokenize (char *p) {
         }
 
         if (*p == '(') {
-            p = scan_keyword(p, TK_LPAREN, 1);
+            p = scan_token(p, TK_LPAREN, 1);
             continue;
         }
 
         if (*p == ')') {
-            p = scan_keyword(p, TK_RPAREN, 1);
+            p = scan_token(p, TK_RPAREN, 1);
             continue;
         }
 
         if (*p == '{') {
-            p = scan_keyword(p, TK_LBRACE, 1);
+            p = scan_token(p, TK_LBRACE, 1);
             continue;
         }
 
         if (*p == '}') {
-            p = scan_keyword(p, TK_RBRACE, 1);
+            p = scan_token(p, TK_RBRACE, 1);
             continue;
         }
 
         if (*p == '+') {
             p++;
             if (*p == '+') {
-                p = scan_keyword(p, TK_INC, 1);
+                p = scan_token(p, TK_INC, 1);
             } else {
-                p = scan_keyword(p, TK_PLUS, 0);
+                p = scan_token(p, TK_PLUS, 0);
             }
             continue;
         }
 
         if (*p == '-') {
-            p = scan_keyword(p, TK_MINUS, 1);
+            p = scan_token(p, TK_MINUS, 1);
             continue;
         }
 
         if (*p == '*') {
-            p = scan_keyword(p, TK_MUL, 1);
+            p = scan_token(p, TK_MUL, 1);
             continue;
         }
 
         if (*p == '/') {
-            p = scan_keyword(p, TK_DIV, 1);
+            p = scan_token(p, TK_DIV, 1);
             continue;
         }
 
         if (*p == '%') {
-            p = scan_keyword(p, TK_MOD, 1);
+            p = scan_token(p, TK_MOD, 1);
             continue;
         }
 
         if (*p == ';') {
-            p = scan_keyword(p, TK_SEMI, 1);
+            p = scan_token(p, TK_SEMI, 1);
             continue;
         }
 
         if (*p == '<') {
             p++;
             if (*p == '=') {
-                p = scan_keyword(p, TK_LE, 1);
+                p = scan_token(p, TK_LE, 1);
             } else {
-                p = scan_keyword(p, TK_LT, 0);
+                p = scan_token(p, TK_LT, 0);
             }
             continue;
         }
@@ -308,20 +308,20 @@ void tokenize (char *p) {
         if (*p == '>') {
             p++;
             if (*p == '=') {
-                p = scan_keyword(p, TK_GE, 1);
+                p = scan_token(p, TK_GE, 1);
             } else {
-                p = scan_keyword(p, TK_GT, 0);
+                p = scan_token(p, TK_GT, 0);
             }
             continue;
         }
 
         if (*p == '[') {
-            p = scan_keyword(p, TK_LBRACKET, 1);
+            p = scan_token(p, TK_LBRACKET, 1);
             continue;
         }
 
         if (*p == ']') {
-            p = scan_keyword(p, TK_RBRACKET, 1);
+            p = scan_token(p, TK_RBRACKET, 1);
             continue;
         }
 
@@ -349,10 +349,10 @@ void tokenize (char *p) {
             tokens[i].line = line;
 
             if (*p == ':') {
-                p = scan_keyword(p, TK_IDENT, 0);
-                p = scan_keyword(p, TK_COLON, 1);
+                p = scan_token(p, TK_IDENT, 0);
+                p = scan_token(p, TK_COLON, 1);
             } else {
-                p = scan_keyword(p, TK_IDENT, 0);
+                p = scan_token(p, TK_IDENT, 0);
             }
             continue;
         }
@@ -360,7 +360,7 @@ void tokenize (char *p) {
         if (*p == '!') {
             p++;
             if (*p == '=') {
-                p = scan_keyword(p, TK_NE, 1);
+                p = scan_token(p, TK_NE, 1);
             }
             continue;
         }
@@ -373,9 +373,9 @@ void tokenize (char *p) {
         if (*p == '=') {
             p++;
             if (*p == '=') {
-                p = scan_keyword(p, TK_EQ, 1);
+                p = scan_token(p, TK_EQ, 1);
             } else {
-                p = scan_keyword(p, TK_ASSIGN, 0);
+                p = scan_token(p, TK_ASSIGN, 0);
             }
             continue;
         }
