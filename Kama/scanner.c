@@ -38,6 +38,13 @@ static void ensure_token_capacity(void) {
     } 
 }
 
+static char *scan_keyword(char *p, TokenKind kind, int length) {
+    tokens[i].kind = kind;
+    tokens[i].line = line;
+    ensure_token_capacity();
+    return p + length;
+}
+
 void tokenize (char *p) {
     init_tokens();
     while(*p) {
@@ -58,82 +65,52 @@ void tokenize (char *p) {
         }
 
         if (strncmp(p, "halt", 4) == 0 && (isspace(p[4]) || p[4] == '\0')) {
-            tokens[i].kind = TK_HALT;
-            tokens[i].line = line;
-            ensure_token_capacity();
-            p += 4;
+            p = scan_keyword(p, TK_HALT, 4);
             continue;
         }
 
         if (strncmp(p, "print", 5) == 0 && (isspace(p[5]) || p[5] == '\0')) {
-            tokens[i].kind = TK_PRINT;
-            tokens[i].line = line;
-            ensure_token_capacity();
-            p += 5;
+            p = scan_keyword(p, TK_PRINT, 5);
             continue;
         }
 
         if (strncmp(p, "if", 2) == 0 && (isspace(p[2]) || p[2] == '\0')) {
-            tokens[i].kind = TK_IF;
-            tokens[i].line = line;
-            ensure_token_capacity();
-            p += 2;
+            p = scan_keyword(p, TK_IF, 2);
             continue;
         }
 
         if (strncmp(p, "else", 4) == 0 && (isspace(p[4]) || p[4] == '\0')) {
-            tokens[i].kind = TK_ELSE;
-            tokens[i].line = line;
-            ensure_token_capacity();
-            p += 4;
+            p = scan_keyword(p, TK_ELSE, 4);
             continue;
         }
 
         if (strncmp(p, "while", 5) == 0 && (isspace(p[5]) || p[5] == '\0')) {
-            tokens[i].kind = TK_WHILE;
-            tokens[i].line = line;
-            ensure_token_capacity();
-            p += 5;
+            p = scan_keyword(p, TK_WHILE, 5);
             continue;
         }
 
         if (strncmp(p, "break", 5) == 0 && (isspace(p[5]) || p[5] == '\0' || p[5] == ';')) {
-            tokens[i].kind = TK_BREAK;
-            tokens[i].line = line;
-            ensure_token_capacity();
-            p += 5;
+            p = scan_keyword(p, TK_BREAK, 5);
             continue;
         }
 
         if (strncmp(p, "continue", 8) == 0 && (isspace(p[8]) || p[8] == '\0' || p[8] == ';')) {
-            tokens[i].kind = TK_CONTINUE;
-            tokens[i].line = line;
-            ensure_token_capacity();
-            p += 8;
+            p = scan_keyword(p, TK_CONTINUE, 8);
             continue;
         }
 
         if (strncmp(p, "for", 3) == 0 && (isspace(p[3]) || p[3] == '\0')) {
-            tokens[i].kind = TK_FOR;
-            tokens[i].line = line;
-            ensure_token_capacity();
-            p += 3;
+            p = scan_keyword(p, TK_FOR, 3);
             continue;
         }
 
         if (strncmp(p, "function", 8) == 0 && (isspace(p[8]) || p[8] == '\0')) {
-            tokens[i].kind = TK_FUNCTION;
-            tokens[i].line = line;
-            ensure_token_capacity();
-            p += 8;
+            p = scan_keyword(p, TK_FUNCTION, 8);
             continue;
         }
 
         if (strncmp(p, "return", 6) == 0 && (isspace(p[6]) || p[6] == '\0')) {
-            tokens[i].kind = TK_RET;
-            tokens[i].line = line;
-            ensure_token_capacity();
-            p += 6;
+            p = scan_keyword(p, TK_RET, 6);
             continue;
         }
 
@@ -264,34 +241,22 @@ void tokenize (char *p) {
         }
 
         if (*p == '(') {
-            tokens[i].line = line;
-            tokens[i].kind = TK_LPAREN;
-            ensure_token_capacity();
-            p++;
+            p = scan_keyword(p, TK_LPAREN, 1);
             continue;
         }
 
         if (*p == ')') {
-            tokens[i].line = line;
-            tokens[i].kind = TK_RPAREN;
-            ensure_token_capacity();
-            p++;
+            p = scan_keyword(p, TK_RPAREN, 1);
             continue;
         }
 
         if (*p == '{') {
-            tokens[i].line = line;
-            tokens[i].kind = TK_LBRACE;
-            ensure_token_capacity();
-            p++;
+            p = scan_keyword(p, TK_LBRACE, 1);
             continue;
         }
 
         if (*p == '}') {
-            tokens[i].line = line;
-            tokens[i].kind = TK_RBRACE;
-            ensure_token_capacity();
-            p++;
+            p = scan_keyword(p, TK_RBRACE, 1);
             continue;
         }
 
@@ -310,42 +275,27 @@ void tokenize (char *p) {
         }
 
         if (*p == '-') {
-            tokens[i].line = line;
-            tokens[i].kind = TK_MINUS;
-            ensure_token_capacity();
-            p++;
+            p = scan_keyword(p, TK_MINUS, 1);
             continue;
         }
 
         if (*p == '*') {
-            tokens[i].line = line;
-            tokens[i].kind = TK_MUL;
-            ensure_token_capacity();
-            p++;
+            p = scan_keyword(p, TK_MUL, 1);
             continue;
         }
 
         if (*p == '/') {
-            tokens[i].line = line;
-            tokens[i].kind = TK_DIV;
-            ensure_token_capacity();
-            p++;
+            p = scan_keyword(p, TK_DIV, 1);
             continue;
         }
 
         if (*p == '%') {
-            tokens[i].line = line;
-            tokens[i].kind = TK_MOD;
-            ensure_token_capacity();
-            p++;
+            p = scan_keyword(p, TK_MOD, 1);
             continue;
         }
 
         if (*p == ';') {
-            tokens[i].line = line;
-            tokens[i].kind = TK_SEMI;
-            ensure_token_capacity();
-            p++;
+            p = scan_keyword(p, TK_SEMI, 1);
             continue;
         }
 
@@ -378,18 +328,12 @@ void tokenize (char *p) {
         }
 
         if (*p == '[') {
-            tokens[i].line = line;
-            tokens[i].kind = TK_LBRACKET;
-            ensure_token_capacity();
-            p++;
+            p = scan_keyword(p, TK_LBRACKET, 1);
             continue;
         }
 
         if (*p == ']') {
-            tokens[i].line = line;
-            tokens[i].kind = TK_RBRACKET;
-            ensure_token_capacity();
-            p++;
+            p = scan_keyword(p, TK_RBRACKET, 1);
             continue;
         }
 
