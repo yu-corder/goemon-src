@@ -263,14 +263,10 @@ void tokenize (char *p) {
         if (*p == '+') {
             p++;
             if (*p == '+') {
-                tokens[i].line = line;
-                tokens[i].kind = TK_INC;
-                p++;
+                p = scan_keyword(p, TK_INC, 1);
             } else {
-                tokens[i].line = line;
-                tokens[i].kind = TK_PLUS;
+                p = scan_keyword(p, TK_PLUS, 0);
             }
-            ensure_token_capacity();
             continue;
         }
 
@@ -302,28 +298,20 @@ void tokenize (char *p) {
         if (*p == '<') {
             p++;
             if (*p == '=') {
-                tokens[i].line = line;
-                tokens[i].kind = TK_LE;
-                p++;
+                p = scan_keyword(p, TK_LE, 1);
             } else {
-                tokens[i].line = line;
-                tokens[i].kind = TK_LT;
+                p = scan_keyword(p, TK_LT, 0);
             }
-            ensure_token_capacity();
             continue;
         }
 
         if (*p == '>') {
             p++;
             if (*p == '=') {
-                tokens[i].line = line;
-                tokens[i].kind = TK_GE;
-                p++;
+                p = scan_keyword(p, TK_GE, 1);
             } else {
-                tokens[i].line = line;
-                tokens[i].kind = TK_GT;
+                p = scan_keyword(p, TK_GT, 0);
             }
-            ensure_token_capacity();
             continue;
         }
 
@@ -361,17 +349,10 @@ void tokenize (char *p) {
             tokens[i].line = line;
 
             if (*p == ':') {
-                tokens[i].kind = TK_IDENT;
-                tokens[i].line = line;
-                ensure_token_capacity();
-                tokens[i].line = line;
-                tokens[i].kind = TK_COLON;
-                ensure_token_capacity();
-                p++;
+                p = scan_keyword(p, TK_IDENT, 0);
+                p = scan_keyword(p, TK_COLON, 1);
             } else {
-                tokens[i].line = line;
-                tokens[i].kind = TK_IDENT;
-                ensure_token_capacity();
+                p = scan_keyword(p, TK_IDENT, 0);
             }
             continue;
         }
@@ -379,10 +360,7 @@ void tokenize (char *p) {
         if (*p == '!') {
             p++;
             if (*p == '=') {
-                tokens[i].line = line;
-                tokens[i].kind = TK_NE;
-                ensure_token_capacity();
-                p++;
+                p = scan_keyword(p, TK_NE, 1);
             }
             continue;
         }
@@ -395,14 +373,10 @@ void tokenize (char *p) {
         if (*p == '=') {
             p++;
             if (*p == '=') {
-                tokens[i].line = line;
-                tokens[i].kind = TK_EQ;
-                p++;
+                p = scan_keyword(p, TK_EQ, 1);
             } else {
-                tokens[i].line = line;
-                tokens[i].kind = TK_ASSIGN;
+                p = scan_keyword(p, TK_ASSIGN, 0);
             }
-            ensure_token_capacity();
             continue;
         }
 
