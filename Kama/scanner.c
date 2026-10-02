@@ -45,6 +45,14 @@ static char *scan_token(char *p, TokenKind kind, int length) {
     return p + length;
 }
 
+static char *scan_bool_token(char *p, int length, bool bool_val) {
+    tokens[i].kind = TK_BOOL;
+    tokens[i].bool_val = bool_val;
+    tokens[i].line = line;
+    ensure_token_capacity();
+    return p + length;
+}
+
 void tokenize (char *p) {
     init_tokens();
     while(*p) {
@@ -223,20 +231,12 @@ void tokenize (char *p) {
         }
 
         if (strncmp(p, "true", 4) == 0 && (isspace(p[4]) || p[4] == '\0' || p[4] == ';' || p[4] == ')')) {
-            tokens[i].kind = TK_BOOL;
-            tokens[i].bool_val = true;
-            tokens[i].line = line;
-            ensure_token_capacity();
-            p += 4;
+            p = scan_bool_token(p, 4, true);
             continue;
         }
 
         if (strncmp(p, "false", 5) == 0 && (isspace(p[5]) || p[5] == '\0' || p[5] == ';' || p[5] == ')')) {
-            tokens[i].kind = TK_BOOL;
-            tokens[i].bool_val = false;
-            tokens[i].line = line;
-            ensure_token_capacity();
-            p += 5;
+            p = scan_bool_token(p, 5, false);
             continue;
         }
 
