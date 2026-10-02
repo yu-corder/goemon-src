@@ -124,7 +124,6 @@ void tokenize (char *p) {
 
         if (strncmp(p, "int", 3) == 0 && (isspace(p[3]) || p[3] == '\0' || p[3] == '[')) {
             p += 3;
-            int len = 0;
             tokens[i].line = line;
             while (isspace(*p)) {
                 p++;
@@ -142,24 +141,11 @@ void tokenize (char *p) {
                 tokens[i].kind = TK_INT;
             }
             ensure_token_capacity();
-
-            while (isspace(*p)) {
-                p++;
-            }
-            
-            while (isalnum(*p) || *p == '_') {
-                tokens[i].str[len++] = *p++;
-            }
-            tokens[i].str[len] = '\0';
-            tokens[i].line = line;
-            tokens[i].kind = TK_IDENT;
-            ensure_token_capacity();
             continue;
         }
 
         if (strncmp(p, "str", 3) == 0 && (isspace(p[3]) || p[3] == '\0' || p[3] == '[')) {
             p += 3;
-            int len = 0;
             tokens[i].line = line;
             
 
@@ -179,24 +165,11 @@ void tokenize (char *p) {
                 tokens[i].kind = TK_STRING_TYPE;
             }
             ensure_token_capacity();
-
-            while (isspace(*p)) {
-                p++;
-            }
-            
-            while (isalnum(*p) || *p == '_') {
-                tokens[i].str[len++] = *p++;
-            }
-            tokens[i].str[len] = '\0';
-            tokens[i].line = line;
-            tokens[i].kind = TK_IDENT;
-            ensure_token_capacity();
             continue;
         }
 
         if (strncmp(p, "bool", 4) == 0 && (isspace(p[4]) || p[4] == '\0' || p[4] == '[')) {
             p += 4;
-            int len = 0;
             tokens[i].line = line;
 
             while (isspace(*p)) {
@@ -214,18 +187,6 @@ void tokenize (char *p) {
             } else {
                 tokens[i].kind = TK_BOOL_TYPE;
             }
-            ensure_token_capacity();
-
-            while (isspace(*p)) {
-                p++;
-            }
-            
-            while (isalnum(*p) || *p == '_') {
-                tokens[i].str[len++] = *p++;
-            }
-            tokens[i].str[len] = '\0';
-            tokens[i].line = line;
-            tokens[i].kind = TK_IDENT;
             ensure_token_capacity();
             continue;
         }
