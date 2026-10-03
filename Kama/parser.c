@@ -6,6 +6,7 @@
 #include "parser.h"
 #include "token.h"
 #include "debug.h"
+#include "scanner.h"
 int pos = 0;
 
 static Node* parse_statement();
@@ -504,7 +505,7 @@ Node* parse_program () {
         }
     }
 
-    free(tokens);
+    free_all_tokens();
 
     return head;
 }

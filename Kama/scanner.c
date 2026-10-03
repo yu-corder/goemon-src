@@ -31,6 +31,17 @@ static void make_bigger(void) {
     tokens = new_tokens;
 }
 
+void free_all_tokens(void) {
+    for (int i = 0; i < token_count; i++) {
+        free(tokens[i].str);
+        tokens[i].str = NULL;
+    }
+
+    free(tokens);
+    tokens = NULL;
+    token_count = 0;
+}
+
 static void ensure_token_capacity(void) {
     token_count++;
     if (token_count == token_capacity) {

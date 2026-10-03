@@ -4,5 +4,6 @@
 #include "token.h"
 
 void tokenize(char *src);
+void free_all_tokens(void);
 
 #endif
