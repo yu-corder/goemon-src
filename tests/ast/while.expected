@@ -1,74 +1,74 @@
   [DECL](INT)
-    [VAR](INT)(c)(address=1)
+    [VAR](INT)(c)(address=1)(len=1)
     [NUM] val=0
   [DECL](INT)
-    [VAR](INT)(d)(address=2)
+    [VAR](INT)(d)(address=2)(len=1)
     [NUM] val=1
   [WHILE]
     [CONDITION]
       [LT]
-        [VAR](INT)(c)(address=1)
+        [VAR](INT)(c)(address=1)(len=1)
         [NUM] val=5
     [BODY]
       [PRINT]
-        [VAR](INT)(c)(address=1)
+        [VAR](INT)(c)(address=1)(len=1)
       [PRINT]
         [NUM] val=1
       [DECL](INT)
-        [VAR](INT)(d)(address=2)
+        [VAR](INT)(d)(address=2)(len=1)
         [NUM] val=1
       [WHILE]
         [CONDITION]
           [LT]
-            [VAR](INT)(d)(address=2)
+            [VAR](INT)(d)(address=2)(len=1)
             [NUM] val=3
         [BODY]
           [PRINT]
-            [VAR](INT)(d)(address=2)
+            [VAR](INT)(d)(address=2)(len=1)
           [INC]
-            [VAR](INT)(d)(address=2)
+            [VAR](INT)(d)(address=2)(len=1)
       [INC]
-        [VAR](INT)(c)(address=1)
+        [VAR](INT)(c)(address=1)(len=1)
   [DECL](INT)
-    [VAR](INT)(e)(address=3)
+    [VAR](INT)(e)(address=3)(len=1)
     [NUM] val=0
   [DECL](INT)
-    [VAR](INT)(f)(address=4)
+    [VAR](INT)(f)(address=4)(len=1)
     [NUM] val=0
   [WHILE]
     [CONDITION]
       [LT]
-        [VAR](INT)(e)(address=3)
+        [VAR](INT)(e)(address=3)(len=1)
         [NUM] val=3
     [BODY]
       [IF]
         [CONDITION]
           [EQ]
-            [VAR](INT)(e)(address=3)
+            [VAR](INT)(e)(address=3)(len=1)
             [NUM] val=2
         [THEN]
           [BREAK]
       [PRINT]
-        [VAR](INT)(e)(address=3)
+        [VAR](INT)(e)(address=3)(len=1)
       [INC]
-        [VAR](INT)(e)(address=3)
+        [VAR](INT)(e)(address=3)(len=1)
   [WHILE]
     [CONDITION]
       [LT]
-        [VAR](INT)(f)(address=4)
+        [VAR](INT)(f)(address=4)(len=1)
         [NUM] val=3
     [BODY]
       [IF]
         [CONDITION]
           [EQ]
-            [VAR](INT)(f)(address=4)
+            [VAR](INT)(f)(address=4)(len=1)
             [NUM] val=2
         [THEN]
           [INC]
-            [VAR](INT)(f)(address=4)
+            [VAR](INT)(f)(address=4)(len=1)
           [CONTINUE]
       [PRINT]
-        [VAR](INT)(f)(address=4)
+        [VAR](INT)(f)(address=4)(len=1)
       [INC]
-        [VAR](INT)(f)(address=4)
+        [VAR](INT)(f)(address=4)(len=1)
 絶景かな！ Compiled study.goe to study.gb

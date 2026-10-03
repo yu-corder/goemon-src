@@ -1,8 +1,8 @@
   [DECL](STRING)
-    [VAR](STRING)(aiueo)(address=1)
+    [VAR](STRING)(aiueo)(address=1)(len=5)
     [STR] val=Hello
   [PRINT]
-    [VAR](STRING)(aiueo)(address=1)
+    [VAR](STRING)(aiueo)(address=1)(len=5)
   [PRINT]
     [STR] val=World
 絶景かな！ Compiled study.goe to study.gb

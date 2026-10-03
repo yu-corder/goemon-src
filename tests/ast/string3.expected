@@ -1,17 +1,17 @@
   [DECL](STRING)
-    [VAR](STRING)(text)(address=1)
+    [VAR](STRING)(text)(address=1)(len=4)
     [STR] val=hello world1
   [FUNCTION]
     [NAME]
       (test)
     [PARAMS]
       [DECL](STRING)
-        [VAR](STRING)(arg)(address=0)(depth=1)
+        [VAR](STRING)(arg)(address=0)(depth=1)(len=3)
     [BODY]
       [PRINT]
-        [VAR](STRING)(arg)(address=0)(depth=1)
+        [VAR](STRING)(arg)(address=0)(depth=1)(len=3)
       [PRINT]
-        [VAR](STRING)(text)(address=1)
+        [VAR](STRING)(text)(address=1)(len=4)
   [CALL](address=6)
     [NAME]
       (test)

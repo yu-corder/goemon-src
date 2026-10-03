@@ -7,16 +7,16 @@
   [PRINT]
     [STR] val=Hello World2
   [DECL](INT)
-    [VAR](INT)(count)(address=1)
+    [VAR](INT)(count)(address=1)(len=5)
     [NUM] val=0
   [WHILE]
     [CONDITION]
       [LT]
-        [VAR](INT)(count)(address=1)
+        [VAR](INT)(count)(address=1)(len=5)
         [NUM] val=10
     [BODY]
       [PRINT]
         [STR] val=Hello World3
       [INC]
-        [VAR](INT)(count)(address=1)
+        [VAR](INT)(count)(address=1)(len=5)
 絶景かな！ Compiled study.goe to study.gb
