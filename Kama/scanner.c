@@ -332,6 +332,7 @@ void tokenize (char *p) {
                 tokens[token_count].str[len++] = *p++;
             }
             tokens[token_count].str[len] = '\0';
+            tokens[token_count].length = len;
 
             if (*p == ':') {
                 p = scan_token(p, TK_IDENT, 0);

@@ -87,6 +87,7 @@ void debug_token(int count) {
             tokens[i].kind == TK_STRING
         ) {
             printf(" text=\"%s\"", tokens[i].str);
+            printf(" len=%d", tokens[i].length);
         }
 
         if (tokens[i].kind == TK_ARRAY) {
