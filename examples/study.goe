@@ -1,21 +1,7 @@
-str[20] texts;
+int num = 500;
+str text = "hello world!";
+bool chk = true;
 
-texts[0] = "aiueo";
-texts[1] = "kakikukeko";
-texts[2] = "saissueso";
-texts[3] = "tatitiuteto";
-texts[4] = "naninuneo";
-texts[5] = "a";
-texts[6] = "b";
-texts[7] = "c";
-texts[8] = "d";
-texts[9] = "e";
-texts[10] = "f";
-texts[11] = "nfnfn";
-
-print "hello";
-print "ma";
-print "kyou";
-print "jfjfi";
-print "saza";
-print "sss";
+num = 500;
+text = "aiueo";
+chk = false;

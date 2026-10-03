@@ -165,7 +165,7 @@ static Node* parse_primary() {
             node =  new_call_node(ND_CALL, t->str, arg_head);
         } else if (tokens[pos].kind == TK_INC) {
             next_token();
-            Node *var = new_var_node(t->str);
+            Node *var = new_var_node(t->str, &t->length);
             node = new_unary_node(ND_INC, var);
         } else if (tokens[pos].kind == TK_LBRACKET) {
             next_token();
@@ -174,7 +174,7 @@ static Node* parse_primary() {
             expect(TK_RBRACKET);
             node = new_array_node(ND_ARRAY, index, t->str);
         } else {
-            node = new_var_node(t->str);
+            node = new_var_node(t->str, &t->length);
         }
     } else if (t->kind == TK_STRING) {
         node = new_str_node(t->str, &t->length);
@@ -341,7 +341,7 @@ static Node* parse_for() {
     if (consume(TK_ASSIGN)) {
         init = parse_evaluation();
         expect(TK_SEMI);
-        var = new_var_node(t->str);
+        var = new_var_node(t->str, &t->length);
     }
     init = new_decl_node(ND_VAR_DECL, var, init, TY_INT);
 
@@ -354,7 +354,7 @@ static Node* parse_for() {
     Node *update = NULL;
     Token *upd_t = expect_ident();
     if (consume(TK_INC)) {
-        Node *var = new_var_node(upd_t->str);
+        Node *var = new_var_node(upd_t->str, &upd_t->length);
         update = new_unary_node(ND_INC, var);
     }
 
@@ -392,7 +392,7 @@ static Node* parse_statement() {
         }
         case TK_INT: {
             Token *ident = expect_ident();
-            Node *lhs = new_var_node(ident->str);
+            Node *lhs = new_var_node(ident->str, &ident->length);
             
             if (consume(TK_ASSIGN)) {
                 Node *rhs = parse_evaluation();
@@ -405,7 +405,7 @@ static Node* parse_statement() {
         case TK_ARRAY: { 
             Token *ident = expect_ident();
             // Node *lhs = new_array_node(ND_ARRAY, ident->str, index);
-            Node *lhs = new_var_node(ident->str);
+            Node *lhs = new_var_node(ident->str, &ident->length);
             if (t->length <= 0) {
                 fprintf(stderr,
                     "[Line: %d]Array size must be greater than 0\n", t->line);
@@ -415,7 +415,7 @@ static Node* parse_statement() {
         }
         case TK_STRING_TYPE: {
             Token *ident = expect_ident();
-            Node *lhs = new_var_node(ident->str);
+            Node *lhs = new_var_node(ident->str, &ident->length);
 
             if (consume(TK_ASSIGN)) {
                 Node *rhs = parse_evaluation();
@@ -427,7 +427,7 @@ static Node* parse_statement() {
         }
         case TK_BOOL_TYPE: {
             Token *ident = expect_ident();
-            Node *lhs = new_var_node(ident->str);
+            Node *lhs = new_var_node(ident->str, &ident->length);
 
             if (consume(TK_ASSIGN)) {
                 Node *rhs = parse_evaluation();
@@ -441,7 +441,7 @@ static Node* parse_statement() {
             consume(TK_COLON);
 
             if (consume(TK_ASSIGN)) {
-                Node *lhs = new_var_node(t->str);
+                Node *lhs = new_var_node(t->str, &t->length);
                 Node *rhs = parse_evaluation();
                 expect(TK_SEMI);
                 return new_binary_node(ND_ASSIGN, lhs, rhs);

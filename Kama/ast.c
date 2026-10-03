@@ -47,13 +47,14 @@ Node* new_str_node (char *str, int *len) {
     return &node_tree[current_idx];
 }
 
-Node* new_var_node (char *str) {
+Node* new_var_node (char *str, int *len) {
     int current_idx = node_depth;
     node_depth++;
 
     node_tree[current_idx].kind = ND_VAR;
     node_tree[current_idx].lhs = NULL;
     node_tree[current_idx].rhs = NULL;
+    node_tree[current_idx].len = *len;
     strcpy(node_tree[current_idx].name, str);
 
     return &node_tree[current_idx];

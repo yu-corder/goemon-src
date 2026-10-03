@@ -166,6 +166,7 @@ void debug_ast_node(Node *node, int depth) {
             if (!node->is_global) {
                 printf("(depth=%d)", node->depth);
             }
+            printf("(len=%d)", node->len);
         }
 
         if (node->kind == ND_CALL) {
