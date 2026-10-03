@@ -58,7 +58,7 @@ typedef enum {
 typedef struct {
     TokenKind kind;
     int val;
-    char str[256];
+    char *str;
     bool bool_val;
     int length;
     int line;

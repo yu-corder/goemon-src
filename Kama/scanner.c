@@ -10,7 +10,7 @@ Token *tokens;
 int token_capacity;
 
 int line = 1;
-int i = 0;
+int token_count = 0;
 
 static void init_tokens(void) {
     token_capacity = INITIAL_TOKEN_CAPACITY;
@@ -32,23 +32,23 @@ static void make_bigger(void) {
 }
 
 static void ensure_token_capacity(void) {
-    i++;
-    if (i == token_capacity) {
+    token_count++;
+    if (token_count == token_capacity) {
         make_bigger();
     } 
 }
 
 static char *scan_token(char *p, TokenKind kind, int length) {
-    tokens[i].kind = kind;
-    tokens[i].line = line;
+    tokens[token_count].kind = kind;
+    tokens[token_count].line = line;
     ensure_token_capacity();
     return p + length;
 }
 
 static char *scan_bool_token(char *p, int length, bool bool_val) {
-    tokens[i].kind = TK_BOOL;
-    tokens[i].bool_val = bool_val;
-    tokens[i].line = line;
+    tokens[token_count].kind = TK_BOOL;
+    tokens[token_count].bool_val = bool_val;
+    tokens[token_count].line = line;
     ensure_token_capacity();
     return p + length;
 }
@@ -65,9 +65,9 @@ void tokenize (char *p) {
         if (isspace(*p)) { p++; continue;}
 
         if (isdigit(*p)) {
-            tokens[i].kind = TK_NUMBER;
-            tokens[i].val = strtol(p, &p, 10);
-            tokens[i].line = line;
+            tokens[token_count].kind = TK_NUMBER;
+            tokens[token_count].val = strtol(p, &p, 10);
+            tokens[token_count].line = line;
             ensure_token_capacity();
             continue;
         }
@@ -124,7 +124,7 @@ void tokenize (char *p) {
 
         if (strncmp(p, "int", 3) == 0 && (isspace(p[3]) || p[3] == '\0' || p[3] == '[')) {
             p += 3;
-            tokens[i].line = line;
+            tokens[token_count].line = line;
             while (isspace(*p)) {
                 p++;
             }
@@ -132,13 +132,13 @@ void tokenize (char *p) {
             if (*p == '[') {
                 p++;
                 if (isdigit(*p)) {
-                    tokens[i].length = strtol(p, &p, 10);
+                    tokens[token_count].length = strtol(p, &p, 10);
                 }
                 if (*p == ']') p++;
-                tokens[i].type = TY_INT;
-                tokens[i].kind = TK_ARRAY;
+                tokens[token_count].type = TY_INT;
+                tokens[token_count].kind = TK_ARRAY;
             } else {
-                tokens[i].kind = TK_INT;
+                tokens[token_count].kind = TK_INT;
             }
             ensure_token_capacity();
             continue;
@@ -146,7 +146,7 @@ void tokenize (char *p) {
 
         if (strncmp(p, "str", 3) == 0 && (isspace(p[3]) || p[3] == '\0' || p[3] == '[')) {
             p += 3;
-            tokens[i].line = line;
+            tokens[token_count].line = line;
             
 
             while (isspace(*p)) {
@@ -156,13 +156,13 @@ void tokenize (char *p) {
             if (*p == '[') {
                 p++;
                 if (isdigit(*p)) {
-                    tokens[i].length = strtol(p, &p, 10);
+                    tokens[token_count].length = strtol(p, &p, 10);
                 }
                 if (*p == ']') p++;
-                tokens[i].type = TY_STRING;
-                tokens[i].kind = TK_ARRAY;
+                tokens[token_count].type = TY_STRING;
+                tokens[token_count].kind = TK_ARRAY;
             } else {
-                tokens[i].kind = TK_STRING_TYPE;
+                tokens[token_count].kind = TK_STRING_TYPE;
             }
             ensure_token_capacity();
             continue;
@@ -170,7 +170,7 @@ void tokenize (char *p) {
 
         if (strncmp(p, "bool", 4) == 0 && (isspace(p[4]) || p[4] == '\0' || p[4] == '[')) {
             p += 4;
-            tokens[i].line = line;
+            tokens[token_count].line = line;
 
             while (isspace(*p)) {
                 p++;
@@ -179,13 +179,13 @@ void tokenize (char *p) {
             if (*p == '[') {
                 p++;
                 if (isdigit(*p)) {
-                    tokens[i].length = strtol(p, &p, 10);
+                    tokens[token_count].length = strtol(p, &p, 10);
                 }
                 if (*p == ']') p++;
-                tokens[i].type = TY_BOOL;
-                tokens[i].kind = TK_ARRAY;
+                tokens[token_count].type = TY_BOOL;
+                tokens[token_count].kind = TK_ARRAY;
             } else {
-                tokens[i].kind = TK_BOOL_TYPE;
+                tokens[token_count].kind = TK_BOOL_TYPE;
             }
             ensure_token_capacity();
             continue;
@@ -289,11 +289,20 @@ void tokenize (char *p) {
         if (*p == '"') {
             p++;
             int len = 0;
+
             while (*p != '"' && *p != '\0') {
-                tokens[i].str[len++] = *p++;
+                len++;
+                p++;
             }
-            tokens[i].str[len] = '\0';
-            tokens[i].length = len;
+            tokens[token_count].str = malloc(len + 1);
+            p -= len;
+            len = 0;
+
+            while (*p != '"' && *p != '\0') {
+                tokens[token_count].str[len++] = *p++;
+            }
+            tokens[token_count].str[len] = '\0';
+            tokens[token_count].length = len;
             p = scan_token(p, TK_STRING, 1);
             continue;
         }
@@ -301,9 +310,17 @@ void tokenize (char *p) {
         if (isalpha(*p) || *p == '_') {
             int len = 0;
             while (isalnum(*p) || *p == '_') {
-                tokens[i].str[len++] = *p++;
+                len++;
+                p++;
             }
-            tokens[i].str[len] = '\0';
+            tokens[token_count].str = malloc(len + 1);
+            p -= len;
+            len = 0;
+
+            while (isalnum(*p) || *p == '_') {
+                tokens[token_count].str[len++] = *p++;
+            }
+            tokens[token_count].str[len] = '\0';
 
             if (*p == ':') {
                 p = scan_token(p, TK_IDENT, 0);
@@ -340,8 +357,8 @@ void tokenize (char *p) {
         printf("Line %d: Unknown character '%c'\n", line, *p);
         exit(1);
     }
-    tokens[i].kind = TK_EOF;
-    tokens[i].line = line;
+    tokens[token_count].kind = TK_EOF;
+    tokens[token_count].line = line;
 
-    if (g_debug_token) debug_token(i);
+    if (g_debug_token) debug_token(token_count);
 }
