@@ -99,7 +99,7 @@ static void resolution_variable(Node* node, bool allow_create, TypeKind* type) {
         GlobalVariablesInfo var = find_global_variable(node->name);
         if (!var.found) {
             if (allow_create) {
-                addr = insert_global_variable(node->name, type);
+                addr = insert_global_variable(node->name, type, node->len);
                 var = find_global_variable(node->name);
 
                 node->address = var.address;

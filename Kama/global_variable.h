@@ -6,7 +6,7 @@
 
 
 typedef struct {
-    char name[32];
+    char *name;
     int memory_index;
 
     TypeKind type;
@@ -26,6 +26,6 @@ typedef struct {
 
 void init_global_variable(void);
 GlobalVariablesInfo find_global_variable(char *name);
-int insert_global_variable(char *name, TypeKind* type);
+int insert_global_variable(char *name, TypeKind* type, int len);
 
 #endif

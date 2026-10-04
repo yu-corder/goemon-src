@@ -47,11 +47,18 @@ GlobalVariablesInfo find_global_variable(char *name) {
     return var;
 }
 
-int insert_global_variable(char *name, TypeKind* type) {
+int insert_global_variable(char *name, TypeKind* type, int len) {
     int current_idx = global_variable_count;
     global_variable_count++;
+    
+    global_variable_table[current_idx].name = malloc(len + 1);
 
-    strcpy(global_variable_table[current_idx].name, name);
+    int i = 0;
+    while (*name != '\0') {
+        global_variable_table[current_idx].name[i++] = *name++;
+    }
+    global_variable_table[current_idx].name[i] = '\0';
+
     global_variable_table[current_idx].type = *type;
     
     if (strncmp(name, "__s", 3) == 0) {
