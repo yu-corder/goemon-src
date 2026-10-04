@@ -30,6 +30,17 @@ static void make_bigger(void) {
     global_variable_table = new_global_variable_table;
 }
 
+void free_all_global_variable(void) {
+    for (int i = 0; i < global_variable_count; i++) {
+        free(global_variable_table[i].name);
+        global_variable_table[i].name = NULL;
+    }
+
+    free(global_variable_table);
+    global_variable_table = NULL;
+    global_variable_count = 0;
+}
+
 
 GlobalVariablesInfo find_global_variable(char *name) {
     GlobalVariablesInfo var;
@@ -50,7 +61,7 @@ GlobalVariablesInfo find_global_variable(char *name) {
 int insert_global_variable(char *name, TypeKind* type, int len) {
     int current_idx = global_variable_count;
     global_variable_count++;
-    
+
     global_variable_table[current_idx].name = malloc(len + 1);
 
     int i = 0;
