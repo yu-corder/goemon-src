@@ -10,7 +10,7 @@ typedef struct {
     char name[32][32];
     int address[32];
 
-    TypeKind type[32];
+    TypeKind *type;
 } LocalVariables;
 
 extern LocalVariables *local_scopes;
