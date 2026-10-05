@@ -63,6 +63,7 @@ FuncionParamsInfo find_function_params(char *name, int depth) {
                 var.param_count = function_params_table[i].param_count[j];
                 var.params = function_params_table[i].params[j];
                 var.type = function_params_table[i].type[j];
+                var.len = function_params_table[i].len[j];
                 return var;
             }
         }
@@ -94,6 +95,7 @@ void insert_function_params(char *name, Node *params, int depth) {
         }
         strcpy(function_params_table[depth].params[current_idx][p_count], p->lhs->name);
         function_params_table[depth].type[current_idx][p_count] = p->type;
+        function_params_table[depth].len[current_idx][p_count] = p->lhs->len;
         p_count++;
         p = p->next;
     }

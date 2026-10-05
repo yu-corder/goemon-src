@@ -21,6 +21,7 @@ typedef struct {
     int function_count;
 
     TypeKind type[16][16];
+    int len[16][16];
 } FuncionParams;
 
 extern FuncionParams *function_params_table;
@@ -47,6 +48,7 @@ typedef struct {
     bool found;
 
     TypeKind *type;
+    int *len;
 } FuncionParamsInfo;
 
 void init_function_table(void);

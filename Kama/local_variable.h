@@ -7,7 +7,7 @@
 
 typedef struct {
     int variable_count;
-    char name[32][32];
+    char **name;
     int *address;
 
     TypeKind *type;
@@ -28,6 +28,6 @@ typedef struct {
 void init_local_variable(void);
 void free_all_local_scopes(void);
 LocalVariablesInfo find_local_variable(char *name, int depth);
-int insert_local_variable(char *name, int depth, TypeKind* type);
+int insert_local_variable(char *name, int depth, TypeKind* type, int len);
 
 #endif

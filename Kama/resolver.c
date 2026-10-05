@@ -69,7 +69,7 @@ static void resolution_variable(Node* node, bool allow_create, TypeKind* type) {
 
             if (!g_var.found) {
                 if (allow_create) {
-                    addr = insert_local_variable(node->name, block_depth, type);
+                    addr = insert_local_variable(node->name, block_depth, type, node->len);
                     var = find_local_variable(node->name, block_depth);
 
                     node->address = var.address;
@@ -78,7 +78,6 @@ static void resolution_variable(Node* node, bool allow_create, TypeKind* type) {
                     node->type = var.type;
                     return;
                 }
-
                 fprintf(stderr, "Undefined variable: %s\n", node->name);
                 exit(1);
             }
@@ -356,7 +355,7 @@ static void name_resolution(Node *node) {
                 for (int i = 0; i < func_params.param_count; i++) {
                     LocalVariablesInfo var = find_local_variable(func_params.params[i], block_depth);
                     int addr = var.address;
-                    if (!var.found) addr = insert_local_variable(func_params.params[i], block_depth, &func_params.type[i]);
+                    if (!var.found) addr = insert_local_variable(func_params.params[i], block_depth, &func_params.type[i], func_params.len[i]);
                     var = find_local_variable(func_params.params[i], block_depth);
                     param_name_resolution(node->params, func_params.params[i], var.address, var.depth, var.type);
                     emit_count_three();

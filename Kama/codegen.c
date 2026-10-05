@@ -192,7 +192,6 @@ static void generate(Node *node) {
                 break;
             }
             case ND_IF: {
-                enter_scope();
                 generate(node->condition);
 
                 int my_jz_idx = count;
@@ -211,13 +210,9 @@ static void generate(Node *node) {
                 } else {
                     bytecode[my_jz_idx + 1] = count;
                 }
-
-                leave_scope();
                 break;
             }
             case ND_WHILE: {
-                enter_scope();
-
                 loop_depth++;
                 if (loop_stack_capacity == loop_depth) make_loop_stack_bigger();
                 loop_stack[loop_depth].break_count = 0;
@@ -240,7 +235,6 @@ static void generate(Node *node) {
                     bytecode[break_jz_idx + 1] = count;
                 }
                 loop_depth--;
-                leave_scope();
                 break;
             }
             case ND_INC: {
@@ -272,8 +266,6 @@ static void generate(Node *node) {
                 break;
             }
             case ND_FOR: {
-                enter_scope();
-
                 loop_depth++;
                 if (loop_stack_capacity == loop_depth) make_loop_stack_bigger();
                 loop_stack[loop_depth].break_count = 0;
@@ -310,13 +302,9 @@ static void generate(Node *node) {
                     bytecode[break_jz_idx + 1] = count;
                 }
                 loop_depth--;
-
-                leave_scope();
                 break;
             }
             case ND_FUNCTION: {
-                enter_scope();
-                
                 int my_jmp_idx = count;
                 int zero = 0;
                 emit_one_operand(OP_JMP, &zero);
@@ -341,7 +329,6 @@ static void generate(Node *node) {
                 emit_no_operand(OP_RET);
 
                 bytecode[my_jmp_idx + 1] = count;
-                leave_scope();
                 break;
             }
             case ND_CALL: {

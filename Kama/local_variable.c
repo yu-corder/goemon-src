@@ -14,11 +14,11 @@ int max_depth = 0;
 void init_local_variable(void) {
     local_variable_capacity = 8;
     local_scopes = malloc(sizeof(LocalVariables) * 8);
-
     variable_count_capacity = 32;
     for (int i = 0; i < local_variable_capacity; i++) {
         local_scopes[i].type = malloc(sizeof(TypeKind) * 32);
         local_scopes[i].address = malloc(sizeof(int) * 32);
+        local_scopes[i].name = malloc(sizeof(char *) * 32);
     }
 }
 
@@ -66,7 +66,7 @@ LocalVariablesInfo find_local_variable(char *name, int depth) {
     return var;
 }
 
-int insert_local_variable(char *name, int depth, TypeKind* type) {
+int insert_local_variable(char *name, int depth, TypeKind* type, int len) {
     if (depth == local_variable_capacity) make_local_bigger();
     if (max_depth <= depth) max_depth = depth;
 
@@ -78,16 +78,27 @@ int insert_local_variable(char *name, int depth, TypeKind* type) {
             local_scopes[depth].type,
             sizeof(TypeKind) * new_variable_count_capacity
         );
-        
+
         local_scopes[depth].address = realloc(
             local_scopes[depth].address,
             sizeof(int) * new_variable_count_capacity
+        );
+
+        local_scopes[depth].name = realloc(
+            local_scopes[depth].name,
+            sizeof(char *) * new_variable_count_capacity
         );
         variable_count_capacity = new_variable_count_capacity;
     }
 
     local_scopes[depth].variable_count++;
-    strcpy(local_scopes[depth].name[current_idx], name);
+
+    local_scopes[depth].name[current_idx] = malloc(len + 1);
+    for (int i = 0; i < len; i++) {
+        local_scopes[depth].name[current_idx][i] = name[i];
+    }
+    
+    local_scopes[depth].name[current_idx][len] = '\0';
     local_scopes[depth].type[current_idx] = *type;
     
     if (strncmp(name, "__s", 3) == 0) {
@@ -95,5 +106,6 @@ int insert_local_variable(char *name, int depth, TypeKind* type) {
     } else {
         local_scopes[depth].address[current_idx] = current_idx;
     }
+
     return local_scopes[depth].address[current_idx];
 }

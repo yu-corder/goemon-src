@@ -1,11 +1,9 @@
-function int getValue() {
-    int[5] numbers;
-
-    for (int i = 0; i < 5; i++) {
-        numbers[i] = i;
-    }
-
-    return numbers[3];
+function int add(int a, int b) {
+    return a + b;
 }
 
-print getValue();
+int[5] numbers;
+numbers[0] = 10;
+numbers[1] = 20;
+
+print add(numbers[0] + 1, numbers[1] + 2);
