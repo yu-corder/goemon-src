@@ -18,12 +18,15 @@ void init_local_variable(void) {
     variable_count_capacity = 32;
     for (int i = 0; i < local_variable_capacity; i++) {
         local_scopes[i].type = malloc(sizeof(TypeKind) * 32);
+        local_scopes[i].address = malloc(sizeof(int) * 32);
     }
 }
 
 void free_all_local_scopes(void) {
     for (int i = 0; i < max_depth; i++) {
         free(local_scopes[i].type);
+        free(local_scopes[i].address);
+        local_scopes[i].address = NULL;
         local_scopes[i].type = NULL;
     }
 
@@ -74,6 +77,11 @@ int insert_local_variable(char *name, int depth, TypeKind* type) {
         local_scopes[depth].type = realloc(
             local_scopes[depth].type,
             sizeof(TypeKind) * new_variable_count_capacity
+        );
+        
+        local_scopes[depth].address = realloc(
+            local_scopes[depth].address,
+            sizeof(int) * new_variable_count_capacity
         );
         variable_count_capacity = new_variable_count_capacity;
     }
