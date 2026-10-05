@@ -8,8 +8,8 @@
 LocalVariables *local_scopes;
 
 int local_variable_capacity;
-
 int variable_count_capacity;
+int max_depth = 0;
 
 void init_local_variable(void) {
     local_variable_capacity = 8;
@@ -19,6 +19,15 @@ void init_local_variable(void) {
     for (int i = 0; i < local_variable_capacity; i++) {
         local_scopes[i].type = malloc(sizeof(TypeKind) * 32);
     }
+}
+
+void free_all_local_scopes(void) {
+    for (int i = 0; i < max_depth; i++) {
+        free(local_scopes[i].type);
+        local_scopes[i].type = NULL;
+    }
+
+    free(local_scopes);
 }
 
 static void make_local_bigger(void) {
@@ -56,6 +65,7 @@ LocalVariablesInfo find_local_variable(char *name, int depth) {
 
 int insert_local_variable(char *name, int depth, TypeKind* type) {
     if (depth == local_variable_capacity) make_local_bigger();
+    if (max_depth <= depth) max_depth = depth;
 
     int current_idx = local_scopes[depth].variable_count;
 
@@ -67,7 +77,7 @@ int insert_local_variable(char *name, int depth, TypeKind* type) {
         );
         variable_count_capacity = new_variable_count_capacity;
     }
-    
+
     local_scopes[depth].variable_count++;
     strcpy(local_scopes[depth].name[current_idx], name);
     local_scopes[depth].type[current_idx] = *type;

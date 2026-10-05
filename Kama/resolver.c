@@ -402,6 +402,6 @@ void name_resolution_entry(Node *node) {
     name_resolution(node);
 
     free_all_global_variable();
-    free(local_scopes);
+    free_all_local_scopes();
     free(function_table);
 }
