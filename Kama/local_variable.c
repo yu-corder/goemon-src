@@ -9,7 +9,6 @@ LocalVariables *local_scopes;
 
 int local_variable_capacity;
 int variable_count_capacity;
-int max_depth = 0;
 
 void init_local_variable(void) {
     local_variable_capacity = 8;
@@ -24,7 +23,7 @@ void init_local_variable(void) {
 }
 
 void free_all_local_scopes(void) {
-    for (int i = 0; i < max_depth; i++) {
+    for (int i = 0; i < local_variable_capacity; i++) {
         for (int j = 0; j < local_scopes[i].variable_count; j++) {
             free(local_scopes[i].name[j]);
         }
@@ -74,7 +73,6 @@ LocalVariablesInfo find_local_variable(char *name, int depth) {
 
 int insert_local_variable(char *name, int depth, TypeKind* type, int len) {
     if (depth == local_variable_capacity) make_local_bigger();
-    if (max_depth <= depth) max_depth = depth;
 
     int current_idx = local_scopes[depth].variable_count;
 
