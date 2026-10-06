@@ -45,10 +45,13 @@ void init_function_params_table(void) {
 
 void free_all_function_params(void) {
     for (int i = 0; i < function_params_table_capacity; i++) {
-        // for (int j = 0; j < function_params_table[i].function_count; j++) {
-        //     free(local_scopes[i].name[j]);
-        // }
+        for (int j = 0; j < function_params_table[i].function_count; j++) {
+            free(function_params_table[i].len[j]);
+            free(function_params_table[i].type[j]);
+        }
         free(function_params_table[i].param_count);
+        free(function_params_table[i].len);
+        free(function_params_table[i].type);
         function_params_table[i].param_count = NULL;
     }
 
