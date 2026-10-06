@@ -24,10 +24,15 @@ void init_local_variable(void) {
 
 void free_all_local_scopes(void) {
     for (int i = 0; i < max_depth; i++) {
+        for (int j = 0; j < local_scopes[i].variable_count; j++) {
+            free(local_scopes[i].name[j]);
+        }
         free(local_scopes[i].type);
         free(local_scopes[i].address);
+        free(local_scopes[i].name);
         local_scopes[i].address = NULL;
         local_scopes[i].type = NULL;
+        local_scopes[i].name = NULL;
     }
 
     free(local_scopes);
