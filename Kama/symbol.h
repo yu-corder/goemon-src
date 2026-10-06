@@ -17,7 +17,7 @@ typedef struct {
     char name[64][64];
 
     char params[16][16][32];
-    int param_count[64];
+    int *param_count;
     int function_count;
 
     TypeKind type[16][16];

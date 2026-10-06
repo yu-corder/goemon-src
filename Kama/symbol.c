@@ -12,6 +12,8 @@ int function_table_capacity;
 
 int function_params_table_capacity;
 
+int function_params_function_capacity;
+
 void init_function_table(void) {
     function_table_capacity = 8;
     function_table = malloc(sizeof(Funcion) * 8);
@@ -34,6 +36,11 @@ static void make_function_bigger(void) {
 void init_function_params_table(void) {
     function_params_table_capacity = 8;
     function_params_table = malloc(sizeof(FuncionParams) * 8);
+    function_params_function_capacity = 16;
+
+    for (int i = 0; i < function_params_table_capacity; i++) {
+        function_params_table[i].param_count = malloc(sizeof(int) * 16);
+    }
 }
 
 static void make_function_params_bigger(void) {
@@ -75,6 +82,16 @@ FuncionParamsInfo find_function_params(char *name, int depth) {
 void insert_function_params(char *name, Node *params, int depth) {
     if (depth == function_params_table_capacity) make_function_params_bigger();
     int current_idx = function_params_table[depth].function_count;
+
+    if (current_idx == function_params_function_capacity) {
+        int new_capacity = function_params_function_capacity * 2;
+
+        function_params_table[depth].param_count = realloc(
+            function_params_table[depth].param_count,
+            sizeof(int) * new_capacity
+        );
+        function_params_function_capacity = new_capacity;
+    }
     
 
     for (int i = 0; i < function_params_table[depth].function_count; i++) {
