@@ -19,6 +19,7 @@ void init_local_variable(void) {
         local_scopes[i].type = malloc(sizeof(TypeKind) * 32);
         local_scopes[i].address = malloc(sizeof(int) * 32);
         local_scopes[i].name = malloc(sizeof(char *) * 32);
+        local_scopes[i].variable_count = 0;
     }
 }
 
