@@ -69,7 +69,7 @@ int main(int argc, char **argv) {
     }
 
     type_check_program(program);
-    free(function_params_table);
+    free_all_function_params();
     
     generate_entry(program);
 

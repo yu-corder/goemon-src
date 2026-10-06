@@ -9,9 +9,7 @@ Funcion *function_table;
 FuncionParams *function_params_table;
 
 int function_table_capacity;
-
 int function_params_table_capacity;
-
 int function_params_function_capacity;
 
 void init_function_table(void) {
@@ -41,6 +39,18 @@ void init_function_params_table(void) {
     for (int i = 0; i < function_params_table_capacity; i++) {
         function_params_table[i].param_count = malloc(sizeof(int) * 16);
     }
+}
+
+void free_all_function_params(void) {
+    for (int i = 0; i < function_params_table_capacity; i++) {
+        // for (int j = 0; j < function_params_table[i].function_count; j++) {
+        //     free(local_scopes[i].name[j]);
+        // }
+        free(function_params_table[i].param_count);
+        function_params_table[i].param_count = NULL;
+    }
+
+    free(function_params_table);
 }
 
 static void make_function_params_bigger(void) {

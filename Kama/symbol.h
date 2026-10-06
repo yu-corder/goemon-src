@@ -53,6 +53,7 @@ typedef struct {
 
 void init_function_table(void);
 void init_function_params_table(void);
+void free_all_function_params(void);
 
 FuncionParamsInfo find_function_params(char *name, int depth);
 void insert_function_params(char *name, Node *params, int depth);
