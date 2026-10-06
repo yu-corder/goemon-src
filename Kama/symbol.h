@@ -20,8 +20,8 @@ typedef struct {
     int *param_count;
     int function_count;
 
-    TypeKind type[16][16];
-    int len[16][16];
+    TypeKind **type;
+    int **len;
 } FuncionParams;
 
 extern FuncionParams *function_params_table;

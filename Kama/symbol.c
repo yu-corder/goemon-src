@@ -38,6 +38,8 @@ void init_function_params_table(void) {
 
     for (int i = 0; i < function_params_table_capacity; i++) {
         function_params_table[i].param_count = malloc(sizeof(int) * 16);
+        function_params_table[i].len = malloc(sizeof(int *) * 16);
+        function_params_table[i].type = malloc(sizeof(TypeKind *) * 16);
     }
 }
 
@@ -100,6 +102,16 @@ void insert_function_params(char *name, Node *params, int depth) {
             function_params_table[depth].param_count,
             sizeof(int) * new_capacity
         );
+
+        function_params_table[depth].len = realloc(
+            function_params_table[depth].len,
+            sizeof(int *) * new_capacity
+        );
+
+        function_params_table[depth].type = realloc(
+            function_params_table[depth].type,
+            sizeof(TypeKind *) * new_capacity
+        );
         function_params_function_capacity = new_capacity;
     }
     
@@ -113,14 +125,22 @@ void insert_function_params(char *name, Node *params, int depth) {
     strcpy(function_params_table[depth].name[current_idx], name);
 
     Node *p = params;
-
+    Node *p_tmp = params;
     int p_count = 0;
-    while (p) {
+    while (p_tmp) {
         if (p->lhs == NULL) {
-            fprintf(stderr, "Parameter '%s' requires an explicit type declaration.\n", p->name);
+            fprintf(stderr, "Parameter '%s' requires an explicit type declaration.\n", p_tmp->name);
             exit(1);
         }
-        strcpy(function_params_table[depth].params[current_idx][p_count], p->lhs->name);
+        strcpy(function_params_table[depth].params[current_idx][p_count], p_tmp->lhs->name);
+        p_count++;
+        p_tmp = p_tmp->next;
+    }
+
+    function_params_table[depth].type[current_idx] = malloc(sizeof(TypeKind) * p_count);
+    function_params_table[depth].len[current_idx] = malloc(sizeof(int) * p_count);
+    p_count = 0;
+    while (p) {
         function_params_table[depth].type[current_idx][p_count] = p->type;
         function_params_table[depth].len[current_idx][p_count] = p->lhs->len;
         p_count++;
