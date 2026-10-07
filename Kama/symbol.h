@@ -5,7 +5,7 @@
 #include "type.h"
 
 typedef struct {
-    char name[64][64];
+    char **name;
     int *address;
     int function_count;
     TypeKind *type;
@@ -59,6 +59,6 @@ void free_all_function_params(void);
 FuncionParamsInfo find_function_params(char *name, int depth);
 void insert_function_params(char *name, Node *params, int depth);
 FuncionInfo find_function(char *name, int depth);
-void insert_function(char *name, int address, int depth, TypeKind type);
+void insert_function(char *name, int address, int depth, TypeKind type, int len);
 
 #endif

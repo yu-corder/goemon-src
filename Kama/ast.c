@@ -172,7 +172,7 @@ Node* new_for_node(NodeKind kind, Node* init, Node* condition, Node* update, Nod
     return &node_tree[current_idx];
 }
 
-Node* new_func_node(NodeKind kind, char *str, Node* params, Node* body, TypeKind type) {
+Node* new_func_node(NodeKind kind, char *str, Node* params, Node* body, TypeKind type, int *len) {
     int current_idx = node_depth;
     node_depth++;
 
@@ -182,6 +182,7 @@ Node* new_func_node(NodeKind kind, char *str, Node* params, Node* body, TypeKind
     node_tree[current_idx].params = params;
     node_tree[current_idx].body = body;
     node_tree[current_idx].type = type;
+    node_tree[current_idx].len = *len;
 
     return &node_tree[current_idx];
 }

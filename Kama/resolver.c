@@ -348,7 +348,7 @@ static void name_resolution(Node *node) {
                 emit_count_two_up();
 
                 int func_start_address = program_count;
-                insert_function(node->func_name, func_start_address, block_depth, node->type);
+                insert_function(node->func_name, func_start_address, block_depth, node->type, node->len);
 
                 insert_function_params(node->func_name, node->params, block_depth);
                 FuncionParamsInfo func_params = find_function_params(node->func_name, block_depth);
@@ -402,5 +402,4 @@ void name_resolution_entry(Node *node) {
 
     free_all_global_variable();
     free_all_local_scopes();
-    free_all_function_table();
 }

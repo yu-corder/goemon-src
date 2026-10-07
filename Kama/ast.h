@@ -86,7 +86,7 @@ Node* new_unary_node(NodeKind kind, Node* node);
 Node* new_if_node(NodeKind kind, Node* condition, Node* then, Node* else_stmt);
 Node* new_loop_node(NodeKind kind, Node* condition, Node* body);
 Node* new_for_node(NodeKind kind, Node* init, Node* condition, Node* update, Node* body);
-Node* new_func_node(NodeKind kind, char *str, Node* params, Node* body, TypeKind type);
+Node* new_func_node(NodeKind kind, char *str, Node* params, Node* body, TypeKind type, int *len);
 Node* new_call_node(NodeKind kind, char *str, Node* params);
 
 #endif

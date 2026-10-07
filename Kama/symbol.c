@@ -22,6 +22,7 @@ void init_function_table(void) {
     for (int i = 0; i < function_table_capacity; i++) {
         function_table[i].address = malloc(sizeof(int) * 64);
         function_table[i].type = malloc(sizeof(TypeKind) * 64);
+        function_table[i].name = malloc(sizeof(char *) * 64);
     }
 }
 
@@ -41,8 +42,13 @@ static void make_function_bigger(void) {
 
 void free_all_function_table(void) {
     for (int i = 0; i < function_table_capacity; i++) {
+        for (int j = 0; j < function_table[i].function_count; j++) {
+            free(function_table[i].name[j]);
+        }
         free(function_table[i].address);
         free(function_table[i].type);
+        free(function_table[i].name);
+        // function_table[i].function_count = 0;
     }
 
     free(function_table);
@@ -192,7 +198,7 @@ FuncionInfo find_function(char *name, int depth) {
     return var;
 }
 
-void insert_function(char *name, int address, int depth, TypeKind type) {
+void insert_function(char *name, int address, int depth, TypeKind type, int len) {
     if (depth == function_table_capacity) make_function_bigger();
 
     int current_idx = function_table[depth].function_count;
@@ -210,6 +216,11 @@ void insert_function(char *name, int address, int depth, TypeKind type) {
             sizeof(TypeKind) * new_capacity
         );
 
+        function_table[depth].name = realloc(
+            function_table[depth].name,
+            sizeof(char *) * new_capacity
+        );
+
         function_count_capacity = new_capacity;
     }
     
@@ -220,7 +231,9 @@ void insert_function(char *name, int address, int depth, TypeKind type) {
         }
     }
 
+    function_table[depth].name[current_idx] = malloc(len + 1);
     strcpy(function_table[depth].name[current_idx], name);
+
     function_table[depth].address[current_idx] = address;
     function_table[depth].function_count++;
     function_table[depth].type[current_idx] = type;

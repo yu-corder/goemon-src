@@ -70,6 +70,7 @@ int main(int argc, char **argv) {
 
     type_check_program(program);
     free_all_function_params();
+    free_all_function_table();
     
     generate_entry(program);
 

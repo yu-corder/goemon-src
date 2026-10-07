@@ -254,7 +254,7 @@ static Node* parse_function() {
 
     expect(TK_RBRACE);
 
-    return new_func_node(ND_FUNCTION, ident->str, param_head, body_head, ret_kind);
+    return new_func_node(ND_FUNCTION, ident->str, param_head, body_head, ret_kind, &ident->length);
 }
 
 static Node* parse_if () {
