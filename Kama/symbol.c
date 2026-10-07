@@ -9,12 +9,20 @@ Funcion *function_table;
 FuncionParams *function_params_table;
 
 int function_table_capacity;
+int function_count_capacity;
+
 int function_params_table_capacity;
 int function_params_function_capacity;
 
 void init_function_table(void) {
     function_table_capacity = 8;
+    function_count_capacity = 64;
     function_table = malloc(sizeof(Funcion) * 8);
+
+    for (int i = 0; i < function_table_capacity; i++) {
+        function_table[i].address = malloc(sizeof(int) * 64);
+        function_table[i].type = malloc(sizeof(TypeKind) * 64);
+    }
 }
 
 static void make_function_bigger(void) {
@@ -29,6 +37,15 @@ static void make_function_bigger(void) {
 
     function_table_capacity = new_capacity;
     function_table = new_function_table;
+}
+
+void free_all_function_table(void) {
+    for (int i = 0; i < function_table_capacity; i++) {
+        free(function_table[i].address);
+        free(function_table[i].type);
+    }
+
+    free(function_table);
 }
 
 void init_function_params_table(void) {
@@ -179,6 +196,22 @@ void insert_function(char *name, int address, int depth, TypeKind type) {
     if (depth == function_table_capacity) make_function_bigger();
 
     int current_idx = function_table[depth].function_count;
+
+    if (current_idx == function_count_capacity) {
+        int new_capacity = function_count_capacity * 2;
+
+        function_table[depth].address = realloc(
+            function_table[depth].address,
+            sizeof(int) * new_capacity
+        );
+
+        function_table[depth].type = realloc(
+            function_table[depth].type,
+            sizeof(TypeKind) * new_capacity
+        );
+
+        function_count_capacity = new_capacity;
+    }
     
 
     for (int i = 0; i < function_table[depth].function_count; i++) {

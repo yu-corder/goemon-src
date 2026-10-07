@@ -6,9 +6,9 @@
 
 typedef struct {
     char name[64][64];
-    int address[64];
+    int *address;
     int function_count;
-    TypeKind type[64];
+    TypeKind *type;
 } Funcion;
 
 extern Funcion *function_table;
@@ -52,6 +52,7 @@ typedef struct {
 } FuncionParamsInfo;
 
 void init_function_table(void);
+void free_all_function_table(void);
 void init_function_params_table(void);
 void free_all_function_params(void);
 
