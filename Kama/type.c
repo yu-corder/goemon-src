@@ -11,12 +11,19 @@
 
 static TypeKind type_check();
 
-void type_check_program(Node *program) {
+static void type_check_program(Node *program) {
     while(program) {
         type_check(program);
         program = program->next;
     }
 
+}
+
+void type_check_program_entry(Node *program) {
+    type_check_program(program);
+
+    free_all_function_params();
+    free_all_function_table();
 }
 
 static void type_check_params(Node *params, char *name) {

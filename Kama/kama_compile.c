@@ -68,9 +68,7 @@ int main(int argc, char **argv) {
         debug_ast_node(program, 1);
     }
 
-    type_check_program(program);
-    free_all_function_params();
-    free_all_function_table();
+    type_check_program_entry(program);
     
     generate_entry(program);
 

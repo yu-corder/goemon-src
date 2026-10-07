@@ -11,6 +11,6 @@ typedef enum {
 
 typedef struct Node Node;
 
-void type_check_program(Node *program);
+void type_check_program_entry(Node *program);
 
 #endif
