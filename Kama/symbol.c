@@ -99,6 +99,7 @@ FuncionInfo find_function(char *name, int depth) {
                 var.address = function_table[i].address[j];
                 var.depth = i;
                 var.type = function_table[i].type[j];
+                var.param_count = function_table[i].params[j].param_count;
                 return var;
             }
         }

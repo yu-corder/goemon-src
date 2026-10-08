@@ -41,9 +41,9 @@ extern FuncionParams *function_params_table;
 typedef struct {
     int address;
     int depth;
+    
+    //後で使う(関数定義と呼び出し側の引数の個数チェック)
     int param_count;
-
-    char (*params)[32];
 
     TypeKind type;
     bool found;
