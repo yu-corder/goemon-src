@@ -6,13 +6,9 @@
 #include "symbol.h"
 
 Funcion *function_table;
-FuncionParams *function_params_table;
 
 int function_table_capacity;
 int function_count_capacity;
-
-int function_params_table_capacity;
-int function_params_function_capacity;
 
 void init_function_table(void) {
     function_table_capacity = 8;

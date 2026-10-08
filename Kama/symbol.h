@@ -20,28 +20,13 @@ typedef struct {
     Params *params;
 } Funcion;
 
-
-
 extern Funcion *function_table;
-
-typedef struct {
-    char name[64][64];
-
-    char params[16][16][32];
-    int *param_count;
-    int function_count;
-
-    TypeKind **type;
-    int **len;
-} FuncionParams;
-
-extern FuncionParams *function_params_table;
 
 
 typedef struct {
     int address;
     int depth;
-    
+
     //後で使う(関数定義と呼び出し側の引数の個数チェック)
     int param_count;
 
