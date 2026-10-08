@@ -54,7 +54,7 @@ typedef struct {
     int depth;
     int param_count;
 
-    char (*params)[32];
+    char **params;
 
     bool found;
 
@@ -64,11 +64,8 @@ typedef struct {
 
 void init_function_table(void);
 void free_all_function_table(void);
-void init_function_params_table(void);
-void free_all_function_params(void);
 
 FuncionParamsInfo find_function_params(char *name, int depth);
-void insert_function_params(char *name, Node *params, int depth);
 FuncionInfo find_function(char *name, int depth);
 void insert_function(char *name, Node *params, int address, int depth, TypeKind type, int len);
 

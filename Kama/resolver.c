@@ -349,8 +349,6 @@ static void name_resolution(Node *node) {
 
                 int func_start_address = program_count;
                 insert_function(node->func_name, node->params, func_start_address, block_depth, node->type, node->len);
-
-                insert_function_params(node->func_name, node->params, block_depth);
                 FuncionParamsInfo func_params = find_function_params(node->func_name, block_depth);
                 for (int i = 0; i < func_params.param_count; i++) {
                     LocalVariablesInfo var = find_local_variable(func_params.params[i], block_depth);
@@ -396,7 +394,6 @@ void name_resolution_entry(Node *node) {
     init_global_variable();
     init_local_variable();
     init_function_table();
-    init_function_params_table();
 
     name_resolution(node);
 
