@@ -14,6 +14,7 @@ typedef struct {
 typedef struct {
     char **name;
     int *address;
+    int *param_count;
     int function_count;
     TypeKind *type;
 
