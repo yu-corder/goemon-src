@@ -43,20 +43,20 @@ void free_all_function_table(void) {
     for (int i = 0; i < function_table_capacity; i++) {
         for (int j = 0; j < function_table[i].function_count; j++) {
             free(function_table[i].name[j]);
-            // if (1 <= function_table[i].params[j].param_count) {
-            //     for (int k = 0; k < function_table[i].params[j].param_count; k++) {
-            //         free(function_table[i].params[j].name[k]);
-            //     }
-            //     free(function_table[i].params[j].len);
-            //     free(function_table[i].params[j].type);
-            //     free(function_table[i].params[j].name);
-            // }
+            if (1 <= function_table[i].param_count[j]) {
+                for (int k = 0; k < function_table[i].params[j].param_count; k++) {
+                    free(function_table[i].params[j].name[k]);
+                }
+                free(function_table[i].params[j].len);
+                free(function_table[i].params[j].type);
+                free(function_table[i].params[j].name);
+            }
         }
         free(function_table[i].address);
         free(function_table[i].param_count);
         free(function_table[i].type);
         free(function_table[i].name);
-        // free(function_table[i].params);
+        free(function_table[i].params);
     }
 
     free(function_table);
