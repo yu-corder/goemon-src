@@ -63,6 +63,12 @@ static void generate(Node *node) {
             }
             case ND_STR: {
                 string_table[string_count].length = node->len;
+                string_table[string_count].str = malloc(sizeof(char) * node->len + 1);
+                if (string_table[string_count].str == NULL) {
+                    fprintf(stderr, "Memory allocation failed\n");
+                    exit(1);
+                }
+
                 strcpy(string_table[string_count].str, node->str);
                 node->address = string_count;
                 emit_one_operand(OP_PUSH, &node->address);

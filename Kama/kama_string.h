@@ -2,7 +2,7 @@
 #define KAMA_STRING_H
 
 typedef struct {
-    char str[32];
+    char *str;
     int length;
 } String;
 

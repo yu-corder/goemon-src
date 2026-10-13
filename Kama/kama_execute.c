@@ -276,8 +276,41 @@ void load_and_run(const char* filename) {
     fread(code, sizeof(int), header.bytecode_size, f);
 
     fseek(f, sizeof(GoemonHeader) + header.bytecode_size * sizeof(int), SEEK_SET);
+
     string_table = malloc(sizeof(String) * header.string_count);
-    fread(string_table, sizeof(String), header.string_count, f);
+
+    if (header.version != 2.0) {
+        fprintf(stderr,
+            "Runtime Error: Unsupported bytecode version. "
+            "Please recompile the source file.\n");
+        fclose(f);
+        exit(1);
+    }
+
+    for (uint32_t i = 0; i < header.string_count; i++) {
+        int len;
+
+        if (fread(&len, sizeof(int), 1, f) != 1 || len < 0) {
+            fprintf(stderr, "Runtime Error: Invalid string length\n");
+            exit(1);
+        }
+
+
+        string_table[i].str = malloc(sizeof(char) * len + 1);
+
+        if (string_table[i].str == NULL) {
+            fprintf(stderr, "Runtime Error: Memory allocation failed\n");
+            exit(1);
+        }
+
+        if (fread(string_table[i].str, sizeof(char), (size_t)len, f) != (size_t)len) {
+            fprintf(stderr, "Runtime Error: Failed to read string\n");
+            exit(1);
+        }
+
+        string_table[i].str[len] = '\0';
+        string_table[i].length = len;
+    }
 
     fclose(f);
 

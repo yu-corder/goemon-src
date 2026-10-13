@@ -81,7 +81,13 @@ int main(int argc, char **argv) {
     FILE *dest = fopen(argv[arg + 1], "wb");
     fwrite(&hed, sizeof(GoemonHeader), 1, dest);
     fwrite(bytecode, sizeof(int), count, dest);
-    fwrite(string_table, sizeof(String), string_count, dest);
+
+    for (int i = 0; i < string_count; i++) {
+        String *s = &string_table[i];
+
+        fwrite(&s->length, sizeof(int), 1, dest);
+        fwrite(s->str, sizeof(char), s->length, dest);
+    }
     fclose(dest);
     free(string_table);
     free(bytecode);
