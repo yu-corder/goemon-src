@@ -310,6 +310,7 @@ void load_and_run(const char* filename) {
 
         string_table[i].str[len] = '\0';
         string_table[i].length = len;
+        string_count++;
     }
 
     fclose(f);
@@ -319,7 +320,7 @@ void load_and_run(const char* filename) {
 
     free_all_arrays();
     free(code);
-    free(string_table);
+    free_string_table();
 }
 
 int main (int argc, char** argv) {

@@ -25,3 +25,11 @@ void make_bigger(void) {
     string_capacity = new_capacity;
     string_table = new_string_table;
 }
+
+void free_string_table(void) {
+    for (int i = 0; i < string_count; i++) {
+        free(string_table[i].str);
+    }
+
+    free(string_table);
+}

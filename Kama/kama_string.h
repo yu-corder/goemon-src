@@ -11,5 +11,5 @@ extern int string_count;
 extern int string_capacity;
 void init_strings(void);
 void make_bigger(void);
-
+void free_string_table(void);
 #endif
