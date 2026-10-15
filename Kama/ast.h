@@ -1,6 +1,7 @@
 #ifndef AST_H
 #define AST_H
 
+#include <stddef.h>
 #include <stdbool.h>
 #include "type.h"
 
@@ -71,6 +72,18 @@ typedef struct Node {
     int depth;
     bool is_global;
 } Node;
+
+typedef struct NodeBlock {
+    Node *node_tree;
+    size_t capacity;
+    size_t used;
+    struct NodeBlock *next;
+} NodeBlock;
+
+typedef struct {
+    NodeBlock *head;
+    NodeBlock *current;
+} NodeArea;
 
 Node* new_num_node (int *val);
 Node* new_bool_node ();
