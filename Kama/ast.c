@@ -5,8 +5,6 @@
 
 #include "ast.h"
 #include "token.h"
-static int node_depth = 0;
-Node node_tree[512];
 Arena *head_arena = NULL;
 Arena *current_arena = NULL;
 
@@ -21,7 +19,7 @@ void init_node_arena(void) {
     head_arena = current_arena;
 }
 
-Node* arena_alloc_node() {
+static Node* arena_alloc_node() {
     Arena *arena = current_arena;
 
     if (arena->used == arena->capacity) {
