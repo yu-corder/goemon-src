@@ -29,196 +29,181 @@ Node* arena_alloc_node() {
     }
 
     Node *node = &arena->node_tree[arena->used++];
+    memset(node, 0, sizeof(Node));
     return node;
 }
 
 Node* new_num_node (int *val) {
-    int current_idx = node_depth;
-    node_depth++;
+    Node *node = arena_alloc_node();
 
-    node_tree[current_idx].kind = ND_NUM;
-    node_tree[current_idx].val = *val;
-    node_tree[current_idx].lhs = NULL;
-    node_tree[current_idx].rhs = NULL;
+    node->kind = ND_NUM;
+    node->val = *val;
+    node->lhs = NULL;
+    node->rhs = NULL;
 
-    return &node_tree[current_idx];
+    return node;
 }
 
 Node* new_bool_node (bool *val) {
-    int current_idx = node_depth;
-    node_depth++;
+    Node *node = arena_alloc_node();
 
-    node_tree[current_idx].kind = ND_BOOL;
-    node_tree[current_idx].bool_val = val;
-    node_tree[current_idx].lhs = NULL;
-    node_tree[current_idx].rhs = NULL;
+    node->kind = ND_BOOL;
+    node->bool_val = val;
+    node->lhs = NULL;
+    node->rhs = NULL;
 
-    node_tree[current_idx].val = val ? 1 : 0;
+    node->val = val ? 1 : 0;
 
-    return &node_tree[current_idx];
+    return node;
 }
 
 Node* new_str_node (char *str, int *len) {
-    int current_idx = node_depth;
-    node_depth++;
+    Node *node = arena_alloc_node();
 
-    node_tree[current_idx].kind = ND_STR;
-    strcpy(node_tree[current_idx].str, str);
-    node_tree[current_idx].len = *len;
-    node_tree[current_idx].lhs = NULL;
-    node_tree[current_idx].rhs = NULL;
+    node->kind = ND_STR;
+    strcpy(node->str, str);
+    node->len = *len;
+    node->lhs = NULL;
+    node->rhs = NULL;
 
-    return &node_tree[current_idx];
+    return node;
 }
 
 Node* new_var_node (char *str, int *len) {
-    int current_idx = node_depth;
-    node_depth++;
+    Node *node = arena_alloc_node();
 
-    node_tree[current_idx].kind = ND_VAR;
-    node_tree[current_idx].lhs = NULL;
-    node_tree[current_idx].rhs = NULL;
-    node_tree[current_idx].len = *len;
-    strcpy(node_tree[current_idx].name, str);
+    node->kind = ND_VAR;
+    node->lhs = NULL;
+    node->rhs = NULL;
+    node->len = *len;
+    strcpy(node->name, str);
 
-    return &node_tree[current_idx];
+    return node;
 }
 
 Node* new_binary_node(NodeKind kind, Node* node1, Node* node2) {
-    int current_idx = node_depth;
-    node_depth++;
+    Node *node = arena_alloc_node();
 
-    node_tree[current_idx].kind = kind;
-    node_tree[current_idx].lhs = node1;
-    node_tree[current_idx].rhs = node2;
+    node->kind = kind;
+    node->lhs = node1;
+    node->rhs = node2;
 
-    return &node_tree[current_idx];
+    return node;
 }
 
 Node* new_decl_no_assignment_node(NodeKind kind, Node* node1, TypeKind type) {
-    int current_idx = node_depth;
-    node_depth++;
+    Node *node = arena_alloc_node();
 
-    node_tree[current_idx].kind = kind;
-    node_tree[current_idx].lhs = node1;
-    node_tree[current_idx].type = type;
+    node->kind = kind;
+    node->lhs = node1;
+    node->type = type;
 
-    return &node_tree[current_idx];
+    return node;
 }
 
 Node* new_array_decl_node(NodeKind kind, Node* node1, int *len, TypeKind type) {
-    int current_idx = node_depth;
-    node_depth++;
+    Node *node = arena_alloc_node();
 
-    node_tree[current_idx].kind = kind;
-    node_tree[current_idx].lhs = node1;
-    node_tree[current_idx].len = *len;
-    node_tree[current_idx].type = type;
+    node->kind = kind;
+    node->lhs = node1;
+    node->len = *len;
+    node->type = type;
 
-    return &node_tree[current_idx];
+    return node;
 }
 
 Node* new_array_node(NodeKind kind, Node* node1, char *str) {
-    int current_idx = node_depth;
-    node_depth++;
+    Node *node = arena_alloc_node();
 
-    node_tree[current_idx].rhs = node1;
-    node_tree[current_idx].kind = kind;
-    strcpy(node_tree[current_idx].name, str);
+    node->rhs = node1;
+    node->kind = kind;
+    strcpy(node->name, str);
     
-    return &node_tree[current_idx];
+    return node;
 }
 
 Node* new_decl_node(NodeKind kind, Node* node1, Node* node2, TypeKind type) {
-    int current_idx = node_depth;
-    node_depth++;
+    Node *node = arena_alloc_node();
 
-    node_tree[current_idx].kind = kind;
-    node_tree[current_idx].lhs = node1;
-    node_tree[current_idx].rhs = node2;
-    node_tree[current_idx].type = type;
+    node->kind = kind;
+    node->lhs = node1;
+    node->rhs = node2;
+    node->type = type;
 
-    return &node_tree[current_idx];
+    return node;
 }
 
 Node* new_simple_node(NodeKind kind) {
-    int current_idx = node_depth;
-    node_depth++;
+    Node *node = arena_alloc_node();
 
-    node_tree[current_idx].kind = kind;
+    node->kind = kind;
 
-    return &node_tree[current_idx];
+    return node;
 }
 
-Node* new_unary_node(NodeKind kind, Node* node) {
-    int current_idx = node_depth;
-    node_depth++;
+Node* new_unary_node(NodeKind kind, Node* node_lhs) {
+    Node *node = arena_alloc_node();
 
-    node_tree[current_idx].kind = kind;
-    node_tree[current_idx].lhs = node;
+    node->kind = kind;
+    node->lhs = node_lhs;
 
-    return &node_tree[current_idx];
+    return node;
 }
 
 Node* new_if_node(NodeKind kind, Node* condition, Node* then, Node* else_stmt) {
-    int current_idx = node_depth;
-    node_depth++;
+    Node *node = arena_alloc_node();
 
-    node_tree[current_idx].kind = kind;
-    node_tree[current_idx].condition = condition;
-    node_tree[current_idx].body = then;
-    node_tree[current_idx].else_stmt = else_stmt;
+    node->kind = kind;
+    node->condition = condition;
+    node->body = then;
+    node->else_stmt = else_stmt;
 
-    return &node_tree[current_idx];
+    return node;
 }
 
 Node* new_loop_node(NodeKind kind, Node* condition, Node* body) {
-    int current_idx = node_depth;
-    node_depth++;
+    Node *node = arena_alloc_node();
 
-    node_tree[current_idx].kind = kind;
-    node_tree[current_idx].condition = condition;
-    node_tree[current_idx].body = body;
+    node->kind = kind;
+    node->condition = condition;
+    node->body = body;
 
-    return &node_tree[current_idx];
+    return node;
 }
 
 Node* new_for_node(NodeKind kind, Node* init, Node* condition, Node* update, Node* body) {
-    int current_idx = node_depth;
-    node_depth++;
+    Node *node = arena_alloc_node();
 
-    node_tree[current_idx].kind = kind;
-    node_tree[current_idx].init = init;
-    node_tree[current_idx].condition = condition;
-    node_tree[current_idx].update = update;
-    node_tree[current_idx].body = body;
+    node->kind = kind;
+    node->init = init;
+    node->condition = condition;
+    node->update = update;
+    node->body = body;
 
-    return &node_tree[current_idx];
+    return node;
 }
 
 Node* new_func_node(NodeKind kind, char *str, Node* params, Node* body, TypeKind type, int *len) {
-    int current_idx = node_depth;
-    node_depth++;
+    Node *node = arena_alloc_node();
 
-    node_tree[current_idx].kind = kind;
-    strcpy(node_tree[current_idx].func_name, str);
+    node->kind = kind;
+    strcpy(node->func_name, str);
     
-    node_tree[current_idx].params = params;
-    node_tree[current_idx].body = body;
-    node_tree[current_idx].type = type;
-    node_tree[current_idx].len = *len;
+    node->params = params;
+    node->body = body;
+    node->type = type;
+    node->len = *len;
 
-    return &node_tree[current_idx];
+    return node;
 }
 
 Node* new_call_node(NodeKind kind, char *str, Node* params) {
-    int current_idx = node_depth;
-    node_depth++;
+    Node *node = arena_alloc_node();
 
-    node_tree[current_idx].kind = kind;
-    strcpy(node_tree[current_idx].func_name, str);
+    node->kind = kind;
+    strcpy(node->func_name, str);
 
-    node_tree[current_idx].params = params;
+    node->params = params;
 
-    return &node_tree[current_idx];
+    return node;
 }
