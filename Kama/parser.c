@@ -489,6 +489,7 @@ static Node* parse_statement() {
 Node* parse_program () {
     pos = 0;
 
+    init_node_arena();
     Node *head = NULL;
     Node *tail = NULL;
     while (tokens[pos].kind != TK_EOF) {

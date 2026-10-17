@@ -7,6 +7,30 @@
 #include "token.h"
 static int node_depth = 0;
 Node node_tree[512];
+Arena *head_arena = NULL;
+Arena *current_arena = NULL;
+
+void init_node_arena(void) {
+    current_arena = malloc(sizeof(Arena));
+
+    current_arena->node_tree = malloc(sizeof(Node) * 512);
+    current_arena->capacity = 512;
+    current_arena->used = 0;
+    current_arena->next = NULL;
+
+    head_arena = current_arena;
+}
+
+Node* arena_alloc_node() {
+    Arena *arena = current_arena;
+
+    if (arena->used == arena->capacity) {
+        //新しいアリーナ作って、連結
+    }
+
+    Node *node = &arena->node_tree[arena->used++];
+    return node;
+}
 
 Node* new_num_node (int *val) {
     int current_idx = node_depth;

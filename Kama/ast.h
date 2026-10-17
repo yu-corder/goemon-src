@@ -73,18 +73,14 @@ typedef struct Node {
     bool is_global;
 } Node;
 
-typedef struct NodeBlock {
+typedef struct Arena {
     Node *node_tree;
     size_t capacity;
     size_t used;
-    struct NodeBlock *next;
-} NodeBlock;
+    struct Arena *next;
+} Arena;
 
-typedef struct {
-    NodeBlock *head;
-    NodeBlock *current;
-} NodeArea;
-
+void init_node_arena(void);
 Node* new_num_node (int *val);
 Node* new_bool_node ();
 Node* new_str_node (char *str, int *len);
