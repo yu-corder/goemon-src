@@ -19,14 +19,23 @@ void init_node_arena(void) {
     head_arena = current_arena;
 }
 
-static Node* arena_alloc_node() {
-    Arena *arena = current_arena;
+static void expand_arena(void) {
+    Arena *tmp_arena = malloc(sizeof(Arena));
+    tmp_arena->node_tree = malloc(sizeof(Node) * 512);
+    tmp_arena->capacity = 512;
+    tmp_arena->used = 0;
+    tmp_arena->next = NULL;
 
-    if (arena->used == arena->capacity) {
-        //新しいアリーナ作って、連結
+    current_arena->next = tmp_arena;
+    current_arena = tmp_arena;
+}
+
+static Node* arena_alloc_node() {
+    if (current_arena->used == current_arena->capacity) {
+        expand_arena();
     }
 
-    Node *node = &arena->node_tree[arena->used++];
+    Node *node = &current_arena->node_tree[current_arena->used++];
     memset(node, 0, sizeof(Node));
     return node;
 }
