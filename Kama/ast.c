@@ -25,6 +25,12 @@ void free_node_arena(void) {
     while (arena != NULL) {
         Arena *next = arena->next;
 
+        for (size_t i = 0; i < arena->used; i++) {
+            free(arena->node_tree[i].str);
+            free(arena->node_tree[i].name);
+            free(arena->node_tree[i].func_name);
+        }
+
         free(arena->node_tree);
         free(arena);
 
@@ -81,11 +87,12 @@ Node* new_str_node (char *str, int *len) {
     Node *node = arena_alloc_node();
 
     node->kind = ND_STR;
-    strcpy(node->str, str);
+
     node->len = *len;
+    node->str = malloc(sizeof(char) * node->len + 1);
+    strcpy(node->str, str);
     node->lhs = NULL;
     node->rhs = NULL;
-
     return node;
 }
 
@@ -96,6 +103,7 @@ Node* new_var_node (char *str, int *len) {
     node->lhs = NULL;
     node->rhs = NULL;
     node->len = *len;
+    node->name = malloc(sizeof(char) * node->len + 1);
     strcpy(node->name, str);
 
     return node;
@@ -132,11 +140,13 @@ Node* new_array_decl_node(NodeKind kind, Node* node1, int *len, TypeKind type) {
     return node;
 }
 
-Node* new_array_node(NodeKind kind, Node* node1, char *str) {
+Node* new_array_node(NodeKind kind, Node* node1, char *str, int *len) {
     Node *node = arena_alloc_node();
 
     node->rhs = node1;
     node->kind = kind;
+    node->len = *len;
+    node->name = malloc(sizeof(char) * node->len + 1);
     strcpy(node->name, str);
     
     return node;
@@ -207,20 +217,22 @@ Node* new_func_node(NodeKind kind, char *str, Node* params, Node* body, TypeKind
     Node *node = arena_alloc_node();
 
     node->kind = kind;
-    strcpy(node->func_name, str);
-    
     node->params = params;
     node->body = body;
     node->type = type;
     node->len = *len;
+    node->func_name = malloc(sizeof(char) * node->len + 1);
+    strcpy(node->func_name, str);
 
     return node;
 }
 
-Node* new_call_node(NodeKind kind, char *str, Node* params) {
+Node* new_call_node(NodeKind kind, char *str, Node* params, int *len) {
     Node *node = arena_alloc_node();
 
     node->kind = kind;
+    node->len = *len;
+    node->func_name = malloc(sizeof(char) * node->len + 1);
     strcpy(node->func_name, str);
 
     node->params = params;

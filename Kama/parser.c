@@ -162,7 +162,7 @@ static Node* parse_primary() {
             next_token();
             Node *arg_head = parse_argument_list(TK_RPAREN);
             if (tokens[pos].kind == TK_RPAREN) next_token();
-            node =  new_call_node(ND_CALL, t->str, arg_head);
+            node =  new_call_node(ND_CALL, t->str, arg_head, &t->length);
         } else if (tokens[pos].kind == TK_INC) {
             next_token();
             Node *var = new_var_node(t->str, &t->length);
@@ -172,7 +172,7 @@ static Node* parse_primary() {
             Node *index = parse_evaluation();
 
             expect(TK_RBRACKET);
-            node = new_array_node(ND_ARRAY, index, t->str);
+            node = new_array_node(ND_ARRAY, index, t->str, &t->length);
         } else {
             node = new_var_node(t->str, &t->length);
         }
@@ -449,7 +449,7 @@ static Node* parse_statement() {
                 Node *index = parse_evaluation();
                 expect(TK_RBRACKET);
                 expect(TK_ASSIGN);
-                Node *lhs = new_array_node(ND_ARRAY_STORE, index, t->str);
+                Node *lhs = new_array_node(ND_ARRAY_STORE, index, t->str, &t->length);
                 Node *rhs = parse_evaluation();
                 
                 // Node *

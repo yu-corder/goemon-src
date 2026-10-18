@@ -61,10 +61,10 @@ typedef struct Node {
     int index;
     int val;
     bool bool_val;
-    char str[128];
+    char *str;
     int len;
-    char name[32];
-    char func_name[64];
+    char *name;
+    char *func_name;
 
     TypeKind type;
 
@@ -89,7 +89,7 @@ Node* new_var_node (char *str, int *len);
 Node* new_binary_node(NodeKind kind, Node* node1, Node* node2);
 Node* new_decl_no_assignment_node(NodeKind kind, Node* node1, TypeKind type);
 Node* new_array_decl_node(NodeKind kind, Node* node1, int *len, TypeKind type);
-Node* new_array_node(NodeKind kind, Node* node1, char *str);
+Node* new_array_node(NodeKind kind, Node* node1, char *str, int *len);
 Node* new_decl_node(NodeKind kind, Node* node1, Node* node2, TypeKind type);
 Node* new_simple_node(NodeKind kind);
 Node* new_unary_node(NodeKind kind, Node* node);
@@ -97,6 +97,6 @@ Node* new_if_node(NodeKind kind, Node* condition, Node* then, Node* else_stmt);
 Node* new_loop_node(NodeKind kind, Node* condition, Node* body);
 Node* new_for_node(NodeKind kind, Node* init, Node* condition, Node* update, Node* body);
 Node* new_func_node(NodeKind kind, char *str, Node* params, Node* body, TypeKind type, int *len);
-Node* new_call_node(NodeKind kind, char *str, Node* params);
+Node* new_call_node(NodeKind kind, char *str, Node* params, int *len);
 
 #endif
