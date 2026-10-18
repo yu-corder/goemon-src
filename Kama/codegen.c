@@ -8,6 +8,7 @@
 #include "type.h"
 #include "kama_string.h"
 #include "bytecode.h"
+#include "ast.h"
 
 typedef struct {
     int breaks[128];
@@ -364,4 +365,5 @@ void generate_entry(Node *node) {
     generate(node);
     emit_no_operand(OP_HALT);
     free(loop_stack);
+    free_node_arena();
 }

@@ -19,6 +19,19 @@ void init_node_arena(void) {
     head_arena = current_arena;
 }
 
+void free_node_arena(void) {
+    Arena *arena = head_arena;
+
+    while (arena != NULL) {
+        Arena *next = arena->next;
+
+        free(arena->node_tree);
+        free(arena);
+
+        arena = next;
+    }
+}
+
 static void expand_arena(void) {
     Arena *tmp_arena = malloc(sizeof(Arena));
     tmp_arena->node_tree = malloc(sizeof(Node) * 512);
