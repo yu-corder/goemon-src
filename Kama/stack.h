@@ -3,4 +3,5 @@
 
 extern int *stack;
 void init_stack(void);
+void stack_push(int val, int sp);
 #endif

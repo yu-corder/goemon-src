@@ -24,11 +24,7 @@ void run(int* program) {
 
         switch (instruction) {
             case OP_PUSH:
-                stack[++sp] = program[pc++];
-                if (sp >= 255) {
-                    printf("限界突破！スタックが溢れましたぞ！ (pc=%d)\n", pc);
-                    return;
-                }
+                stack_push(program[pc++], ++sp);
                 break;
             case OP_ADD: {
                 if (sp < 1) {
@@ -37,30 +33,30 @@ void run(int* program) {
                 }
                 int b = stack[sp--];
                 int a = stack[sp--];
-                stack[++sp] = a + b;
+                stack_push(a + b, ++sp);
                 break;
             }
             case OP_SUB: {
                 int b = stack[sp--];
                 int a = stack[sp--];
-                stack[++sp] = a - b;
+                stack_push(a - b, ++sp);
                 break;
             }
             case OP_MUL: {
                 int b = stack[sp--];
                 int a = stack[sp--];
-                stack[++sp] = a * b;
+                stack_push(a * b, ++sp);
                 break;
             }
             case OP_DIV: {
                 int b = stack[sp--];
                 int a = stack[sp--];
-                stack[++sp] = a / b;
+                stack_push(a / b, ++sp);
                 break;
             }
             case OP_DUP: {
                 int top = stack[sp];
-                stack[++sp] = top;
+                stack_push(top, ++sp);
                 break;
             }
             case OP_SWAP: {
@@ -72,7 +68,7 @@ void run(int* program) {
             case OP_MOD: {
                 int b = stack[sp--];
                 int a = stack[sp--];
-                stack[++sp] = a % b;
+                stack_push(a % b, ++sp);
                 break;
             }
             case OP_POP: {
@@ -84,25 +80,25 @@ void run(int* program) {
             case OP_EQ: {
                 int b = stack[sp--];
                 int a = stack[sp--];
-                stack[++sp] = (a == b) ? 1 : 0;
+                stack_push((a == b) ? 1 : 0, ++sp);
                 break;
             }
             case OP_GE: {
                 int b = stack[sp--];
                 int a = stack[sp--];
-                stack[++sp] = (a >= b) ? 1 : 0;
+                stack_push((a >= b) ? 1 : 0, ++sp);
                 break;
             }
             case OP_LE: {
                 int b = stack[sp--];
                 int a = stack[sp--];
-                stack[++sp] = (a <= b) ? 1 : 0;
+                stack_push((a <= b) ? 1 : 0, ++sp);
                 break;
             }
             case OP_NE: {
                 int b = stack[sp--];
                 int a = stack[sp--];
-                stack[++sp] = (a != b) ? 1 : 0;
+                stack_push((a != b) ? 1 : 0, ++sp);
                 break;
             }
             case OP_JMP: {
@@ -135,26 +131,26 @@ void run(int* program) {
             case OP_LOAD: {
                 int address = program[pc++];
                 int value = memory[address];
-                stack[++sp] = value;
+                stack_push(value, ++sp);
                 break;
             }
             case OP_LOAD_LOCAL: {
                 int address = program[pc++];
                 int depth = program[pc++];
                 int value = frames[call_frame][depth][address];
-                stack[++sp] = value;
+                stack_push(value, ++sp);
                 break;
             }
             case OP_LT: {
                 int b = stack[sp--];
                 int a = stack[sp--];
-                stack[++sp] = (a < b) ? 1 : 0;
+                stack_push((a < b) ? 1 : 0, ++sp);
                 break;
             }
             case OP_GT: {
                 int b = stack[sp--];
                 int a = stack[sp--];
-                stack[++sp] = (a > b) ? 1 : 0;
+                stack_push((a > b) ? 1 : 0, ++sp);
                 break;
             }
             case OP_INC: {
@@ -174,7 +170,7 @@ void run(int* program) {
                 if (fgets(input_buf, sizeof(input_buf), stdin)) {
                     int val;
                     if (sscanf(input_buf, "%d", &val) == 1) {
-                        stack[++sp] = val;
+                        stack_push(val, ++sp);
                     }
                 }
                 break;
@@ -226,7 +222,7 @@ void run(int* program) {
                 int len = program[pc++];
                 int type = program[pc++];
                 int addr = make_array(len, type);
-                stack[++sp] = addr;
+                stack_push(addr, ++sp);
                 break;
             }
             case OP_ARRAY_STORE: {
@@ -250,7 +246,7 @@ void run(int* program) {
                 int array_index = stack[sp--];
                 int index = stack[sp--];
                 int value = load_array(array_index, index);
-                stack[++sp] = value;
+                stack_push(value, ++sp);
                 break;
             }
             case OP_HALT:
