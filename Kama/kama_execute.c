@@ -5,11 +5,11 @@
 #include "header.h"
 #include "array.h"
 #include "kama_string.h"
+#include "stack.h"
 
 String *string_table;
 
 void run(int* program) {
-    int stack[1024];
     int call_stack[128];
     int memory[2048];
     static int frames[128][128][128];
@@ -316,10 +316,12 @@ void load_and_run(const char* filename) {
     fclose(f);
 
     init_array_table();
+    init_stack();
     run(code);
 
     free_all_arrays();
     free(code);
+    free(stack);
     free_string_table();
 }
 
