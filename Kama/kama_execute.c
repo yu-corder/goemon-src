@@ -7,18 +7,17 @@
 #include "kama_string.h"
 #include "stack.h"
 #include "call_stack.h"
+#include "memory.h"
 
 String *string_table;
 
 void run(int* program) {
-    int memory[2048];
     static int frames[128][128][128];
     int sp = -1;
     int call_sp = -1;
     int pc = 0;
     int call_frame = 0;
 
-    for(int i = 0; i < 2048; i++) memory[i] = 0;
     while (true) {
         int instruction = program[pc++];
 
@@ -118,7 +117,7 @@ void run(int* program) {
             case OP_STORE: {
                 int address = program[pc++];
                 int value = stack[sp--];
-                memory[address] = value;
+                memory_store(value, address);
                 break;
             }
             case OP_STORE_LOCAL: {
@@ -294,12 +293,14 @@ void load_and_run(const char* filename) {
     init_array_table();
     init_stack();
     init_call_stack();
+    init_memory();
     run(code);
 
     free_all_arrays();
     free(code);
     free(stack);
     free(call_stack);
+    free(memory);
     free_string_table();
 }
 
