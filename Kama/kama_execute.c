@@ -164,26 +164,6 @@ void run(int* program) {
                 frames[call_frame][depth][address]++;
                 break;
             }
-            case OP_INPUT: {
-                char input_buf[100];
-                printf("Input >>> ");
-                if (fgets(input_buf, sizeof(input_buf), stdin)) {
-                    int val;
-                    if (sscanf(input_buf, "%d", &val) == 1) {
-                        stack_push(val, ++sp);
-                    }
-                }
-                break;
-            }
-            case OP_PRINTS: {
-                int address = stack[sp--];
-                while (memory[address] != 0) {
-                    printf("%c", (char)memory[address]);
-                    address++;
-                }
-                printf("\n");
-                break;
-            }
             case OP_CALL: {
                 call_frame++;
                 call_stack_push(pc + 1, ++call_sp);

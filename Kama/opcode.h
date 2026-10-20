@@ -26,8 +26,6 @@ typedef enum {
     OP_GT,
     OP_INC,
     OP_INC_LOCAL,
-    OP_INPUT,
-    OP_PRINTS,
     OP_CALL,
     OP_RET,
     OP_PRINT_STRING,
