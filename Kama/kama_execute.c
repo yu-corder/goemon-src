@@ -6,11 +6,11 @@
 #include "array.h"
 #include "kama_string.h"
 #include "stack.h"
+#include "call_stack.h"
 
 String *string_table;
 
 void run(int* program) {
-    int call_stack[128];
     int memory[2048];
     static int frames[128][128][128];
     int sp = -1;
@@ -186,7 +186,7 @@ void run(int* program) {
             }
             case OP_CALL: {
                 call_frame++;
-                call_stack[++call_sp] = pc + 1;
+                call_stack_push(pc + 1, ++call_sp);
                 int target =  program[pc++];
                 pc = target;
                 break;
@@ -313,11 +313,13 @@ void load_and_run(const char* filename) {
 
     init_array_table();
     init_stack();
+    init_call_stack();
     run(code);
 
     free_all_arrays();
     free(code);
     free(stack);
+    free(call_stack);
     free_string_table();
 }
 
