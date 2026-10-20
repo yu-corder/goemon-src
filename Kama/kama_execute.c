@@ -255,7 +255,7 @@ void load_and_run(const char* filename) {
 
     string_table = malloc(sizeof(String) * header.string_count);
 
-    if (header.version != 2.0) {
+    if (header.version != 3.0) {
         fprintf(stderr,
             "Runtime Error: Unsupported bytecode version. "
             "Please recompile the source file.\n");
