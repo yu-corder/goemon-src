@@ -8,11 +8,11 @@
 #include "stack.h"
 #include "call_stack.h"
 #include "memory.h"
+#include "frame.h"
 
 String *string_table;
 
 void run(int* program) {
-    static int frames[128][128][128];
     int sp = -1;
     int call_sp = -1;
     int pc = 0;
@@ -294,6 +294,7 @@ void load_and_run(const char* filename) {
     init_stack();
     init_call_stack();
     init_memory();
+    init_fames();
     run(code);
 
     free_all_arrays();
@@ -301,6 +302,7 @@ void load_and_run(const char* filename) {
     free(stack);
     free(call_stack);
     free(memory);
+    free(frames);
     free_string_table();
 }
 
