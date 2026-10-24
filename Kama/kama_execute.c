@@ -165,6 +165,9 @@ void run(int* program) {
             }
             case OP_CALL: {
                 call_frame++;
+                if (frame_capacity >= call_frame) {
+                    make_flames_bigger();
+                }
                 call_stack_push(pc + 1, ++call_sp);
                 int target =  program[pc++];
                 pc = target;
