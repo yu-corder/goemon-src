@@ -164,8 +164,14 @@ void run(int* program) {
                 break;
             }
             case OP_CALL: {
+                if (call_frame >= 127) {
+                    fprintf(stderr,
+                        "Runtime Error: Call frame limit exceeded\n");
+                    exit(1);
+                }
                 call_frame++;
-                if (frame_capacity >= call_frame) {
+                
+                if (call_frame >= frame_capacity) {
                     make_flames_bigger();
                 }
                 call_stack_push(pc + 1, ++call_sp);
