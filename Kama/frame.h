@@ -18,4 +18,6 @@ extern int frame_capacity;
 void init_fames(void);
 void free_frames(void);
 void make_flames_bigger(void);
+
+void frame_store(int call_frame, int depth, int address, int value);
 #endif
