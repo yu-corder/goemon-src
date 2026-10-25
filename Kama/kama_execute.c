@@ -124,7 +124,7 @@ void run(int* program) {
                 int address = program[pc++];
                 int depth = program[pc++];
                 int value = stack[sp--];
-                frames[call_frame][depth][address] = value;
+                frame_stack[call_frame].depths[depth].values[address] = value;
                 break;
             }
             case OP_LOAD: {
@@ -136,7 +136,7 @@ void run(int* program) {
             case OP_LOAD_LOCAL: {
                 int address = program[pc++];
                 int depth = program[pc++];
-                int value = frames[call_frame][depth][address];
+                int value = frame_stack[call_frame].depths[depth].values[address];
                 stack_push(value, ++sp);
                 break;
             }
@@ -160,7 +160,7 @@ void run(int* program) {
             case OP_INC_LOCAL: {
                 int address = program[pc++];
                 int depth = program[pc++];
-                frames[call_frame][depth][address]++;
+                frame_stack[call_frame].depths[depth].values[address]++;
                 break;
             }
             case OP_CALL: {
@@ -171,9 +171,6 @@ void run(int* program) {
                 }
                 call_frame++;
                 
-                if (call_frame >= frame_capacity) {
-                    make_flames_bigger();
-                }
                 call_stack_push(pc + 1, ++call_sp);
                 int target =  program[pc++];
                 pc = target;
@@ -224,7 +221,7 @@ void run(int* program) {
             case OP_ARRAY_STORE_LOCAL: {
                 int address = program[pc++];
                 int depth = program[pc++];
-                int array_index = frames[call_frame][depth][address];
+                int array_index = frame_stack[call_frame].depths[depth].values[address];
                 int index = stack[sp--];
                 int value = stack[sp--];
                 store_array(array_index, index, value);
@@ -311,7 +308,7 @@ void load_and_run(const char* filename) {
     free(stack);
     free(call_stack);
     free(memory);
-    free(frames);
+    free_frames();
     free_string_table();
 }
 
