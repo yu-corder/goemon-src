@@ -8,23 +8,23 @@ int frame_capacity = 0;
 Frame *frame_stack = NULL;
 
 void init_fames(void) {
-    frame_capacity = 128;
+    frame_capacity = 8;
     frame_stack = calloc(frame_capacity, sizeof(*frame_stack));
 
     for (int i = 0; i < frame_capacity; i++) {
         frame_stack[i].depths = calloc(
-            128,
+            8,
             sizeof(*frame_stack[i].depths)
         );
 
-        frame_stack[i].capacity = 128;
+        frame_stack[i].capacity = 8;
         for (size_t j = 0; j < frame_stack[i].capacity; j++) {
             frame_stack[i].depths[j].values = calloc(
-                128,
+                8,
                 sizeof(int)
             );
 
-            frame_stack[i].depths[j].capacity = 128;
+            frame_stack[i].depths[j].capacity = 8;
         }
     }
 }
@@ -56,7 +56,7 @@ void make_flames_bigger(void) {
     frame_stack = new_frame_stack;
     for (int i = old_capacity; i < new_capacity; i++) {
         frame_stack[i].depths = calloc(
-            128,
+            8,
             sizeof(*frame_stack[i].depths)
         );
 
@@ -66,10 +66,10 @@ void make_flames_bigger(void) {
             exit(1);
         }
 
-        frame_stack[i].capacity = 128;
+        frame_stack[i].capacity = 8;
         for (size_t j = 0; j < frame_stack[i].capacity; j++) {
             frame_stack[i].depths[j].values = calloc(
-                128,
+                8,
                 sizeof(int)
             );
 
@@ -79,7 +79,7 @@ void make_flames_bigger(void) {
                 exit(1);
             }
 
-            frame_stack[i].depths[j].capacity = 128;
+            frame_stack[i].depths[j].capacity = 8;
         }
     }
     frame_capacity = new_capacity;
@@ -100,7 +100,7 @@ static void make_flames_depths_bigger(int call_frame) {
 
     for (int i = old_capacity; i < new_capacity; i++) {
         frame_stack[call_frame].depths[i].values = calloc(
-            128,
+            8,
             sizeof(int)
         );
 
@@ -110,7 +110,7 @@ static void make_flames_depths_bigger(int call_frame) {
             exit(1);
         }
 
-        frame_stack[call_frame].depths[i].capacity = 128;
+        frame_stack[call_frame].depths[i].capacity = 8;
     }
 
     frame_stack[call_frame].capacity = new_capacity;
@@ -188,6 +188,6 @@ void frame_increment(int call_frame, int depth, int address) {
             "Runtime Error: Frame index out of bounds\n");
         exit(1);
     }
-    
+
     frame_stack[call_frame].depths[depth].values[address]++;
 }
