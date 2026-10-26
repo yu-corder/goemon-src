@@ -20,4 +20,6 @@ void free_frames(void);
 void make_flames_bigger(void);
 
 void frame_store(int call_frame, int depth, int address, int value);
+int frame_load(int call_frame, int depth, int address);
+void frame_increment(int call_frame, int depth, int address);
 #endif

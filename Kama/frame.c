@@ -155,3 +155,39 @@ void frame_store(int call_frame, int depth, int address, int value) {
 
     frame_stack[call_frame].depths[depth].values[address] = value;
 }
+
+int frame_load(int call_frame, int depth, int address) {
+    if (call_frame < 0 ||
+        depth < 0 || address < 0) {
+        fprintf(stderr, "Runtime Error: Invalid frame index\n");
+        exit(1);
+    }
+
+    if (call_frame >= frame_capacity || 
+        (size_t)depth >= frame_stack[call_frame].capacity || 
+        (size_t)address >= frame_stack[call_frame].depths[depth].capacity) {
+        fprintf(stderr,
+            "Runtime Error: Frame index out of bounds\n");
+        exit(1);
+    }
+
+    return frame_stack[call_frame].depths[depth].values[address];
+}
+
+void frame_increment(int call_frame, int depth, int address) {
+    if (call_frame < 0 ||
+        depth < 0 || address < 0) {
+        fprintf(stderr, "Runtime Error: Invalid frame index\n");
+        exit(1);
+    }
+
+    if (call_frame >= frame_capacity || 
+        (size_t)depth >= frame_stack[call_frame].capacity || 
+        (size_t)address >= frame_stack[call_frame].depths[depth].capacity) {
+        fprintf(stderr,
+            "Runtime Error: Frame index out of bounds\n");
+        exit(1);
+    }
+    
+    frame_stack[call_frame].depths[depth].values[address]++;
+}

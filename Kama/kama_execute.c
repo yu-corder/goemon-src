@@ -124,7 +124,7 @@ void run(int* program) {
                 int address = program[pc++];
                 int depth = program[pc++];
                 int value = stack[sp--];
-                frame_stack[call_frame].depths[depth].values[address] = value;
+                frame_store(call_frame, depth, address, value);
                 break;
             }
             case OP_LOAD: {
@@ -136,7 +136,7 @@ void run(int* program) {
             case OP_LOAD_LOCAL: {
                 int address = program[pc++];
                 int depth = program[pc++];
-                int value = frame_stack[call_frame].depths[depth].values[address];
+                int value = frame_load(call_frame, depth, address);
                 stack_push(value, ++sp);
                 break;
             }
@@ -160,7 +160,7 @@ void run(int* program) {
             case OP_INC_LOCAL: {
                 int address = program[pc++];
                 int depth = program[pc++];
-                frame_stack[call_frame].depths[depth].values[address]++;
+                frame_increment(call_frame, depth, address);
                 break;
             }
             case OP_CALL: {
@@ -220,7 +220,7 @@ void run(int* program) {
             case OP_ARRAY_STORE_LOCAL: {
                 int address = program[pc++];
                 int depth = program[pc++];
-                int array_index = frame_stack[call_frame].depths[depth].values[address];
+                int array_index = frame_load(call_frame, depth, address);
                 int index = stack[sp--];
                 int value = stack[sp--];
                 store_array(array_index, index, value);
