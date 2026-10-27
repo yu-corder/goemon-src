@@ -222,7 +222,6 @@ static TypeKind type_check(Node* node) {
         }
         case ND_FUNCTION: {
             enter_scope();
-            function_count_up();
             bool has_return = type_check_return(node->body, node->type);
             if (node->type != TY_VOID && !has_return) {
                 fprintf(stderr,
@@ -236,8 +235,7 @@ static TypeKind type_check(Node* node) {
         }
         case ND_CALL: {
             type_check_params(node->params, node->func_name);
-            FuncionInfo func = find_function(node->func_name, block_depth);
-            return func.type;
+            return node->type;
         }
         case ND_RET: {
             return type_check(node->lhs);

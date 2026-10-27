@@ -1,9 +1,9 @@
-function int add(int a, int b) {
-    return a + b;
+function int test1(int a) {
+    function int test2(int b) {
+        return 300;
+    }
+    return test2(3);
 }
 
-int[5] numbers;
-numbers[0] = 10;
-numbers[1] = 20;
 
-print add(numbers[0] + 1, numbers[1] + 2);
+print test1(100);
