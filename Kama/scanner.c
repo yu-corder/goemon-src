@@ -14,11 +14,17 @@ int token_count = 0;
 
 static void init_tokens(void) {
     token_capacity = INITIAL_TOKEN_CAPACITY;
-    tokens = malloc(sizeof(Token) * INITIAL_TOKEN_CAPACITY);
+    tokens = calloc(token_capacity, sizeof(Token));
+
+    if (tokens == NULL) {
+        fprintf(stderr, "Failed to allocate tokens\n");
+        exit(1);
+    }
 }
 
 static void make_bigger(void) {
-    int new_capacity = token_capacity * 2;
+    int old_capacity = token_capacity;
+    int new_capacity = old_capacity * 2;
     Token *new_tokens = realloc(tokens, sizeof(Token) * new_capacity);
 
     if (new_tokens ==  NULL) {
@@ -27,8 +33,14 @@ static void make_bigger(void) {
         exit(1);
     }
 
-    token_capacity = new_capacity;
     tokens = new_tokens;
+    memset(
+        &tokens[old_capacity],
+        0,
+        sizeof(Token) * (new_capacity - old_capacity)
+    );
+
+    token_capacity = new_capacity;
 }
 
 void free_all_tokens(void) {
