@@ -126,7 +126,7 @@ void insert_function(char *name, Node *params, int address, int depth, TypeKind 
     int current_idx = function_table[depth].function_count;
     int current_capacity = function_table[depth].function_count_capacity;
 
-    if (current_idx == current_capacity) {
+    if (current_idx >= current_capacity) {
         int new_capacity = current_capacity * 2;
 
         function_table[depth].address = realloc(
