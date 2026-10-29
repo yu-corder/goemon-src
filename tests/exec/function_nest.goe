@@ -1,0 +1,60 @@
+function int test1() {
+
+    function int test2() {
+
+        function int test3() {
+
+            function int test4() {
+
+                function int test5() {
+
+                    function int test6() {
+
+                        function int test7() {
+
+                            function int test8() {
+
+                                function int test9() {
+
+                                    function int test10() {
+                                        print 1010;
+                                        return 10;
+                                    }
+
+                                    print 1009;
+                                    return test10();
+                                }
+
+                                print 1008;
+                                return test9();
+                            }
+
+                            print 1007;
+                            return test8();
+                        }
+
+                        print 1006;
+                        return test7();
+                    }
+
+                    print 1005;
+                    return test6();
+                }
+
+                print 1004;
+                return test5();
+            }
+
+            print 1003;
+            return test4();
+        }
+
+        print 1002;
+        return test3();
+    }
+
+    print 1001;
+    return test2();
+}
+
+print test1();
