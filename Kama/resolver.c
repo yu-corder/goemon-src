@@ -45,6 +45,10 @@ void function_count_up() {
 
 void enter_scope() {
     block_depth++;
+    
+    while (block_depth + 1 >= function_table_capacity) {
+        make_function_bigger();
+    }
     local_scopes[block_depth].variable_count = 0;
 
     // Nested function definitions are scoped.

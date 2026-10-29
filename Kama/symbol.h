@@ -22,6 +22,7 @@ typedef struct {
 } Funcion;
 
 extern Funcion *function_table;
+extern int function_table_capacity;
 
 
 typedef struct {
@@ -54,5 +55,6 @@ void free_all_function_table(void);
 FuncionParamsInfo find_function_params(char *name, int depth);
 FuncionInfo find_function(char *name, int depth);
 void insert_function(char *name, Node *params, int address, int depth, TypeKind type, int len);
+void make_function_bigger(void);
 
 #endif

@@ -25,7 +25,8 @@ void init_function_table(void) {
     }
 }
 
-static void make_function_bigger(void) {
+void make_function_bigger(void) {
+    int old_capacity = function_table_capacity;
     int new_capacity = function_table_capacity * 2;
     Funcion *new_function_table = realloc(function_table, sizeof(Funcion) * new_capacity);
 
@@ -35,8 +36,19 @@ static void make_function_bigger(void) {
         exit(1);
     }
 
-    function_table_capacity = new_capacity;
     function_table = new_function_table;
+
+    for (int i = old_capacity; i < new_capacity; i++) {
+        function_table[i].address = malloc(sizeof(int) * function_count_capacity);
+        function_table[i].param_count = malloc(sizeof(int) * function_count_capacity);
+        function_table[i].type = malloc(sizeof(TypeKind) * function_count_capacity);
+        function_table[i].name = malloc(sizeof(char *) * function_count_capacity);
+        function_table[i].params = malloc(sizeof(Params) * function_count_capacity);
+        function_table[i].function_count = 0;
+    }
+
+    function_table_capacity = new_capacity;
+    
 }
 
 void free_all_function_table(void) {
@@ -107,7 +119,9 @@ FuncionInfo find_function(char *name, int depth) {
 }
 
 void insert_function(char *name, Node *params, int address, int depth, TypeKind type, int len) {
-    if (depth == function_table_capacity) make_function_bigger();
+    while (depth >= function_table_capacity) {
+        make_function_bigger();
+    }
 
     int current_idx = function_table[depth].function_count;
 
