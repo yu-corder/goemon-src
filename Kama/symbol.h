@@ -16,6 +16,7 @@ typedef struct {
     int *address;
     int *param_count;
     int function_count;
+    int function_count_capacity;
     TypeKind *type;
 
     Params *params;

@@ -8,11 +8,9 @@
 Funcion *function_table;
 
 int function_table_capacity;
-int function_count_capacity;
 
 void init_function_table(void) {
     function_table_capacity = 4;
-    function_count_capacity = 64;
     function_table = malloc(sizeof(Funcion) * 4);
 
     for (int i = 0; i < function_table_capacity; i++) {
@@ -22,6 +20,7 @@ void init_function_table(void) {
         function_table[i].name = malloc(sizeof(char *) * 64);
         function_table[i].params = malloc(sizeof(Params) * 64);
         function_table[i].function_count = 0;
+        function_table[i].function_count_capacity = 64;
     }
 }
 
@@ -39,11 +38,12 @@ void make_function_bigger(void) {
     function_table = new_function_table;
 
     for (int i = old_capacity; i < new_capacity; i++) {
-        function_table[i].address = malloc(sizeof(int) * function_count_capacity);
-        function_table[i].param_count = malloc(sizeof(int) * function_count_capacity);
-        function_table[i].type = malloc(sizeof(TypeKind) * function_count_capacity);
-        function_table[i].name = malloc(sizeof(char *) * function_count_capacity);
-        function_table[i].params = malloc(sizeof(Params) * function_count_capacity);
+        function_table[i].function_count_capacity = 64;
+        function_table[i].address = malloc(sizeof(int) * function_table[i].function_count_capacity);
+        function_table[i].param_count = malloc(sizeof(int) * function_table[i].function_count_capacity);
+        function_table[i].type = malloc(sizeof(TypeKind) * function_table[i].function_count_capacity);
+        function_table[i].name = malloc(sizeof(char *) * function_table[i].function_count_capacity);
+        function_table[i].params = malloc(sizeof(Params) * function_table[i].function_count_capacity);
         function_table[i].function_count = 0;
     }
 
@@ -124,9 +124,10 @@ void insert_function(char *name, Node *params, int address, int depth, TypeKind 
     }
 
     int current_idx = function_table[depth].function_count;
+    int current_capacity = function_table[depth].function_count_capacity;
 
-    if (current_idx == function_count_capacity) {
-        int new_capacity = function_count_capacity * 2;
+    if (current_idx == current_capacity) {
+        int new_capacity = current_capacity * 2;
 
         function_table[depth].address = realloc(
             function_table[depth].address,
@@ -153,7 +154,7 @@ void insert_function(char *name, Node *params, int address, int depth, TypeKind 
             sizeof(Params) * new_capacity
         );
 
-        function_count_capacity = new_capacity;
+        function_table[depth].function_count_capacity = new_capacity;
     }
     
 
