@@ -129,30 +129,61 @@ void insert_function(char *name, Node *params, int address, int depth, TypeKind 
     if (current_idx >= current_capacity) {
         int new_capacity = current_capacity * 2;
 
-        function_table[depth].address = realloc(
+        int *new_address = realloc(
             function_table[depth].address,
             sizeof(int) * new_capacity
         );
 
-        function_table[depth].param_count = realloc(
+        if (new_address == NULL) {
+           fprintf(stderr, "Runtime Error: Failed to resize function addresses\n");
+            exit(1); 
+        }
+
+        int *new_param_count = realloc(
             function_table[depth].param_count,
             sizeof(int) * new_capacity
         );
 
-        function_table[depth].type = realloc(
+        if (new_param_count == NULL) {
+            fprintf(stderr, "Runtime Error: Failed to resize function param_count\n");
+            exit(1);
+        }
+
+        TypeKind *new_type = realloc(
             function_table[depth].type,
             sizeof(TypeKind) * new_capacity
         );
 
-        function_table[depth].name = realloc(
+        if (new_type == NULL) {
+            fprintf(stderr, "Runtime Error: Failed to resize function type\n");
+            exit(1);
+        }
+
+        char **new_name = realloc(
             function_table[depth].name,
             sizeof(char *) * new_capacity
         );
 
-        function_table[depth].params = realloc(
+        if (new_name == NULL) {
+            fprintf(stderr, "Runtime Error: Failed to resize function name\n");
+            exit(1);
+        }
+
+        Params *new_params = realloc(
             function_table[depth].params,
             sizeof(Params) * new_capacity
         );
+
+        if (new_params == NULL) {
+            fprintf(stderr, "Runtime Error: Failed to resize function params\n");
+            exit(1);
+        }
+
+        function_table[depth].address = new_address;
+        function_table[depth].param_count = new_param_count;
+        function_table[depth].type = new_type;
+        function_table[depth].name = new_name;
+        function_table[depth].params = new_params;
 
         function_table[depth].function_count_capacity = new_capacity;
     }
