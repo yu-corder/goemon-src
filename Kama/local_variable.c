@@ -12,11 +12,45 @@ int local_variable_capacity;
 void init_local_variable(void) {
     local_variable_capacity = 8;
     local_scopes = malloc(sizeof(LocalVariables) * 8);
+
+    if (local_scopes == NULL) {
+        fprintf(stderr,
+            "Runtime Error: Failed to allocate local variable scopes\n");
+        exit(1);
+    }
+
     for (int i = 0; i < local_variable_capacity; i++) {
         local_scopes[i].variable_count_capacity = 32;
-        local_scopes[i].type = malloc(sizeof(TypeKind) * local_scopes[i].variable_count_capacity);
-        local_scopes[i].address = malloc(sizeof(int) * local_scopes[i].variable_count_capacity);
-        local_scopes[i].name = malloc(sizeof(char *) * local_scopes[i].variable_count_capacity);
+
+        TypeKind *type = malloc(sizeof(TypeKind) * local_scopes[i].variable_count_capacity);
+
+        if (type == NULL) {
+            fprintf(stderr,
+                "Runtime Error: Failed to allocate local variable type\n");
+            exit(1);
+        }
+
+        local_scopes[i].type = type;
+
+        int *address = malloc(sizeof(int) * local_scopes[i].variable_count_capacity);
+
+        if (address == NULL) {
+            fprintf(stderr,
+                "Runtime Error: Failed to allocate local variable address\n");
+            exit(1);
+        }
+
+        local_scopes[i].address = address;
+
+        char **name = malloc(sizeof(char *) * local_scopes[i].variable_count_capacity);
+
+        if (name == NULL) {
+            fprintf(stderr,
+                "Runtime Error: Failed to allocate local variable name\n");
+            exit(1);
+        }
+        local_scopes[i].name = name;
+        
         local_scopes[i].variable_count = 0;
     }
 }
@@ -148,7 +182,7 @@ int insert_local_variable(char *name, int depth, TypeKind* type, int len) {
     } else {
         local_scopes[depth].address[current_idx] = current_idx;
     }
-    
+
     local_scopes[depth].variable_count++;
 
     return local_scopes[depth].address[current_idx];
