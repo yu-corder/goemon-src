@@ -1,45 +1,53 @@
-function int test1(int a) {
-
-    function int test2(int b) {
-
-        function int test3(int c) {
-
-            function int test4(int d) {
-
-                function int test5(int e) {
-
-                    function int test6(int f) {
-
-                        function int test7(int g) {
-
-                            function int test8(int h) {
-
-                                function int test9(int i) {
-
-                                    function int test10(int j) {
-                                        return j + 1;
+function int test1() {
+    function int test2() {
+        function int test3() {
+            function int test4() {
+                function int test5() {
+                    function int test6() {
+                        function int test7() {
+                            function int test8() {
+                                function int test9() {
+                                    function int test10() {
+                                        function int test11() {
+                                            function int test12() {
+                                                function int test13() {
+                                                    function int test14() {
+                                                        function int test15() {
+                                                            function int test16() {
+                                                                function int test17() {
+                                                                    return 5001
+                                                                }
+                                                                return test17();
+                                                            }
+                                                            return test16();
+                                                        }
+                                                        return test15();
+                                                    }
+                                                    return test14();
+                                                }
+                                                return test13();
+                                            }
+                                            return test12();
+                                        }
+                                        return test11();
                                     }
-
-                                    return test10(i);
+                                    return test10();
                                 }
-
-                                return test9(h);
+                                return test9();
                             }
-
-                            return test8(g);
+                            return test8();
                         }
-                        return test7(f);
+                        return test7();
                     }
-                    return test6(e);
+                    return test6();
                 }
-                return test5(d);
+                return test5();
             }
-            return test4(c);
+            return test4();
         }
-        return test3(b);
+        return test3();
     }
-    return test2(a);
+    return test2();
 }
 
-
-print test1(100);
+print test1();
