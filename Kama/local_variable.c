@@ -81,7 +81,9 @@ LocalVariablesInfo find_local_variable(char *name, int depth) {
 }
 
 int insert_local_variable(char *name, int depth, TypeKind* type, int len) {
-    if (depth == local_variable_capacity) make_local_bigger();
+    while (depth >= local_variable_capacity) {
+        make_local_bigger();
+    }
 
     int current_idx = local_scopes[depth].variable_count;
     int current_variable_count_capacity = local_scopes[depth].variable_count_capacity;
