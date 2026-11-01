@@ -13,14 +13,56 @@ void init_function_table(void) {
     function_table_capacity = 4;
     function_table = malloc(sizeof(Funcion) * 4);
 
+    if (function_table == NULL) {
+        fprintf(stderr,
+            "Runtime Error: Failed to allocate function table\n");
+        exit(1);
+    }
+
     for (int i = 0; i < function_table_capacity; i++) {
-        function_table[i].address = malloc(sizeof(int) * 64);
-        function_table[i].param_count = malloc(sizeof(int) * 64);
-        function_table[i].type = malloc(sizeof(TypeKind) * 64);
-        function_table[i].name = malloc(sizeof(char *) * 64);
-        function_table[i].params = malloc(sizeof(Params) * 64);
-        function_table[i].function_count = 0;
         function_table[i].function_count_capacity = 64;
+
+        int *address = malloc(sizeof(int) * 64);
+        if (address == NULL) {
+            fprintf(stderr,
+                "Runtime Error: Failed to allocate function table address\n");
+            exit(1);
+        }
+        function_table[i].address = address;
+
+        int *param_count = malloc(sizeof(int) * function_table[i].function_count_capacity);
+        if (param_count == NULL) {
+            fprintf(stderr,
+                "Runtime Error: Failed to allocate function table param count\n");
+            exit(1);
+        }
+        function_table[i].param_count = param_count;
+
+        TypeKind *type = malloc(sizeof(TypeKind) * function_table[i].function_count_capacity);
+        if (type == NULL) {
+            fprintf(stderr,
+                "Runtime Error: Failed to allocate function table param type\n");
+            exit(1);
+        }
+        function_table[i].type = type;
+
+        char **name = malloc(sizeof(char *) * function_table[i].function_count_capacity);
+        if (name == NULL) {
+            fprintf(stderr,
+                "Runtime Error: Failed to allocate function table name\n");
+            exit(1);
+        }
+        function_table[i].name = name;
+
+        Params *params = malloc(sizeof(Params) * function_table[i].function_count_capacity);
+        if (params == NULL) {
+            fprintf(stderr,
+                "Runtime Error: Failed to allocate function table params\n");
+            exit(1);
+        }
+        function_table[i].params = params;
+
+        function_table[i].function_count = 0;
     }
 }
 
@@ -39,12 +81,49 @@ void make_function_bigger(void) {
 
     for (int i = old_capacity; i < new_capacity; i++) {
         function_table[i].function_count_capacity = 64;
-        function_table[i].address = malloc(sizeof(int) * function_table[i].function_count_capacity);
-        function_table[i].param_count = malloc(sizeof(int) * function_table[i].function_count_capacity);
-        function_table[i].type = malloc(sizeof(TypeKind) * function_table[i].function_count_capacity);
-        function_table[i].name = malloc(sizeof(char *) * function_table[i].function_count_capacity);
-        function_table[i].params = malloc(sizeof(Params) * function_table[i].function_count_capacity);
+
+        int *address = malloc(sizeof(int) * 64);
+        if (address == NULL) {
+            fprintf(stderr,
+                "Runtime Error: Failed to allocate function table address\n");
+            exit(1);
+        }
+        function_table[i].address = address;
+
+        int *param_count = malloc(sizeof(int) * function_table[i].function_count_capacity);
+        if (param_count == NULL) {
+            fprintf(stderr,
+                "Runtime Error: Failed to allocate function table param count\n");
+            exit(1);
+        }
+        function_table[i].param_count = param_count;
+
+        TypeKind *type = malloc(sizeof(TypeKind) * function_table[i].function_count_capacity);
+        if (type == NULL) {
+            fprintf(stderr,
+                "Runtime Error: Failed to allocate function table param type\n");
+            exit(1);
+        }
+        function_table[i].type = type;
+
+        char **name = malloc(sizeof(char *) * function_table[i].function_count_capacity);
+        if (name == NULL) {
+            fprintf(stderr,
+                "Runtime Error: Failed to allocate function table name\n");
+            exit(1);
+        }
+        function_table[i].name = name;
+
+        Params *params = malloc(sizeof(Params) * function_table[i].function_count_capacity);
+        if (params == NULL) {
+            fprintf(stderr,
+                "Runtime Error: Failed to allocate function table params\n");
+            exit(1);
+        }
+        function_table[i].params = params;
+
         function_table[i].function_count = 0;
+
     }
 
     function_table_capacity = new_capacity;
