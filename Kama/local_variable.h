@@ -25,10 +25,13 @@ typedef struct {
     TypeKind type;
 } LocalVariablesInfo;
 
+extern int local_variable_capacity;
+
 
 void init_local_variable(void);
 void free_all_local_scopes(void);
 LocalVariablesInfo find_local_variable(char *name, int depth);
 int insert_local_variable(char *name, int depth, TypeKind* type, int len);
+void make_local_bigger(void);
 
 #endif

@@ -71,7 +71,7 @@ void free_all_local_scopes(void) {
     free(local_scopes);
 }
 
-static void make_local_bigger(void) {
+void make_local_bigger(void) {
     int old_capacity = local_variable_capacity;
     int new_capacity = local_variable_capacity * 2;
     LocalVariables *new_local_variable_table = realloc(local_scopes, sizeof(LocalVariables) * new_capacity);
