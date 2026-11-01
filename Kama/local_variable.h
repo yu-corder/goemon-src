@@ -9,6 +9,7 @@ typedef struct {
     int variable_count;
     char **name;
     int *address;
+    int variable_count_capacity;
 
     TypeKind *type;
 } LocalVariables;

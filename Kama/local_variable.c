@@ -8,16 +8,15 @@
 LocalVariables *local_scopes;
 
 int local_variable_capacity;
-int variable_count_capacity;
 
 void init_local_variable(void) {
     local_variable_capacity = 8;
     local_scopes = malloc(sizeof(LocalVariables) * 8);
-    variable_count_capacity = 32;
     for (int i = 0; i < local_variable_capacity; i++) {
-        local_scopes[i].type = malloc(sizeof(TypeKind) * 32);
-        local_scopes[i].address = malloc(sizeof(int) * 32);
-        local_scopes[i].name = malloc(sizeof(char *) * 32);
+        local_scopes[i].variable_count_capacity = 32;
+        local_scopes[i].type = malloc(sizeof(TypeKind) * local_scopes[i].variable_count_capacity);
+        local_scopes[i].address = malloc(sizeof(int) * local_scopes[i].variable_count_capacity);
+        local_scopes[i].name = malloc(sizeof(char *) * local_scopes[i].variable_count_capacity);
         local_scopes[i].variable_count = 0;
     }
 }
@@ -39,6 +38,7 @@ void free_all_local_scopes(void) {
 }
 
 static void make_local_bigger(void) {
+    int old_capacity = local_variable_capacity;
     int new_capacity = local_variable_capacity * 2;
     LocalVariables *new_local_variable_table = realloc(local_scopes, sizeof(LocalVariables) * new_capacity);
 
@@ -48,8 +48,17 @@ static void make_local_bigger(void) {
         exit(1);
     }
 
-    local_variable_capacity = new_capacity;
     local_scopes = new_local_variable_table;
+
+    for (int i = old_capacity; i < new_capacity; i++) {
+        local_scopes[i].variable_count_capacity = 32;
+        local_scopes[i].type = malloc(sizeof(TypeKind) * local_scopes[i].variable_count_capacity);
+        local_scopes[i].address = malloc(sizeof(int) * local_scopes[i].variable_count_capacity);
+        local_scopes[i].name = malloc(sizeof(char *) * local_scopes[i].variable_count_capacity);
+        local_scopes[i].variable_count = 0;
+    }
+
+    local_variable_capacity = new_capacity;
 }
 
 
@@ -75,24 +84,47 @@ int insert_local_variable(char *name, int depth, TypeKind* type, int len) {
     if (depth == local_variable_capacity) make_local_bigger();
 
     int current_idx = local_scopes[depth].variable_count;
+    int current_variable_count_capacity = local_scopes[depth].variable_count_capacity;
 
-    if (current_idx == variable_count_capacity) {
-        int new_variable_count_capacity = variable_count_capacity * 2;
-        local_scopes[depth].type = realloc(
+    if (current_idx >= current_variable_count_capacity) {
+
+        int new_variable_count_capacity = current_variable_count_capacity * 2;
+
+        TypeKind *new_type = realloc(
             local_scopes[depth].type,
             sizeof(TypeKind) * new_variable_count_capacity
         );
 
-        local_scopes[depth].address = realloc(
+        if (new_type == NULL) {
+            fprintf(stderr, "Runtime Error: Failed to resize Local Variables Type\n");
+            exit(1); 
+        }
+
+        int *new_address = realloc(
             local_scopes[depth].address,
             sizeof(int) * new_variable_count_capacity
         );
 
-        local_scopes[depth].name = realloc(
+        if (new_address == NULL) {
+            fprintf(stderr, "Runtime Error: Failed to resize Local Variables Address\n");
+            exit(1);
+        }
+
+        char **new_name = realloc(
             local_scopes[depth].name,
             sizeof(char *) * new_variable_count_capacity
         );
-        variable_count_capacity = new_variable_count_capacity;
+
+        if (new_name == NULL) {
+            fprintf(stderr, "Runtime Error: Failed to resize Local Variables Name\n");
+            exit(1);
+        }
+
+        local_scopes[depth].type = new_type;
+        local_scopes[depth].address = new_address;
+        local_scopes[depth].name = new_name;
+
+        local_scopes[depth].variable_count_capacity = new_variable_count_capacity;
     }
 
     local_scopes[depth].variable_count++;
