@@ -129,9 +129,13 @@ int insert_local_variable(char *name, int depth, TypeKind* type, int len) {
         local_scopes[depth].variable_count_capacity = new_variable_count_capacity;
     }
 
-    local_scopes[depth].variable_count++;
+    char *new_name = malloc(len + 1);
+    if (new_name == NULL) {
+        fprintf(stderr, "Runtime Error: Failed to allocate variable name\n");
+        exit(1);
+    }
 
-    local_scopes[depth].name[current_idx] = malloc(len + 1);
+    local_scopes[depth].name[current_idx] = new_name;
     for (int i = 0; i < len; i++) {
         local_scopes[depth].name[current_idx][i] = name[i];
     }
@@ -144,6 +148,8 @@ int insert_local_variable(char *name, int depth, TypeKind* type, int len) {
     } else {
         local_scopes[depth].address[current_idx] = current_idx;
     }
+    
+    local_scopes[depth].variable_count++;
 
     return local_scopes[depth].address[current_idx];
 }
