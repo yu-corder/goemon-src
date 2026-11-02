@@ -11,8 +11,9 @@ int count = 0;
 int bytecode_capacity;
 
 void init_bytecode(void) {
+    count = 0;
     bytecode_capacity = 8;
-    bytecode = malloc(sizeof(int) * 8);
+    bytecode = malloc(sizeof(int) * bytecode_capacity);
 
     if (bytecode == NULL) {
         fprintf(stderr, "Runtime Error: Failed to allocate bytecode\n");
@@ -26,7 +27,7 @@ static void make_bytecode_bigger(void) {
 
     if (new_bytecode ==  NULL) {
         fprintf(stderr,
-            "Runtime Error: Failed to resize function table\n");
+            "Runtime Error: Failed to resize bytecode\n");
         exit(1);
     }
 
