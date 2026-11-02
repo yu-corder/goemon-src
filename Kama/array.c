@@ -37,6 +37,11 @@ int make_array(int size, TypeKind type) {
         make_bigger();
     }
 
+    if (size <= 0) {
+        fprintf(stderr, "Runtime Error: Invalid array size\n");
+        exit(1);
+    }
+
     int index = array_count;
 
     int *new_elements = malloc(sizeof(int) * size);
@@ -71,4 +76,5 @@ void free_all_arrays(void) {
     free(array_table);
     array_table = NULL;
     array_count = 0;
+    array_capacity = 0;
 }
