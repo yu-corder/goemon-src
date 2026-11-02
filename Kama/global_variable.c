@@ -14,6 +14,11 @@ void init_global_variable(void) {
     global_variable_count = 0;
     global_variable_capacity = 8;
     global_variable_table = malloc(sizeof(Variable) * 8);
+
+    if (global_variable_table == NULL) {
+        fprintf(stderr, "Runtime Error: Failed to allocate global variable table\n");
+        exit(1);
+    }
 }
 
 static void make_bigger(void) {
@@ -22,7 +27,7 @@ static void make_bigger(void) {
 
     if (new_global_variable_table ==  NULL) {
         fprintf(stderr,
-            "Runtime Error: Failed to resize variable table\n");
+            "Runtime Error: Failed to resize global variable table\n");
         exit(1);
     }
 
@@ -39,6 +44,7 @@ void free_all_global_variable(void) {
     free(global_variable_table);
     global_variable_table = NULL;
     global_variable_count = 0;
+    global_variable_capacity = 0;
 }
 
 
