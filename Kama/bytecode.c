@@ -13,6 +13,11 @@ int bytecode_capacity;
 void init_bytecode(void) {
     bytecode_capacity = 8;
     bytecode = malloc(sizeof(int) * 8);
+
+    if (bytecode == NULL) {
+        fprintf(stderr, "Runtime Error: Failed to allocate bytecode\n");
+        exit(1);
+    }
 }
 
 static void make_bytecode_bigger(void) {
@@ -30,7 +35,7 @@ static void make_bytecode_bigger(void) {
 }
 
 static void emit(int value) {
-    if (count == bytecode_capacity) {
+    while (count >= bytecode_capacity) {
         make_bytecode_bigger();
     }
 
