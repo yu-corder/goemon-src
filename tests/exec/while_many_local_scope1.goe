@@ -1,0 +1,44 @@
+int num = 0;
+
+while (num < 3) {
+    int num1 = 1;
+    int num2 = 2;
+    int num3 = 3;
+    int num4 = 4;
+    int num5 = 5;
+    int num6 = 6;
+    int num7 = 7;
+    int num8 = 8;
+    int num9 = 9;
+    int num10 = 10;
+    int num11 = 11;
+    int num12 = 12;
+    int num13 = 13;
+    int num14 = 14;
+    int num15 = 15;
+    int num16 = 16;
+    int num17 = 17;
+    int num18 = 18;
+    int num19 = 19;
+    int num20 = 20;
+    int num21 = 21;
+    int num22 = 22;
+    int num23 = 23;
+    int num24 = 24;
+    int num25 = 25;
+    int num26 = 26;
+    int num27 = 27;
+    int num28 = 28;
+    int num29 = 29;
+    int num30 = 30;
+    int num31 = 31;
+    int num32 = 32;
+    int num33 = 33;
+    int num34 = num1;
+
+    print num29;
+    print num;
+    print num34;
+    print num1;
+    num++;
+}
