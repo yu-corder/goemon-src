@@ -7,7 +7,15 @@ int array_capacity = 128;
 Array *array_table;
 
 void init_array_table(void) {
-    array_table = malloc(sizeof(Array) * 128);
+    array_count = 0;
+    array_capacity = 128;
+    array_table = malloc(sizeof(Array) * array_capacity);
+
+    if (array_table ==  NULL) {
+        fprintf(stderr,
+            "Runtime Error: Failed to allocate array table\n");
+        exit(1);
+    }
 }
 
 static void make_bigger(void) {
@@ -25,19 +33,22 @@ static void make_bigger(void) {
 }
 
 int make_array(int size, TypeKind type) {
-    int *array;
-
-    if (array_count == array_capacity) {
+    while (array_count >= array_capacity) {
         make_bigger();
     }
 
     int index = array_count;
 
-    array = malloc(sizeof(int) * size);
+    int *new_elements = malloc(sizeof(int) * size);
+    if (new_elements == NULL) {
+        fprintf(stderr,
+            "Runtime Error: Failed to allocate array\n");
+        exit(1);
+    }
 
     array_table[index].length = size;
     array_table[index].type = type;
-    array_table[index].elements = array;
+    array_table[index].elements = new_elements;
     
     array_count++;
     return index;
