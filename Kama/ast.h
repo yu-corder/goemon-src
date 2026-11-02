@@ -83,7 +83,7 @@ typedef struct Arena {
 void init_node_arena(void);
 void free_node_arena(void);
 Node* new_num_node (int *val);
-Node* new_bool_node ();
+Node* new_bool_node (bool val);
 Node* new_str_node (char *str, int *len);
 Node* new_var_node (char *str, int *len);
 Node* new_binary_node(NodeKind kind, Node* node1, Node* node2);

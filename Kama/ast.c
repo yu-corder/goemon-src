@@ -45,6 +45,9 @@ void free_node_arena(void) {
 
         arena = next;
     }
+
+    head_arena = NULL;
+    current_arena = NULL;
 }
 
 static void expand_arena(void) {
@@ -89,7 +92,7 @@ Node* new_num_node (int *val) {
     return node;
 }
 
-Node* new_bool_node (bool *val) {
+Node* new_bool_node (bool val) {
     Node *node = arena_alloc_node();
 
     node->kind = ND_BOOL;
