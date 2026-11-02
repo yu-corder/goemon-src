@@ -1,6 +1,5 @@
 int num = 0;
-
-while (num < 3) {
+for (int i = 0; i < 3; i++) {
     int num1 = 1;
     int num2 = 2;
     int num3 = 3;
