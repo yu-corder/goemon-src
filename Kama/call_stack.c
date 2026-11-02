@@ -6,8 +6,15 @@ int *call_stack = NULL;
 static int call_stack_capacity = 0;
 
 void init_call_stack(void) {
-    call_stack = malloc(sizeof(int) * 128);
     call_stack_capacity = 128;
+    call_stack = malloc(sizeof(int) * call_stack_capacity);
+
+    if (call_stack == NULL) {
+        fprintf(stderr,
+            "Runtime Error: Failed to allocate call stack\n");
+        exit(1);
+    }
+    
 }
 
 static void make_bigger(void) {
@@ -25,7 +32,7 @@ static void make_bigger(void) {
 }
 
 void call_stack_push(int val, int call_sp) {
-    if (call_sp == call_stack_capacity) {
+    if (call_sp >= call_stack_capacity) {
         make_bigger();
     }
     call_stack[call_sp] = val;
