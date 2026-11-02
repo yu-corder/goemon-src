@@ -202,12 +202,7 @@ int insert_local_variable(char *name, int depth, TypeKind* type, int len) {
     
     local_scopes[depth].name[current_idx][len] = '\0';
     local_scopes[depth].type[current_idx] = *type;
-    
-    if (strncmp(name, "__s", 3) == 0) {
-        local_scopes[depth].address[current_idx] = 1000 + (current_idx * 100);;
-    } else {
-        local_scopes[depth].address[current_idx] = current_idx;
-    }
+    local_scopes[depth].address[current_idx] = current_idx;
 
     local_scopes[depth].variable_count++;
 

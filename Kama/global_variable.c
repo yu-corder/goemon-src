@@ -80,12 +80,7 @@ int insert_global_variable(char *name, TypeKind* type, int len) {
     global_variable_table[current_idx].name[i] = '\0';
 
     global_variable_table[current_idx].type = *type;
-    
-    if (strncmp(name, "__s", 3) == 0) {
-        global_variable_table[current_idx].memory_index = 1000 + (global_variable_count * 100);
-    } else {
-        global_variable_table[current_idx].memory_index = global_variable_count;
-    }
+    global_variable_table[current_idx].memory_index = global_variable_count;
 
     global_variable_count++;
 
