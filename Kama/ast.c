@@ -10,8 +10,17 @@ Arena *current_arena = NULL;
 
 void init_node_arena(void) {
     current_arena = malloc(sizeof(Arena));
+    if (current_arena == NULL) {
+        fprintf(stderr, "Runtime Error: Failed to allocate arena\n");
+        exit(1);
+    }
 
     current_arena->node_tree = malloc(sizeof(Node) * 512);
+    if (current_arena->node_tree == NULL) {
+        fprintf(stderr, "Runtime Error: Failed to allocate arena node tree\n");
+        exit(1);
+    }
+
     current_arena->capacity = 512;
     current_arena->used = 0;
     current_arena->next = NULL;
@@ -40,7 +49,17 @@ void free_node_arena(void) {
 
 static void expand_arena(void) {
     Arena *tmp_arena = malloc(sizeof(Arena));
+    if (tmp_arena == NULL) {
+        fprintf(stderr, "Runtime Error: Failed to allocate arena\n");
+        exit(1);
+    }
+
     tmp_arena->node_tree = malloc(sizeof(Node) * 512);
+    if (tmp_arena->node_tree == NULL) {
+        fprintf(stderr, "Runtime Error: Failed to allocate arena node tree\n");
+        exit(1);
+    }
+
     tmp_arena->capacity = 512;
     tmp_arena->used = 0;
     tmp_arena->next = NULL;
@@ -50,7 +69,7 @@ static void expand_arena(void) {
 }
 
 static Node* arena_alloc_node() {
-    if (current_arena->used == current_arena->capacity) {
+    if (current_arena->used >= current_arena->capacity) {
         expand_arena();
     }
 
