@@ -59,10 +59,19 @@ GlobalVariablesInfo find_global_variable(char *name) {
 }
 
 int insert_global_variable(char *name, TypeKind* type, int len) {
+    while (global_variable_count >= global_variable_capacity) {
+        make_bigger();
+    }
+    
     int current_idx = global_variable_count;
-    global_variable_count++;
 
-    global_variable_table[current_idx].name = malloc(len + 1);
+    char *new_name = malloc(len + 1);
+    if (new_name == NULL) {
+        fprintf(stderr, "Runtime Error: Failed to allocate variable name\n");
+        exit(1);
+    }
+
+    global_variable_table[current_idx].name = new_name;
 
     int i = 0;
     while (*name != '\0') {
@@ -78,6 +87,7 @@ int insert_global_variable(char *name, TypeKind* type, int len) {
         global_variable_table[current_idx].memory_index = global_variable_count;
     }
 
-    if (global_variable_count == global_variable_capacity) make_bigger();
+    global_variable_count++;
+
     return global_variable_table[current_idx].memory_index;
 }

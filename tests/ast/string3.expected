@@ -1,5 +1,5 @@
   [DECL](STRING)
-    [VAR](STRING)(text)(address=1)(len=4)
+    [VAR](STRING)(text)(address=0)(len=4)
     [STR] val=hello world1
   [FUNCTION]
     [NAME]
@@ -11,7 +11,7 @@
       [PRINT]
         [VAR](STRING)(arg)(address=0)(depth=1)(len=3)
       [PRINT]
-        [VAR](STRING)(text)(address=1)(len=4)
+        [VAR](STRING)(text)(address=0)(len=4)
   [CALL](address=6)
     [NAME]
       (test)
