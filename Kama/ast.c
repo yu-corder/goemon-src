@@ -109,6 +109,11 @@ Node* new_str_node (char *str, int *len) {
 
     node->len = *len;
     node->str = malloc(sizeof(char) * node->len + 1);
+    if (node->str == NULL) {
+        fprintf(stderr, "Runtime Error: Failed to allocate string\n");
+        exit(1);
+    }
+
     strcpy(node->str, str);
     node->lhs = NULL;
     node->rhs = NULL;
@@ -123,6 +128,10 @@ Node* new_var_node (char *str, int *len) {
     node->rhs = NULL;
     node->len = *len;
     node->name = malloc(sizeof(char) * node->len + 1);
+    if (node->name == NULL) {
+        fprintf(stderr, "Runtime Error: Failed to allocate variable name\n");
+        exit(1);
+    }
     strcpy(node->name, str);
 
     return node;
@@ -166,6 +175,10 @@ Node* new_array_node(NodeKind kind, Node* node1, char *str, int *len) {
     node->kind = kind;
     node->len = *len;
     node->name = malloc(sizeof(char) * node->len + 1);
+    if (node->name == NULL) {
+        fprintf(stderr, "Runtime Error: Failed to allocate array name\n");
+        exit(1);
+    }
     strcpy(node->name, str);
     
     return node;
@@ -241,6 +254,10 @@ Node* new_func_node(NodeKind kind, char *str, Node* params, Node* body, TypeKind
     node->type = type;
     node->len = *len;
     node->func_name = malloc(sizeof(char) * node->len + 1);
+    if (node->func_name == NULL) {
+        fprintf(stderr, "Runtime Error: Failed to allocate function name\n");
+        exit(1);
+    }
     strcpy(node->func_name, str);
 
     return node;
@@ -252,6 +269,10 @@ Node* new_call_node(NodeKind kind, char *str, Node* params, int *len) {
     node->kind = kind;
     node->len = *len;
     node->func_name = malloc(sizeof(char) * node->len + 1);
+    if (node->func_name == NULL) {
+        fprintf(stderr, "Runtime Error: Failed to allocate function name\n");
+        exit(1);
+    }
     strcpy(node->func_name, str);
 
     node->params = params;
