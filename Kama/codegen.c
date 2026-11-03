@@ -24,7 +24,13 @@ static void generate(Node *node);
 
 void init_loop_stack(void) {
     loop_stack_capacity = 8;
-    loop_stack = malloc(sizeof(LoopContext) * 8);
+    loop_stack = malloc(sizeof(LoopContext) * loop_stack_capacity);
+
+    if (loop_stack == NULL) {
+        fprintf(stderr,
+            "Runtime Error: Failed to allocate loop stack\n");
+        exit(1);
+    }
 }
 
 static void make_loop_stack_bigger(void) {
