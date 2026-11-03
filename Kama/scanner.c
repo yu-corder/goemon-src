@@ -52,11 +52,12 @@ void free_all_tokens(void) {
     free(tokens);
     tokens = NULL;
     token_count = 0;
+    token_capacity = 0;
 }
 
 static void ensure_token_capacity(void) {
     token_count++;
-    if (token_count == token_capacity) {
+    while (token_count >= token_capacity) {
         make_bigger();
     } 
 }
