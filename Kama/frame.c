@@ -11,11 +11,23 @@ void init_fames(void) {
     frame_capacity = 8;
     frame_stack = calloc(frame_capacity, sizeof(*frame_stack));
 
+    if (frame_stack == NULL) {
+        fprintf(stderr,
+            "Runtime Error: Failed to allocate frame stack\n");
+        exit(1);
+    }
+
     for (int i = 0; i < frame_capacity; i++) {
         frame_stack[i].depths = calloc(
             8,
             sizeof(*frame_stack[i].depths)
         );
+
+        if (frame_stack[i].depths == NULL) {
+            fprintf(stderr,
+                "Runtime Error: Failed to allocate frame stack depths\n");
+            exit(1);
+        }
 
         frame_stack[i].capacity = 8;
         for (size_t j = 0; j < frame_stack[i].capacity; j++) {
@@ -23,6 +35,12 @@ void init_fames(void) {
                 8,
                 sizeof(int)
             );
+
+            if (frame_stack[i].depths[j].values == NULL) {
+                fprintf(stderr,
+                    "Runtime Error: Failed to allocate frame stack depths values\n");
+                exit(1);
+            }
 
             frame_stack[i].depths[j].capacity = 8;
         }
