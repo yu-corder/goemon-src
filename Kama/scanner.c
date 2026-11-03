@@ -319,6 +319,11 @@ void tokenize (char *p) {
                 p++;
             }
             tokens[token_count].str = malloc(len + 1);
+            if (tokens[token_count].str == NULL) {
+                fprintf(stderr,
+                    "Runtime Error: Failed to allocate token string\n");
+                exit(1);
+            }
             p -= len;
             len = 0;
 
@@ -338,6 +343,11 @@ void tokenize (char *p) {
                 p++;
             }
             tokens[token_count].str = malloc(len + 1);
+            if (tokens[token_count].str == NULL) {
+                fprintf(stderr,
+                    "Runtime Error: Failed to allocate token string\n");
+                exit(1);
+            }
             p -= len;
             len = 0;
 
