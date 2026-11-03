@@ -7,7 +7,7 @@ int frame_capacity = 0;
 
 Frame *frame_stack = NULL;
 
-void init_fames(void) {
+void init_frames(void) {
     frame_capacity = 8;
     frame_stack = calloc(frame_capacity, sizeof(*frame_stack));
 
@@ -48,6 +48,10 @@ void init_fames(void) {
 }
 
 void free_frames(void) {
+    if (frame_stack == NULL) {
+        return;
+    }
+
     for (int i = 0; i < frame_capacity; i++) {
         for (size_t j = 0; j < frame_stack[i].capacity; j++) {
             free(frame_stack[i].depths[j].values);
@@ -57,10 +61,11 @@ void free_frames(void) {
     }
     free(frame_stack);
     frame_stack = NULL;
+    frame_capacity = 0;
 }
 
 
-void make_flames_bigger(void) {
+void make_frames_bigger(void) {
     int old_capacity = frame_capacity;
     int new_capacity = frame_capacity * 2;
     Frame *new_frame_stack = realloc(frame_stack, sizeof(*frame_stack) * new_capacity);
@@ -103,7 +108,7 @@ void make_flames_bigger(void) {
     frame_capacity = new_capacity;
 }
 
-static void make_flames_depths_bigger(int call_frame) {
+static void make_frames_depths_bigger(int call_frame) {
     int old_capacity = frame_stack[call_frame].capacity;
     int new_capacity = frame_stack[call_frame].capacity * 2;
     Depth *new_depths = realloc(frame_stack[call_frame].depths, sizeof(Depth) * new_capacity);
@@ -134,7 +139,7 @@ static void make_flames_depths_bigger(int call_frame) {
     frame_stack[call_frame].capacity = new_capacity;
 }
 
-static void make_flames_values_bigger(int call_frame, int depth) {
+static void make_frames_values_bigger(int call_frame, int depth) {
     int old_capacity = frame_stack[call_frame].depths[depth].capacity;
     int new_capacity = frame_stack[call_frame].depths[depth].capacity * 2;
     int *new_values = realloc(frame_stack[call_frame].depths[depth].values, sizeof(int) * new_capacity);
@@ -164,11 +169,11 @@ void frame_store(int call_frame, int depth, int address, int value) {
     }
 
     while ((size_t)depth >= frame_stack[call_frame].capacity) {
-        make_flames_depths_bigger(call_frame);
+        make_frames_depths_bigger(call_frame);
     }
 
     while ((size_t)address >= frame_stack[call_frame].depths[depth].capacity) {
-        make_flames_values_bigger(call_frame, depth);
+        make_frames_values_bigger(call_frame, depth);
     }
 
     frame_stack[call_frame].depths[depth].values[address] = value;

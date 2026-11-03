@@ -167,7 +167,7 @@ void run(int* program) {
                 call_frame++;
 
                 if (call_frame >= frame_capacity) {
-                    make_flames_bigger();
+                    make_frames_bigger();
                 }
                 
                 call_stack_push(pc + 1, ++call_sp);
@@ -299,7 +299,7 @@ void load_and_run(const char* filename) {
     init_stack();
     init_call_stack();
     init_memory();
-    init_fames();
+    init_frames();
     run(code);
 
     free_all_arrays();

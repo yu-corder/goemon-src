@@ -15,9 +15,9 @@ typedef struct {
 extern Frame *frame_stack;
 extern int frame_capacity;
 
-void init_fames(void);
+void init_frames(void);
 void free_frames(void);
-void make_flames_bigger(void);
+void make_frames_bigger(void);
 
 void frame_store(int call_frame, int depth, int address, int value);
 int frame_load(int call_frame, int depth, int address);
