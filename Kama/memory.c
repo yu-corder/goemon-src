@@ -39,6 +39,12 @@ static void make_bigger(void) {
 }
 
 void memory_store(int val, int addr) {
+    if (addr < 0) {
+        fprintf(stderr,
+            "Runtime Error: Invalid memory address\n");
+        exit(1);
+    }
+    
     while (addr >= memory_capacity) {
         make_bigger();
     }
