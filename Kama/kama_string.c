@@ -24,7 +24,7 @@ void make_bigger(void) {
 
     if (new_string_table ==  NULL) {
         fprintf(stderr,
-            "Runtime Error: Failed to resize string\n");
+            "Runtime Error: Failed to resize string table\n");
         exit(1);
     }
 
@@ -40,4 +40,5 @@ void free_string_table(void) {
     free(string_table);
     string_table = NULL;
     string_capacity = 0;
+    string_count = 0;
 }
