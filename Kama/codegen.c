@@ -69,6 +69,9 @@ static void generate(Node *node) {
                 break;
             }
             case ND_STR: {
+                while (string_count >= string_capacity) {
+                    make_bigger();
+                }
                 string_table[string_count].length = node->len;
                 string_table[string_count].str = malloc(sizeof(char) * node->len + 1);
                 if (string_table[string_count].str == NULL) {
@@ -80,7 +83,6 @@ static void generate(Node *node) {
                 node->address = string_count;
                 emit_one_operand(OP_PUSH, &node->address);
                 string_count++;
-                if (string_count == string_capacity) make_bigger();
                 break;
             }
             case ND_BOOL: {
@@ -227,7 +229,9 @@ static void generate(Node *node) {
             }
             case ND_WHILE: {
                 loop_depth++;
-                if (loop_stack_capacity == loop_depth) make_loop_stack_bigger();
+                while (loop_depth >= loop_stack_capacity) {
+                    make_loop_stack_bigger();
+                }
                 loop_stack[loop_depth].break_count = 0;
 
                 int my_jmp_idx = count;
@@ -280,7 +284,9 @@ static void generate(Node *node) {
             }
             case ND_FOR: {
                 loop_depth++;
-                if (loop_stack_capacity == loop_depth) make_loop_stack_bigger();
+                while (loop_depth >= loop_stack_capacity) {
+                    make_loop_stack_bigger();
+                }
                 loop_stack[loop_depth].break_count = 0;
 
                 generate(node->init);
