@@ -10,6 +10,12 @@ void init_strings(void) {
     string_count = 0;
     string_capacity = 8;
     string_table = malloc(sizeof(String) * 8);
+
+    if (string_table == NULL) {
+        fprintf(stderr,
+            "Runtime Error: Failed to allocate string table\n");
+        exit(1);
+    }
 }
 
 void make_bigger(void) {
@@ -32,4 +38,6 @@ void free_string_table(void) {
     }
 
     free(string_table);
+    string_table = NULL;
+    string_capacity = 0;
 }
