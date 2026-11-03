@@ -7,8 +7,14 @@ int *memory = NULL;
 static int memory_capacity = 0;
 
 void init_memory(void) {
-    memory = calloc(128, sizeof(int));
     memory_capacity = 128;
+    memory = calloc(memory_capacity, sizeof(int));
+
+    if (memory == NULL) {
+        fprintf(stderr,
+            "Runtime Error: Failed to allocate memory\n");
+        exit(1);
+    }
 }
 
 static void make_bigger(void) {
