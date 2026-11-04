@@ -29,6 +29,9 @@ static void free_loop_stack(void) {
         loop_stack[i].breaks = NULL;
     }
     free(loop_stack);
+    loop_stack = NULL;
+    loop_stack_capacity = 0;
+    loop_depth = 0;
 }
 
 void init_loop_stack(void) {
@@ -64,7 +67,7 @@ static void make_loop_stack_bigger(void) {
 
     if (new_loop_stack ==  NULL) {
         fprintf(stderr,
-            "Runtime Error: Failed to resize function table\n");
+            "Runtime Error: Failed to resize loop stack\n");
         exit(1);
     }
 
