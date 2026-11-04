@@ -151,6 +151,8 @@ void free_all_function_table(void) {
     }
 
     free(function_table);
+    function_table = NULL;
+    function_table_capacity = 0;
 }
 
 FuncionParamsInfo find_function_params(char *name, int depth) {
@@ -198,6 +200,11 @@ FuncionInfo find_function(char *name, int depth) {
 }
 
 void insert_function(char *name, Node *params, int address, int depth, TypeKind type, int len) {
+    if (depth < 0) {
+        fprintf(stderr, "Runtime Error: Invalid function depth\n");
+        exit(1);
+    }
+
     while (depth >= function_table_capacity) {
         make_function_bigger();
     }
@@ -327,7 +334,7 @@ void insert_function(char *name, Node *params, int address, int depth, TypeKind 
 
             function_table[depth].params[current_idx].name[param_count] = malloc(p->lhs->len + 1);
             if (function_table[depth].params[current_idx].name[param_count] == NULL) {
-                fprintf(stderr, "Failed to params param name\n");
+                fprintf(stderr, "Failed to allocate parameter name\n");
                 exit(1);
             }
 
