@@ -11,8 +11,9 @@
 #include "ast.h"
 
 typedef struct {
-    int breaks[128];
+    int *breaks;
     int break_count;
+    int break_capacity;
     int continue_target;
 } LoopContext;
 
@@ -21,6 +22,14 @@ int loop_depth = 0;
 int loop_stack_capacity;
 
 static void generate(Node *node);
+
+static void free_loop_stack(void) {
+    for (int i = 0; i < loop_stack_capacity; i++) {
+        free(loop_stack[i].breaks);
+        loop_stack[i].breaks = NULL;
+    }
+    free(loop_stack);
+}
 
 void init_loop_stack(void) {
     loop_stack_capacity = 8;
@@ -31,9 +40,25 @@ void init_loop_stack(void) {
             "Runtime Error: Failed to allocate loop stack\n");
         exit(1);
     }
+
+    for (int i = 0; i < loop_stack_capacity; i++) {
+        loop_stack[i].break_capacity = 8;
+        loop_stack[i].break_count = 0;
+        loop_stack[i].continue_target = -1;
+        int *breaks = malloc(sizeof(int) * loop_stack[i].break_capacity);
+
+        if (breaks == NULL) {
+            fprintf(stderr,
+                "Runtime Error: Failed to allocate breaks\n");
+            exit(1);
+        }
+
+        loop_stack[i].breaks = breaks;
+    }
 }
 
 static void make_loop_stack_bigger(void) {
+    int old_capacity = loop_stack_capacity;
     int new_capacity = loop_stack_capacity * 2;
     LoopContext *new_loop_stack = realloc(loop_stack, sizeof(LoopContext) * new_capacity);
 
@@ -43,9 +68,42 @@ static void make_loop_stack_bigger(void) {
         exit(1);
     }
 
-    loop_stack_capacity = new_capacity;
     loop_stack = new_loop_stack;
+
+    for (int i = old_capacity; i < new_capacity; i++) {
+        loop_stack[i].break_capacity = 8;
+        loop_stack[i].break_count = 0;
+        loop_stack[i].continue_target = -1;
+        int *breaks = malloc(sizeof(int) * loop_stack[i].break_capacity);
+
+        if (breaks == NULL) {
+            fprintf(stderr,
+                "Runtime Error: Failed to allocate breaks\n");
+            exit(1);
+        }
+        loop_stack[i].breaks = breaks;
+    }
+
+    loop_stack_capacity = new_capacity;
 }
+
+static void make_loop_stack_breaks_bigger(void) {
+    int new_capacity = loop_stack[loop_depth].break_capacity * 2;
+    int *new_breaks = realloc(
+        loop_stack[loop_depth].breaks,
+        sizeof(int) * new_capacity
+    );
+
+    if (new_breaks ==  NULL) {
+        fprintf(stderr,
+            "Runtime Error: Failed to resize breaks\n");
+        exit(1);
+    }
+
+    loop_stack[loop_depth].breaks = new_breaks;
+    loop_stack[loop_depth].break_capacity = new_capacity;
+}
+
 
 static void generate_binary(Node *node, OpCode op) {
     generate(node->lhs);
@@ -267,6 +325,11 @@ static void generate(Node *node) {
                     printf("エラー: ループ分の中でしか、breakは使えません。");
                     exit(1);
                 }
+
+                while (loop_stack[loop_depth].break_count >= loop_stack[loop_depth].break_capacity) {
+                    make_loop_stack_breaks_bigger();
+                }
+
                 int index = loop_stack[loop_depth].break_count++;
                 loop_stack[loop_depth].breaks[index] = count;
                 int zero = 0;
@@ -376,6 +439,6 @@ void generate_entry(Node *node) {
     init_loop_stack();
     generate(node);
     emit_no_operand(OP_HALT);
-    free(loop_stack);
+    free_loop_stack();
     free_node_arena();
 }
