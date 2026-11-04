@@ -112,7 +112,6 @@ static void generate_binary(Node *node, OpCode op) {
 }
 
 typedef struct {
-    char name[32];
     int address;
     int depth;
 } ParamsTmp;
@@ -392,12 +391,30 @@ static void generate(Node *node) {
                 emit_one_operand(OP_JMP, &zero);
 
                 Node *params = node->params;
-                ParamsTmp params_tmp_table[128];
+
+                int params_tmp_capacity = 8;
+                ParamsTmp *params_tmp_table = malloc(sizeof(ParamsTmp) * params_tmp_capacity);
+                if (params_tmp_table == NULL) {
+                    fprintf(stderr,
+                        "Runtime Error: Failed to allocate params tmp table\n");
+                    exit(1);
+                }
+
                 int p_count = 0;
                 while (params) {
+                    if (p_count >= params_tmp_capacity) {
+                        int new_params_tmp_capacity = params_tmp_capacity * 2;
+                        ParamsTmp *new_params_tmp_table = realloc(params_tmp_table, sizeof(ParamsTmp) * new_params_tmp_capacity);
+                        if (new_params_tmp_table == NULL) {
+                            fprintf(stderr,
+                                "Runtime Error: Failed to resize params tmp table\n");
+                            exit(1);
+                        }
+                        params_tmp_capacity = new_params_tmp_capacity;
+                        params_tmp_table = new_params_tmp_table;
+                    }
                     params_tmp_table[p_count].address = params->lhs->address;
                     params_tmp_table[p_count].depth = params->lhs->depth;
-                    strcpy(params_tmp_table[p_count].name, params->lhs->name);
                     p_count++;
                     params = params->next;
                 }
@@ -405,6 +422,8 @@ static void generate(Node *node) {
                 for (int i = p_count - 1; i >= 0; i--) {
                     emit_two_operand(OP_STORE_LOCAL, &params_tmp_table[i].address, &params_tmp_table[i].depth);
                 }
+
+                free(params_tmp_table);
 
                 generate(node->body);
 
