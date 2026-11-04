@@ -5,8 +5,8 @@
 
 #include "ast.h"
 #include "token.h"
-Arena *head_arena = NULL;
-Arena *current_arena = NULL;
+static Arena *head_arena = NULL;
+static Arena *current_arena = NULL;
 
 void init_node_arena(void) {
     current_arena = malloc(sizeof(Arena));

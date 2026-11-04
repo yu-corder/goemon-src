@@ -32,13 +32,13 @@ static void make_bigger(void) {
 }
 
 void call_stack_push(int val, int call_sp) {
-    while (call_sp >= call_stack_capacity) {
-        make_bigger();
-    }
-
     if (call_sp < 0) {
         fprintf(stderr, "Runtime Error: Invalid call stack position\n");
         exit(1);
+    }
+
+    while (call_sp >= call_stack_capacity) {
+        make_bigger();
     }
     
     call_stack[call_sp] = val;

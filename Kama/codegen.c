@@ -17,9 +17,9 @@ typedef struct {
     int continue_target;
 } LoopContext;
 
-LoopContext *loop_stack;
-int loop_depth = 0;
-int loop_stack_capacity;
+static LoopContext *loop_stack;
+static int loop_depth = 0;
+static int loop_stack_capacity;
 
 static void generate(Node *node);
 
@@ -455,7 +455,6 @@ static void generate(Node *node) {
 }
 
 void generate_entry(Node *node) {
-    emit_count_reset();
     init_bytecode();
     init_strings();
     init_loop_stack();
