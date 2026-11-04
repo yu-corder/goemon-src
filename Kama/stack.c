@@ -6,8 +6,14 @@ int *stack = NULL;
 static int stack_capacity = 0;
 
 void init_stack(void) {
-    stack = malloc(sizeof(int) * 1024);
     stack_capacity = 1024;
+    stack = malloc(sizeof(int) * stack_capacity);
+
+    if (stack == NULL) {
+        fprintf(stderr, "Failed to allocate stack\n");
+        exit(1);
+    }
+    
 }
 
 static void make_bigger(void) {
@@ -25,9 +31,16 @@ static void make_bigger(void) {
 }
 
 void stack_push(int val, int sp) {
-    if (sp == stack_capacity) {
+    if (sp < 0) {
+        fprintf(stderr,
+            "Runtime Error: Invalid stack sp\n");
+        exit(1);
+    }
+    
+    while (sp >= stack_capacity) {
         make_bigger();
     }
+
     stack[sp] = val;
 }
 
