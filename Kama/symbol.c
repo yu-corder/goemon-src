@@ -275,6 +275,11 @@ void insert_function(char *name, Node *params, int address, int depth, TypeKind 
     }
 
     function_table[depth].name[current_idx] = malloc(len + 1);
+    if (function_table[depth].name[current_idx] == NULL) {
+        fprintf(stderr, "Failed to allocate function name\n");
+        exit(1);
+    }
+
     strcpy(function_table[depth].name[current_idx], name);
 
     function_table[depth].address[current_idx] = address;
@@ -296,8 +301,23 @@ void insert_function(char *name, Node *params, int address, int depth, TypeKind 
         }
 
         function_table[depth].params[current_idx].name = malloc(sizeof(char *) * param_count);
+        if (function_table[depth].params[current_idx].name == NULL) {
+            fprintf(stderr, "Failed to allocate parameter names\n");
+            exit(1);
+        }
+
         function_table[depth].params[current_idx].type = malloc(sizeof(TypeKind) * param_count);
+        if (function_table[depth].params[current_idx].type == NULL) {
+            fprintf(stderr, "Failed to allocate type\n");
+            exit(1);
+        }
+
         function_table[depth].params[current_idx].len = malloc(sizeof(int) * param_count);
+        if (function_table[depth].params[current_idx].len == NULL) {
+            fprintf(stderr, "Failed to allocate len\n");
+            exit(1);
+        }
+
         function_table[depth].params[current_idx].param_count = param_count;
 
         param_count = 0;
@@ -306,6 +326,11 @@ void insert_function(char *name, Node *params, int address, int depth, TypeKind 
             function_table[depth].params[current_idx].type[param_count] = p->type;
 
             function_table[depth].params[current_idx].name[param_count] = malloc(p->lhs->len + 1);
+            if (function_table[depth].params[current_idx].name[param_count] == NULL) {
+                fprintf(stderr, "Failed to params param name\n");
+                exit(1);
+            }
+
             strcpy(function_table[depth].params[current_idx].name[param_count], p->lhs->name);
             param_count++;
             p = p->next;
