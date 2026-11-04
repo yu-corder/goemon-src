@@ -1,0 +1,18 @@
+int num = 0;
+
+while (num < 3) {
+    print num;
+    if (true) {
+        break;
+        break;
+        break;
+        break;
+        break;
+        break;
+        break;
+        break;
+        break;
+        break;
+    }
+    num++;
+}
