@@ -13,6 +13,7 @@ int line = 1;
 int token_count = 0;
 
 static void init_tokens(void) {
+    token_count = 0;
     token_capacity = INITIAL_TOKEN_CAPACITY;
     tokens = calloc(token_capacity, sizeof(Token));
 
