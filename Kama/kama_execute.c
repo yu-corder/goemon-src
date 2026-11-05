@@ -244,9 +244,6 @@ void run(int* program) {
             }
             case OP_HALT:
                 return;
-            default:
-                fprintf(stderr, "Runtime Error: Unknown opcode (%d)\n", instruction);
-                exit(1);
         }
     }
 }
@@ -259,8 +256,6 @@ void load_and_run(const char* filename) {
     }
 
     GoemonHeader header;
-    fread(&header, sizeof(GoemonHeader), 1, f);
-
     if (fread(&header, sizeof(GoemonHeader), 1, f) != 1) {
         fprintf(stderr, "Runtime Error: Failed to read header\n");
         fclose(f);
