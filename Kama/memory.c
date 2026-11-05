@@ -17,6 +17,12 @@ void init_memory(void) {
     }
 }
 
+void free_memory(void) {
+    free(memory);
+    memory = NULL;
+    memory_capacity = 0;
+}
+
 static void make_bigger(void) {
     int old_capacity = memory_capacity;
     int new_capacity = memory_capacity * 2;

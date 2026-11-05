@@ -303,10 +303,10 @@ void load_and_run(const char* filename) {
     run(code);
 
     free_all_arrays();
+    free_stack();
+    free_call_stack();
+    free_memory();
     free(code);
-    free(stack);
-    free(call_stack);
-    free(memory);
     free_frames();
     free_string_table();
 }

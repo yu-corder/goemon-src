@@ -90,7 +90,7 @@ int main(int argc, char **argv) {
     }
     fclose(dest);
     free_string_table();
-    free(bytecode);
+    free_bytecode();
 
     printf("絶景かな！ Compiled study.goe to study.gb\n");
     return 0;

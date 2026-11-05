@@ -4,4 +4,5 @@
 extern int *memory;
 void init_memory(void);
 void memory_store(int val, int addr);
+void free_memory(void);
 #endif

@@ -21,6 +21,13 @@ void init_bytecode(void) {
     }
 }
 
+void free_bytecode(void) {
+    free(bytecode);
+    bytecode = NULL;
+    bytecode_capacity = 0;
+    count = 0;
+}
+
 static void make_bytecode_bigger(void) {
     int new_capacity = bytecode_capacity * 2;
     int *new_bytecode = realloc(bytecode, sizeof(int) * new_capacity);

@@ -7,6 +7,7 @@
 extern int *bytecode;
 
 void init_bytecode(void);
+void free_bytecode(void);
 void emit_no_operand(OpCode op_code);
 void emit_one_operand (OpCode op_code, int *val);
 void emit_two_operand(OpCode op_code, int *val1, int *val2);

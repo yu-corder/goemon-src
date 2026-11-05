@@ -17,6 +17,12 @@ void init_call_stack(void) {
     
 }
 
+void free_call_stack(void) {
+    free(call_stack);
+    call_stack = NULL;
+    call_stack_capacity = 0;
+}
+
 static void make_bigger(void) {
     int new_capacity = call_stack_capacity * 2;
     int *new_stack = realloc(call_stack, sizeof(int) * new_capacity);

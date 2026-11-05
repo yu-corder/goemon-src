@@ -4,4 +4,5 @@
 extern int *call_stack;
 void init_call_stack(void);
 void call_stack_push(int val, int call_sp);
+void free_call_stack(void);
 #endif
