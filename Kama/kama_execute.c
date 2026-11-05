@@ -176,6 +176,11 @@ void run(int* program) {
                 break;
             }
             case OP_RET: {
+                if (call_sp < 0) {
+                    fprintf(stderr, "Runtime Error: Call stack underflow\n");
+                    exit(1);
+                }
+
                 pc = call_stack[call_sp--];
                 call_frame--;
                 break;
@@ -190,6 +195,10 @@ void run(int* program) {
             }
             case OP_PRINT_STRING: {
                 int address =  stack[sp--];
+                if (address < 0 || address >= string_count) {
+                    fprintf(stderr, "Runtime Error: Invalid string address\n");
+                    exit(1);
+                }
                 printf("VM Output: %s\n", string_table[address].str);
                 break;
             }
@@ -211,7 +220,7 @@ void run(int* program) {
             }
             case OP_ARRAY_STORE: {
                 int var_addr = program[pc++];
-                int array_index = memory[var_addr];
+                int array_index = memory_load(var_addr);
                 int index = stack[sp--];
                 int value = stack[sp--];
                 store_array(array_index, index, value);
@@ -235,13 +244,19 @@ void run(int* program) {
             }
             case OP_HALT:
                 return;
+            default:
+                fprintf(stderr, "Runtime Error: Unknown opcode (%d)\n", instruction);
+                exit(1);
         }
     }
 }
 
 void load_and_run(const char* filename) {
     FILE* f = fopen(filename, "rb");
-    if (!f) return;
+    if (!f) {
+        perror("Failed to open bytecode file");
+        return;
+    }
 
     GoemonHeader header;
     fread(&header, sizeof(GoemonHeader), 1, f);
