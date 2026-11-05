@@ -261,6 +261,12 @@ void load_and_run(const char* filename) {
     GoemonHeader header;
     fread(&header, sizeof(GoemonHeader), 1, f);
 
+    if (fread(&header, sizeof(GoemonHeader), 1, f) != 1) {
+        fprintf(stderr, "Runtime Error: Failed to read header\n");
+        fclose(f);
+        return;
+    }
+
     int *code = malloc(header.bytecode_size * sizeof(int));
     if (code == NULL) {
         perror("malloc");
@@ -272,18 +278,18 @@ void load_and_run(const char* filename) {
 
     fseek(f, sizeof(GoemonHeader) + header.bytecode_size * sizeof(int), SEEK_SET);
 
-    string_table = malloc(sizeof(String) * header.string_count);
-
-    if (string_table == NULL) {
-        fprintf(stderr, "Runtime Error: Failed to allocate string table\n");
-        exit(1);
-    }
-
     if (header.version != 3.0) {
         fprintf(stderr,
             "Runtime Error: Unsupported bytecode version. "
             "Please recompile the source file.\n");
         fclose(f);
+        exit(1);
+    }
+
+    string_table = malloc(sizeof(String) * header.string_count);
+
+    if (string_table == NULL) {
+        fprintf(stderr, "Runtime Error: Failed to allocate string table\n");
         exit(1);
     }
 
