@@ -10,8 +10,6 @@
 #include "memory.h"
 #include "frame.h"
 
-String *string_table;
-
 void run(int* program) {
     int sp = -1;
     int call_sp = -1;
