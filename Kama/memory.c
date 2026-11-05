@@ -56,3 +56,23 @@ void memory_store(int val, int addr) {
     }
     memory[addr] = val;
 }
+
+int memory_load(int addr) {
+    if (addr < 0 || addr >= memory_capacity) {
+        fprintf(stderr,
+            "Runtime Error: Invalid memory address\n");
+        exit(1);
+    }
+
+    return memory[addr];
+}
+
+void memory_incrment(int addr) {
+    if (addr < 0 || addr >= memory_capacity) {
+        fprintf(stderr,
+            "Runtime Error: Invalid memory address\n");
+        exit(1);
+    }
+
+    memory[addr]++;
+}

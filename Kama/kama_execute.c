@@ -129,7 +129,7 @@ void run(int* program) {
             }
             case OP_LOAD: {
                 int address = program[pc++];
-                int value = memory[address];
+                int value = memory_load(address);
                 stack_push(value, ++sp);
                 break;
             }
@@ -154,7 +154,7 @@ void run(int* program) {
             }
             case OP_INC: {
                 int address = program[pc++];
-                memory[address]++;
+                memory_incrment(address);
                 break;
             }
             case OP_INC_LOCAL: {
