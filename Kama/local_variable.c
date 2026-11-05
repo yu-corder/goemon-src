@@ -166,6 +166,7 @@ int insert_local_variable(char *name, int depth, TypeKind* type, int len) {
             fprintf(stderr, "Runtime Error: Failed to resize Local Variables Type\n");
             exit(1); 
         }
+        local_scopes[depth].type = new_type;
 
         int *new_address = realloc(
             local_scopes[depth].address,
@@ -176,6 +177,7 @@ int insert_local_variable(char *name, int depth, TypeKind* type, int len) {
             fprintf(stderr, "Runtime Error: Failed to resize Local Variables Address\n");
             exit(1);
         }
+        local_scopes[depth].address = new_address;
 
         char **new_name = realloc(
             local_scopes[depth].name,
@@ -186,9 +188,6 @@ int insert_local_variable(char *name, int depth, TypeKind* type, int len) {
             fprintf(stderr, "Runtime Error: Failed to resize Local Variables Name\n");
             exit(1);
         }
-
-        local_scopes[depth].type = new_type;
-        local_scopes[depth].address = new_address;
         local_scopes[depth].name = new_name;
 
         local_scopes[depth].variable_count_capacity = new_variable_count_capacity;

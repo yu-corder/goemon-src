@@ -224,6 +224,7 @@ void insert_function(char *name, Node *params, int address, int depth, TypeKind 
            fprintf(stderr, "Runtime Error: Failed to resize function addresses\n");
             exit(1); 
         }
+        function_table[depth].address = new_address;
 
         int *new_param_count = realloc(
             function_table[depth].param_count,
@@ -234,6 +235,7 @@ void insert_function(char *name, Node *params, int address, int depth, TypeKind 
             fprintf(stderr, "Runtime Error: Failed to resize function param_count\n");
             exit(1);
         }
+        function_table[depth].param_count = new_param_count;
 
         TypeKind *new_type = realloc(
             function_table[depth].type,
@@ -244,6 +246,7 @@ void insert_function(char *name, Node *params, int address, int depth, TypeKind 
             fprintf(stderr, "Runtime Error: Failed to resize function type\n");
             exit(1);
         }
+        function_table[depth].type = new_type;
 
         char **new_name = realloc(
             function_table[depth].name,
@@ -254,6 +257,7 @@ void insert_function(char *name, Node *params, int address, int depth, TypeKind 
             fprintf(stderr, "Runtime Error: Failed to resize function name\n");
             exit(1);
         }
+        function_table[depth].name = new_name;
 
         Params *new_params = realloc(
             function_table[depth].params,
@@ -264,11 +268,6 @@ void insert_function(char *name, Node *params, int address, int depth, TypeKind 
             fprintf(stderr, "Runtime Error: Failed to resize function params\n");
             exit(1);
         }
-
-        function_table[depth].address = new_address;
-        function_table[depth].param_count = new_param_count;
-        function_table[depth].type = new_type;
-        function_table[depth].name = new_name;
         function_table[depth].params = new_params;
 
         function_table[depth].function_count_capacity = new_capacity;
