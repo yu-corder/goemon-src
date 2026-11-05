@@ -52,6 +52,7 @@ GlobalVariablesInfo find_global_variable(char *name) {
     GlobalVariablesInfo var;
     var.found = false;
     var.address = -1;
+    var.depth = 0;
     for (int i = 0; i < global_variable_count; i++) {
         if (strcmp(global_variable_table[i].name, name) == 0) {
             var.address = global_variable_table[i].memory_index;
@@ -65,6 +66,11 @@ GlobalVariablesInfo find_global_variable(char *name) {
 }
 
 int insert_global_variable(char *name, TypeKind* type, int len) {
+    if (len < 0) {
+        fprintf(stderr, "Runtime Error: Invalid variable name length\n");
+        exit(1);
+    }
+
     while (global_variable_count >= global_variable_capacity) {
         make_bigger();
     }
@@ -79,11 +85,7 @@ int insert_global_variable(char *name, TypeKind* type, int len) {
 
     global_variable_table[current_idx].name = new_name;
 
-    int i = 0;
-    while (*name != '\0') {
-        global_variable_table[current_idx].name[i++] = *name++;
-    }
-    global_variable_table[current_idx].name[i] = '\0';
+    strcpy(global_variable_table[current_idx].name, name);
 
     global_variable_table[current_idx].type = *type;
     global_variable_table[current_idx].memory_index = global_variable_count;

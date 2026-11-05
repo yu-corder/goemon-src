@@ -141,6 +141,11 @@ LocalVariablesInfo find_local_variable(char *name, int depth) {
 }
 
 int insert_local_variable(char *name, int depth, TypeKind* type, int len) {
+    if (len < 0) {
+        fprintf(stderr, "Runtime Error: Invalid variable name length\n");
+        exit(1);
+    }
+    
     while (depth >= local_variable_capacity) {
         make_local_bigger();
     }
@@ -196,11 +201,8 @@ int insert_local_variable(char *name, int depth, TypeKind* type, int len) {
     }
 
     local_scopes[depth].name[current_idx] = new_name;
-    for (int i = 0; i < len; i++) {
-        local_scopes[depth].name[current_idx][i] = name[i];
-    }
+    strcpy(local_scopes[depth].name[current_idx], name);
     
-    local_scopes[depth].name[current_idx][len] = '\0';
     local_scopes[depth].type[current_idx] = *type;
     local_scopes[depth].address[current_idx] = current_idx;
 
