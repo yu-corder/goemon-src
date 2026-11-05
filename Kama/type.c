@@ -7,6 +7,7 @@
 #include "symbol.h"
 #include "resolver.h"
 #include "debug.h"
+#include "local_variable.h"
 #include "ast.h"
 
 static TypeKind type_check();
@@ -22,6 +23,7 @@ static void type_check_program(Node *program) {
 void type_check_program_entry(Node *program) {
     type_check_program(program);
     free_all_function_table();
+    free_all_local_scopes();
 }
 
 static void type_check_params(Node *params, char *name) {

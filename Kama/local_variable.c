@@ -69,6 +69,8 @@ void free_all_local_scopes(void) {
     }
 
     free(local_scopes);
+    local_scopes = NULL;
+    local_variable_capacity = 0;
 }
 
 void make_local_bigger(void) {
@@ -143,6 +145,11 @@ LocalVariablesInfo find_local_variable(char *name, int depth) {
 int insert_local_variable(char *name, int depth, TypeKind* type, int len) {
     if (len < 0) {
         fprintf(stderr, "Runtime Error: Invalid variable name length\n");
+        exit(1);
+    }
+
+    if (depth < 0) {
+        fprintf(stderr, "Runtime Error: Invalid scope depth\n");
         exit(1);
     }
     
