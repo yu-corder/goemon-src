@@ -1,0 +1,9 @@
+function int a(int x) {
+    function int k(str y) { return 0; }
+    return 0;
+}
+function int b(int x) {
+    function int k() { return 1; }
+    return k(5);
+}
+print b(1);
