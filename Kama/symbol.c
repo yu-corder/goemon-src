@@ -163,7 +163,7 @@ FuncionParamsInfo find_function_params(char *name, int depth) {
 
     for (int i = depth + 1; i >= 0; i--) {
         for (int j = 0; j < function_table[i].function_count; j++) {
-            if (1 <= function_table[i].param_count[j] && strcmp(function_table[i].name[j], name) == 0) {
+            if (strcmp(function_table[i].name[j], name) == 0) {
                 var.found = true;
                 var.depth = i;
                 var.param_count = function_table[i].params[j].param_count;
@@ -292,6 +292,7 @@ void insert_function(char *name, Node *params, int address, int depth, TypeKind 
     function_table[depth].function_count++;
     function_table[depth].type[current_idx] = type;
     function_table[depth].param_count[current_idx] = 0;
+    function_table[depth].params[current_idx] = (Params){0};
 
     if (params != NULL) {
         Node *p_tmp = params;
