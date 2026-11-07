@@ -31,7 +31,7 @@ static void type_check_params(Node *params) {
     while (p != NULL) {
         if (type_check(p) != p->param_type) {
             fprintf(stderr,
-                "Expecte: %s\n", type_name(p->param_type));
+                "Expected: %s\n", type_name(p->param_type));
             exit(1);
         }
         p = p->next;
@@ -46,7 +46,7 @@ static TypeKind type_check_expression(Node* node) {
     node->type = TY_INT;
     if (lhs != TY_INT || rhs != TY_INT) {
         fprintf(stderr,
-            "Expecte: %s\n", type_name(node->type));
+            "Expected: %s\n", type_name(node->type));
         exit(1);
     }
 
@@ -150,7 +150,7 @@ static TypeKind type_check(Node* node) {
         case ND_ARRAY_STORE: {
             if (type_check(node->rhs) != TY_INT) {
                 fprintf(stderr,
-                    "Expecte: INT\n");
+                    "Expected: INT\n");
                 exit(1);
             }
             return node->type;   
