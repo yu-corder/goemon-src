@@ -67,6 +67,7 @@ typedef struct Node {
     char *func_name;
 
     TypeKind type;
+    TypeKind param_type;
 
     int address;
     int depth;

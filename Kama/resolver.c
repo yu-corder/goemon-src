@@ -380,6 +380,26 @@ static void name_resolution(Node *node) {
                     fprintf(stderr, "Undefined function: %s\n", node->func_name);
                     exit(1);
                 }
+
+                Node *params = node->params;
+                FuncionParamsInfo func_params =
+                    find_function_params(node->func_name, block_depth);
+
+                for (int i = 0; i < func_params.param_count; i++) {
+                    if (params == NULL) {
+                        fprintf(stderr, "Too few arguments: %s\n", node->func_name);
+                        exit(1);
+                    }
+
+                    params->param_type = func_params.type[i];
+                    params = params->next;
+                }
+
+                if (params != NULL) {
+                    fprintf(stderr, "Too many arguments: %s\n", node->func_name);
+                    exit(1);
+                }
+                
                 name_resolution(node->params);
                 name_resolution_func(node, func.address, func.depth, func.type);
                 emit_count_two_up();

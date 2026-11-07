@@ -26,18 +26,17 @@ void type_check_program_entry(Node *program) {
     free_all_local_scopes();
 }
 
-static void type_check_params(Node *params, char *name) {
+static void type_check_params(Node *params) {
     Node *p = params;
-    FuncionParamsInfo func_params = find_function_params(name, block_depth);
-    for (int i = 0; i < func_params.param_count; i++) {
-        TypeKind param = type_check(p);
-        if (param != func_params.type[i]) {
+    while (p != NULL) {
+        if (type_check(p) != p->param_type) {
             fprintf(stderr,
-                "Expecte: %s\n", type_name(func_params.type[i]));
+                "Expecte: %s\n", type_name(p->param_type));
             exit(1);
         }
         p = p->next;
     }
+    
 }
 
 static TypeKind type_check_expression(Node* node) {
@@ -236,7 +235,7 @@ static TypeKind type_check(Node* node) {
             return node->type;
         }
         case ND_CALL: {
-            type_check_params(node->params, node->func_name);
+            type_check_params(node->params);
             return node->type;
         }
         case ND_RET: {
