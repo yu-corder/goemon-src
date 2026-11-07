@@ -1,0 +1,7 @@
+function int f(int a) {
+    function int g(int b) {
+        return b;
+    }
+    return g("hello");
+}
+print f(1);
