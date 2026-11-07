@@ -187,7 +187,7 @@ void run(int* program) {
                 if (sp < 0) {
                     printf("エラー：スタックが空なのに print しようとしましたぞ！\n");
                 } else {
-                    printf("VM Output: %d\n", stack[sp--]);
+                    printf("%d\n", stack[sp--]);
                 }
                 break;
             }
@@ -197,15 +197,15 @@ void run(int* program) {
                     fprintf(stderr, "Runtime Error: Invalid string address\n");
                     exit(1);
                 }
-                printf("VM Output: %s\n", string_table[address].str);
+                printf("%s\n", string_table[address].str);
                 break;
             }
             case OP_PRINT_BOOL: {
                 int value =  stack[sp--];
                 if (value) {
-                    printf("VM Output: true\n");
+                    printf("true\n");
                 } else {
-                    printf("VM Output: false\n");
+                    printf("false\n");
                 }
                 break;
             }

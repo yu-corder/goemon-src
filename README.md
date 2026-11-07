@@ -26,10 +26,10 @@ hello(3);
 Output:
 
 ```text
-VM Output: 1
-VM Output: 3
-VM Output: 2
-VM Output: 1
+1
+3
+2
+1
 ```
 
 ## Features
@@ -165,7 +165,7 @@ if (a < b) {
 Output:
 
 ```text
-VM Output: 100
+100
 ```
 
 ### For Loop
@@ -179,11 +179,11 @@ for (int i = 0; i < 5; i++) {
 Output:
 
 ```text
-VM Output: 0
-VM Output: 1
-VM Output: 2
-VM Output: 3
-VM Output: 4
+0
+1
+2
+3
+4
 ```
 
 ### Functions
@@ -199,7 +199,7 @@ print add(10, 20);
 Output:
 
 ```text
-VM Output: 30
+30
 ```
 
 ### Recursive Functions
@@ -219,7 +219,7 @@ print fib(10);
 Output:
 
 ```text
-VM Output: 55
+55
 ```
 
 This also demonstrates recursive function calls and per-invocation local storage in the virtual machine.
