@@ -39,10 +39,6 @@ static void emit_count_three() {
     program_count++;
 }
 
-void function_count_up() {
-    function_table[block_depth].function_count++;
-}
-
 void enter_scope() {
     block_depth++;
     
