@@ -325,6 +325,12 @@ void tokenize (char *p) {
                 len++;
                 p++;
             }
+            
+            if (*p != '"') {
+                fprintf(stderr, "Line %d: Unterminated string literal\n", line);
+                exit(1);
+            }
+
             tokens[token_count].str = malloc(len + 1);
             if (tokens[token_count].str == NULL) {
                 fprintf(stderr,
