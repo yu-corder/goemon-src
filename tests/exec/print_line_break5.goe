@@ -1,0 +1,7 @@
+function str test(str text) {
+    print text;
+    print "\n";
+    return text;
+}
+
+print test("hello\nworld");

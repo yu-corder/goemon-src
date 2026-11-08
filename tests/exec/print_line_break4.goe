@@ -1,0 +1,3 @@
+str[1] texts;
+texts[0] = "hello\nworld";
+print texts[0];
