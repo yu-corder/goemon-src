@@ -314,8 +314,14 @@ void tokenize (char *p) {
         if (*p == '"') {
             p++;
             int len = 0;
+            char *start = p;
 
             while (*p != '"' && *p != '\0') {
+                if (*p == '\\' && p[1] == 'n') {
+                    len++;
+                    p += 2;
+                    continue;
+                }
                 len++;
                 p++;
             }
@@ -325,10 +331,15 @@ void tokenize (char *p) {
                     "Runtime Error: Failed to allocate token string\n");
                 exit(1);
             }
-            p -= len;
+            p = start;
             len = 0;
 
             while (*p != '"' && *p != '\0') {
+                if (*p == '\\' && p[1] == 'n') {
+                    tokens[token_count].str[len++] = '\n';
+                    p += 2;
+                    continue;
+                }
                 tokens[token_count].str[len++] = *p++;
             }
             tokens[token_count].str[len] = '\0';
