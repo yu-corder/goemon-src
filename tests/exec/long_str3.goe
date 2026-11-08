@@ -1,0 +1,3 @@
+str[1] texts;
+texts[0] = "aiueokakikukekosaissuesotatitutetoenaninuenohahihhehomamimumoyayuyorarirurrowaonn";
+print texts[0];
