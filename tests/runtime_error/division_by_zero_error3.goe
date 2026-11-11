@@ -1,0 +1,5 @@
+function int div(int a, int b) {
+    return a / b;
+}
+
+print div(100, 0);
