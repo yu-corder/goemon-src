@@ -59,11 +59,26 @@ int make_array(int size, TypeKind type) {
     return index;
 }
 
+static void check_array_access(int array_index, int index) {
+    if (array_index < 0 || array_index >= array_count) {
+        fprintf(stderr, "Runtime Error: Invalid array reference\n");
+        exit(1);
+    }
+    if (index < 0 || index >= array_table[array_index].length) {
+        fprintf(stderr,
+            "Runtime Error: Array index out of range (index=%d, length=%d)\n",
+            index, array_table[array_index].length);
+        exit(1);
+    }
+}
+
 void store_array(int array_index, int index, int value) {
+    check_array_access(array_index, index);
     array_table[array_index].elements[index] = value;
 }
 
 int load_array(int array_index, int index) {
+    check_array_access(array_index, index);
     return array_table[array_index].elements[index];
 }
 
