@@ -16,7 +16,7 @@ run: all
 		./$(TARGET_EXEC) examples/study.gb
 
 clean:
-		rm -f $(TARGET_EXEC) $(TARGET_COMP) examples/*.gb tests/exec/*.gb tests/error/*.gb tests/ast/*.gb
+		rm -f $(TARGET_EXEC) $(TARGET_COMP) examples/*.gb tests/exec/*.gb tests/error/*.gb tests/ast/*.gb tests/runtime_error/*.gb
 
 test: all
 	./tests/run_tests.sh

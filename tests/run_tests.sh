@@ -74,6 +74,31 @@ do
     fi
 done
 
+set +e
+
+echo
+echo "=== Runtime Error Tests ==="
+
+for testfile in tests/runtime_error/*.goe
+do
+    name=$(basename "$testfile" .goe)
+
+    expected="tests/runtime_error/${name}.expected"
+    bytecode="tests/runtime_error/${name}.gb"
+
+    echo "Testing Runtime Error $name"
+
+    ./kama-c "$testfile" "$bytecode" > /dev/null
+    ./kama-e "$bytecode" > actual.txt 2>&1
+
+    if diff actual.txt "$expected" > /dev/null; then
+        echo -e "${GREEN}✓ [PASS]${NC} $name"
+    else
+        echo -e "${RED}✗ [FAIL]${NC} $name"
+        exit 1
+    fi
+done
+
 set -e
 
 rm -f actual.txt
