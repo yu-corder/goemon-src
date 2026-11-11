@@ -9,44 +9,34 @@ Rather than relying on parser generators or existing compiler frameworks, the co
 ## Hello, World
 
 ```go
-print 1;
-
-function int hello(int n) {
-    if (n <= 0) {
-        return 0;
-    }
-
-    print n;
-    return hello(n - 1);
-}
-
-hello(3);
+print "Hello, World!\n";
 ```
 
 Output:
 
 ```text
-1
-3
-2
-1
+Hello, World!
 ```
 
 ## Features
 
 ### Language Features
 
-* Integer variables and assignment
-* String values and output
+* Data types
+  * `int`
+  * `str`
+  * `bool` (`true` / `false`)
+* Variables and assignment
+* Fixed-size arrays (`int[N]`, `str[N]`, `bool[N]`)
+* String literals with escape sequences (`\n`)
+* Output with `print` (no automatic newline)
 * Arithmetic expressions
-
   * `+`
   * `-`
   * `*`
   * `/`
   * `%`
 * Comparison operators
-
   * `<`
   * `<=`
   * `>`
@@ -54,14 +44,15 @@ Output:
   * `==`
   * `!=`
 * Conditional branching
-
   * `if`
   * `else if`
   * `else`
 * Loop statements
-
   * `while`
   * `for`
+* Loop control
+  * `break`
+  * `continue`
 * Functions
 * Function parameters
 * Return statements and return values
@@ -76,17 +67,21 @@ Output:
 * Hand-written lexer
 * Recursive descent parser
 * Abstract Syntax Tree (AST)
+* Arena allocation for AST nodes
 * Name resolution
 * Static type checking
+* Function argument count and type validation
 * Bytecode generation
-* Jump backpatching
+* Jump backpatching (including `break` / `continue` targets)
 * Function call compilation
+* Compile-time error reporting (e.g. unterminated string literals)
 * Automated execution tests
 
 ### Virtual Machine
 
 * Stack-based execution model
 * Bytecode instruction dispatch
+* Bytecode header validation
 * Global memory
 * Local variable storage
 * Function call frames
@@ -96,6 +91,25 @@ Output:
 * Unconditional jumps (`OP_JMP`)
 * Arithmetic instructions
 * Comparison instructions
+* Array instructions (`OP_MAKE_ARRAY`, `OP_ARRAY_LOAD`, `OP_ARRAY_STORE`)
+* Type-specific output instructions (`OP_PRINT`, `OP_PRINT_STRING`, `OP_PRINT_BOOL`)
+* Runtime error handling with memory access validation
+
+### Memory Management
+
+The compiler and VM originally used fixed-size static arrays. They now use dynamically allocated structures that grow as needed:
+
+* Token buffer
+* AST node arena
+* Symbol tables (global variables, local variables, functions)
+* String table
+* Bytecode buffer
+* Loop stack and `break` jump targets
+* Value stack
+* Call stack and function frames
+* Arrays
+
+This removes hard limits on program size, variable count, nesting depth, and recursion depth. All allocations are checked for failure, and each module cleans up its own memory.
 
 ## Architecture
 
@@ -132,7 +146,7 @@ Virtual Machine
 The compiler and VM are separated into two executables:
 
 ```text
-.goemon
+.goe
    |
    v
 kama-c
@@ -160,6 +174,7 @@ if (a < b) {
 } else {
     print 200;
 }
+print "\n";
 ```
 
 Output:
@@ -173,6 +188,7 @@ Output:
 ```go
 for (int i = 0; i < 5; i++) {
     print i;
+    print "\n";
 }
 ```
 
@@ -186,6 +202,79 @@ Output:
 4
 ```
 
+### Arrays
+
+```go
+int[5] numbers;
+
+for (int i = 0; i < 5; i++) {
+    numbers[i] = i * 10;
+}
+
+for (int i = 0; i < 5; i++) {
+    print numbers[i];
+    print "\n";
+}
+```
+
+Output:
+
+```text
+0
+10
+20
+30
+40
+```
+
+### Strings and Booleans
+
+```go
+str[2] words;
+words[0] = "hello";
+words[1] = "world";
+
+bool done = true;
+
+print words[0];
+print " ";
+print words[1];
+print "\n";
+print done;
+print "\n";
+```
+
+Output:
+
+```text
+hello world
+true
+```
+
+### Break and Continue
+
+```go
+for (int i = 0; i < 10; i++) {
+    if (i == 2) {
+        continue;
+    }
+    if (i == 5) {
+        break;
+    }
+    print i;
+    print "\n";
+}
+```
+
+Output:
+
+```text
+0
+1
+3
+4
+```
+
 ### Functions
 
 ```go
@@ -194,6 +283,7 @@ function int add(int a, int b) {
 }
 
 print add(10, 20);
+print "\n";
 ```
 
 Output:
@@ -214,6 +304,7 @@ function int fib(int n) {
 }
 
 print fib(10);
+print "\n";
 ```
 
 Output:
@@ -232,7 +323,7 @@ This also demonstrates recursive function calls and per-invocation local storage
 * **Intermediate Representation:** Abstract Syntax Tree (AST)
 * **Compiler Output:** Custom Bytecode
 * **Execution Model:** Stack-based Virtual Machine
-* **Memory Model:** Global memory and function-local frames
+* **Memory Model:** Dynamically growing global memory, function-local frames, and arrays
 
 ## Build
 
@@ -269,8 +360,9 @@ make test
 * Abstract Syntax Tree
 * Name resolution
 * Static type checking
-* Integer variables
-* String values and output
+* `int`, `str`, and `bool` types
+* Fixed-size arrays
+* String escape sequences (`\n`)
 * Local variables
 * Lexical scopes
 * Arithmetic expressions
@@ -278,6 +370,7 @@ make test
 * `if / else if / else`
 * `while`
 * `for`
+* `break` / `continue`
 * Functions
 * Function parameters
 * Return statements
@@ -287,12 +380,12 @@ make test
 * Jump backpatching
 * Stack-based virtual machine
 * Function call frames
+* Dynamic memory management (replacing static arrays)
+* Runtime error handling
 * Automated execution tests
 
 ### Planned
 
-* Arrays
-* Dynamic memory management
 * User input
 * Standard library
 * File operations
@@ -341,6 +434,7 @@ The series documents the implementation process step by step, including:
 * Bytecode generation
 * Virtual machine implementation
 * Function calls and recursion
+* Arrays and dynamic memory management
 * Language feature development
 
 The blog is intended to document not only the final implementation, but also the design decisions, debugging process, and problems encountered during development.
