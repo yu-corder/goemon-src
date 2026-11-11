@@ -1,0 +1,7 @@
+function int add(int a, int b) {
+    return a + b;
+}
+
+int[5] nums;
+nums[0] = 1;
+nums[add(3, 4)] = 500;

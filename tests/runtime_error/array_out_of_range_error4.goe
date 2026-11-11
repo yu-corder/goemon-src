@@ -1,0 +1,6 @@
+int count = 0;
+int[5] nums;
+while (count < 100) {
+    nums[count] = count;
+    count++;
+}
