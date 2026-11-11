@@ -48,6 +48,10 @@ void run(int* program) {
             case OP_DIV: {
                 int b = stack[sp--];
                 int a = stack[sp--];
+                if (b == 0) {
+                    fprintf(stderr, "Runtime Error: Division by zero is not possible.\n");
+                    exit(1);
+                }
                 stack_push(a / b, ++sp);
                 break;
             }
