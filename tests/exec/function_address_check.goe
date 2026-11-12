@@ -1,0 +1,9 @@
+function int f(int a) {
+    int[3] arr;
+    return 0;
+}
+function int g(int a) {
+    return a * 10;
+}
+print g(2);
+print "\n";
