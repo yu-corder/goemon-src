@@ -170,7 +170,7 @@ static void name_resolution(Node *node) {
                 
                 resolution_variable(node->lhs, true, &node->type);
 
-                emit_count_two_up();
+                emit_count_three();
 
                 if (node->lhs->is_global) {
                     emit_count_two_up();
@@ -186,10 +186,12 @@ static void name_resolution(Node *node) {
                 
                 resolution_variable(node->lhs, true, &node->type);
 
-                if (node->lhs->is_global) {
-                    emit_count_two_up();
-                } else {
-                    emit_count_three();
+                if (node->rhs != NULL) {
+                    if (node->lhs->is_global) {
+                        emit_count_two_up();
+                    } else {
+                        emit_count_three();
+                    }
                 }
                 break;
             }
@@ -208,12 +210,11 @@ static void name_resolution(Node *node) {
                 name_resolution(node->rhs);
                 name_resolution(node->lhs);
 
-                emit_count_two_up();
-                // if (node->lhs->is_global) {
-                //     emit_count_two_up();
-                // } else {
-                //     emit_count_three();
-                // }
+                if (node->lhs->is_global) {
+                    emit_count_two_up();
+                } else {
+                    emit_count_three();
+                }
                 break;
             }
             case ND_VAR: {
@@ -353,6 +354,7 @@ static void name_resolution(Node *node) {
                 emit_count_two_up();
 
                 int func_start_address = program_count;
+                node->address = func_start_address;
                 insert_function(node->func_name, node->params, func_start_address, block_depth, node->type, node->len);
                 FuncionParamsInfo func_params = find_function_params(node->func_name, block_depth);
                 for (int i = 0; i < func_params.param_count; i++) {

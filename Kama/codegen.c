@@ -393,6 +393,13 @@ static void generate(Node *node) {
                 int zero = 0;
                 emit_one_operand(OP_JMP, &zero);
 
+                if (node->address != count) {
+                    fprintf(stderr,
+                        "Internal Error: function '%s' address mismatch (resolver=%d, codegen=%d)\n",
+                        node->func_name, node->address, count);
+                    exit(1);
+                }
+
                 Node *params = node->params;
 
                 int params_tmp_capacity = 8;
