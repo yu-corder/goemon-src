@@ -9,7 +9,7 @@ int string_capacity;
 void init_strings(void) {
     string_count = 0;
     string_capacity = 8;
-    string_table = malloc(sizeof(String) * 8);
+    string_table = malloc(sizeof(String) * string_capacity);
 
     if (string_table == NULL) {
         fprintf(stderr,
